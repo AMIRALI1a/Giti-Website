@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت | GITI ROLE PLAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Anton&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange-1: #e9860f;
+    --orange-2: #c96b0a;
+    --orange-deep: #4a2506;
+    --ink: #1c1108;
+    --panel: #201409;
+    --panel-2: #170d05;
+    --panel-line: #3a2611;
+    --gold: #f2b705;
+    --cream: #fbead2;
+    --dim: #c79a6d;
+    --red: #b3401f;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ background: var(--ink); color: var(--cream); font-family:'Vazirmatn', sans-serif; min-height:100vh; }
+  body{
+    background: radial-gradient(ellipse 700px 460px at 50% 0%, var(--orange-1) 0%, var(--orange-2) 40%, var(--orange-deep) 74%, var(--ink) 100%);
+    background-attachment: fixed;
+  }
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{
+    outline: 2px solid var(--gold); outline-offset: 2px;
+  }
+  .wrap{ max-width: 560px; margin:0 auto; padding: 24px 18px 60px; }
+
+  /* login screen */
+  .login-screen{ min-height: 80vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap: 18px; }
+  .login-screen h1{ font-family:'Anton', sans-serif; font-size:22px; letter-spacing:0.5px; }
+  .login-screen p{ color: var(--dim); font-size: 13px; max-width: 320px; line-height: 1.9; }
+  .google-btn{
+    display:flex; align-items:center; gap:10px;
+    background:#fff; color:#1f1f1f; border:none; border-radius:10px;
+    padding: 13px 22px; font-family:'Vazirmatn'; font-size:14px; font-weight:600;
+    cursor:pointer;
+  }
+  .google-btn img{ width:18px; height:18px; }
+  .error-box{
+    background: rgba(179,64,31,0.15); border:1px solid var(--red); color:#f2b8a5;
+    border-radius:10px; padding:12px 16px; font-size:12.5px; max-width: 320px; display:none;
+  }
+  .error-box.show{ display:block; }
+
+  /* admin panel */
+  .panel{ display:none; }
+  .panel.show{ display:block; }
+
+  .panel-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 20px; }
+  .panel-header h1{ font-family:'Anton', sans-serif; font-size: 18px; }
+  .panel-header .user-email{ font-size: 11px; color: var(--dim); margin-top:4px; }
+  .logout-btn{
+    background: var(--panel); border:1px solid var(--panel-line); color: var(--cream);
+    font-size: 12px; padding: 9px 14px; border-radius: 8px; cursor:pointer;
+  }
+
+  .form-card{
+    background: linear-gradient(160deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--panel-line); border-radius: 14px; padding: 18px; margin-bottom: 22px;
+  }
+  .form-card h2{ font-size: 14px; font-weight:700; margin-bottom: 14px; }
+  .field{ margin-bottom: 12px; }
+  .field label{ display:block; font-size: 11.5px; color: var(--dim); margin-bottom: 6px; }
+  .field input[type="text"], .field textarea, .field select{
+    width: 100%; background: var(--panel-2); border: 1px solid var(--panel-line); color: var(--cream);
+    border-radius: 8px; padding: 10px 12px; font-family:'Vazirmatn'; font-size: 13px; outline:none;
+  }
+  .field textarea{ min-height: 70px; resize: vertical; }
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field{ flex:1; }
+
+  .btn{
+    font-family:'Vazirmatn'; font-size: 13px; font-weight:600; border:none; border-radius:9px;
+    padding: 11px 18px; cursor:pointer;
+  }
+  .btn-primary{ background: var(--gold); color: var(--ink); width:100%; }
+  .btn-secondary{ background: transparent; border:1px solid var(--panel-line); color:var(--dim); }
+  .btn-danger{ background: transparent; border:1px solid var(--red); color:#f2b8a5; }
+
+  .article-row{
+    display:flex; align-items:center; gap:10px;
+    background: var(--panel); border:1px solid var(--panel-line); border-radius: 10px;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .article-row-body{ flex:1; min-width:0; }
+  .article-row-title{ font-size:13px; font-weight:600; color: var(--cream); }
+  .article-row-meta{ font-size:11px; color: var(--dim); margin-top:3px; }
+  .article-row-actions{ display:flex; gap:6px; }
+  .icon-btn{
+    width:32px;height:32px;border-radius:8px;background:var(--panel-2);border:1px solid var(--panel-line);
+    color:var(--cream); font-size:13px; cursor:pointer;
+  }
+
+  .list-empty{ text-align:center; color:var(--dim); font-size:13px; padding: 20px; }
+  .save-note{ font-size:11px; color: var(--dim); margin-top:10px; text-align:center; }
+
+  .block-list{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+  .block-row{
+    background: var(--panel-2); border:1px solid var(--panel-line); border-radius:8px;
+    padding: 10px; display:flex; gap:8px; align-items:flex-start;
+  }
+  .block-row-main{ flex:1; min-width:0; }
+  .block-row-label{ font-size:10px; color:var(--gold); margin-bottom:5px; font-weight:700; }
+  .block-row textarea, .block-row input[type="text"]{
+    width:100%; background: var(--ink); border:1px solid var(--panel-line); color:var(--cream);
+    border-radius:6px; padding:8px 10px; font-family:'Vazirmatn'; font-size:12.5px; outline:none;
+  }
+  .block-row textarea{ min-height: 60px; resize:vertical; }
+  .block-row-actions{ display:flex; flex-direction:column; gap:4px; flex-shrink:0; }
+  .block-row-actions button{
+    width:26px;height:26px;border-radius:6px;background:var(--panel);border:1px solid var(--panel-line);
+    color:var(--dim); font-size:11px; cursor:pointer;
+  }
+  .block-add-row{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  .block-add-row .btn{ flex:1; min-width: 90px; font-size:11.5px; padding:9px 10px; }
+  .block-empty{ font-size:11.5px; color:var(--dim); padding: 8px 2px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="login-screen" id="loginScreen">
+    <h1>پنل مدیریت گیتی رول‌پلی</h1>
+    <p>این بخش فقط برای مدیر سایت است. برای ورود، با اکانت گوگل مجاز وارد شوید.</p>
+    <button class="google-btn" id="googleLoginBtn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+      ورود با گوگل
+    </button>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="panel-header">
+      <div>
+        <h1>پنل مدیریت</h1>
+        <div class="user-email" id="userEmail"></div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">خروج</button>
+    </div>
+
+    <div class="form-card">
+      <h2 id="formTitle">افزودن خبر / آپدیت جدید</h2>
+      <div class="field-row">
+        <div class="field">
+          <label>نوع</label>
+          <select id="fType">
+            <option value="news">خبر</option>
+            <option value="update">آپدیت</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>دسته‌بندی</label>
+          <select id="fCat">
+            <option value="site">سایت</option>
+            <option value="server">سرور</option>
+            <option value="shop">فروشگاه</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>عنوان</label>
+        <input type="text" id="fTitle" placeholder="عنوان خبر یا آپدیت">
+      </div>
+      <div class="field">
+        <label>توضیح کوتاه</label>
+        <textarea id="fExcerpt" placeholder="یک یا دو خط توضیح"></textarea>
+      </div>
+      <div class="field">
+        <label>تاریخ (مثلاً 1404/06/01)</label>
+        <input type="text" id="fDate" placeholder="1404/06/01">
+      </div>
+      <div class="field">
+        <label>لینک عکس کاور (اختیاری — همینی که روی کارت لیست دیده می‌شه)</label>
+        <input type="text" id="fImage" placeholder="https://...">
+      </div>
+
+      <div class="field">
+        <label>متن کامل خبر / آپدیت (همون چیزی که با کلیک باز می‌شه)</label>
+        <div id="blockList" class="block-list"></div>
+        <div class="block-add-row">
+          <button type="button" class="btn btn-secondary block-add" data-type="heading">+ تیتر</button>
+          <button type="button" class="btn btn-secondary block-add" data-type="paragraph">+ پاراگراف</button>
+          <button type="button" class="btn btn-secondary block-add" data-type="image">+ عکس (لینک)</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="saveBtn">ذخیره</button>
+      <button class="btn btn-secondary" id="cancelEditBtn" style="display:none; width:100%; margin-top:8px;">لغو ویرایش</button>
+      <div class="save-note" id="saveNote"></div>
+    </div>
+
+    <div class="form-card">
+      <h2>لیست فعلی</h2>
+      <div id="articleRows"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import {
+    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+  import {
+    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, query
+  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB0oH5tB6CUiy_d-_XqtIhu_uY1xwLluNE",
+    authDomain: "giti-roleplay.firebaseapp.com",
+    projectId: "giti-roleplay",
+    storageBucket: "giti-roleplay.firebasestorage.app",
+    messagingSenderId: "3264333771",
+    appId: "1:3264333771:web:5e3b889685765004ccd84e"
+  };
+
+  const ADMIN_EMAIL = "amiralikargar.ir@gmail.com";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  const loginScreen = document.getElementById("loginScreen");
+  const panel = document.getElementById("panel");
+  const errorBox = document.getElementById("errorBox");
+  const userEmail = document.getElementById("userEmail");
+
+  document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+    errorBox.classList.remove("show");
+    try {
+      const result = await signInWithPopup(auth, provider);
+      if (result.user.email !== ADMIN_EMAIL) {
+        await signOut(auth);
+        errorBox.textContent = "این ایمیل دسترسی مدیریت نداره: " + result.user.email;
+        errorBox.classList.add("show");
+      }
+    } catch (e) {
+      // Show the real Firebase error so we can pinpoint the exact cause.
+      errorBox.textContent = "خطا: " + (e.code || "") + " — " + (e.message || String(e));
+      errorBox.classList.add("show");
+    }
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email === ADMIN_EMAIL) {
+      loginScreen.style.display = "none";
+      panel.classList.add("show");
+      userEmail.textContent = user.email;
+      startArticlesListener();
+    } else {
+      loginScreen.style.display = "flex";
+      panel.classList.remove("show");
+    }
+  });
+
+  // ---- articles CRUD ----
+  const labelMap = { site: "سایت", server: "سرور", shop: "فروشگاه" };
+  let editingId = null;
+  let unsub = null;
+  let currentBlocks = [];
+
+  const fType = document.getElementById("fType");
+  const fCat = document.getElementById("fCat");
+  const fTitle = document.getElementById("fTitle");
+  const fExcerpt = document.getElementById("fExcerpt");
+  const fDate = document.getElementById("fDate");
+  const fImage = document.getElementById("fImage");
+  const formTitle = document.getElementById("formTitle");
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
+  const saveNote = document.getElementById("saveNote");
+  const articleRows = document.getElementById("articleRows");
+  const blockList = document.getElementById("blockList");
+
+  const blockLabels = { heading: "تیتر", paragraph: "پاراگراف", image: "عکس" };
+
+  function renderBlocks(){
+    if (currentBlocks.length === 0){
+      blockList.innerHTML = '<div class="block-empty">هنوز بلوکی اضافه نکردی — با دکمه‌های پایین شروع کن.</div>';
+      return;
+    }
+    blockList.innerHTML = currentBlocks.map((b, i) => {
+      const field = b.type === "image"
+        ? `<input type="text" data-i="${i}" class="block-input" placeholder="https://..." value="${(b.url || "").replace(/"/g, "&quot;")}">`
+        : `<textarea data-i="${i}" class="block-input">${b.text || ""}</textarea>`;
+      return `
+        <div class="block-row">
+          <div class="block-row-main">
+            <div class="block-row-label">${blockLabels[b.type]}</div>
+            ${field}
+          </div>
+          <div class="block-row-actions">
+            <button type="button" class="block-up" data-i="${i}" title="بالا">↑</button>
+            <button type="button" class="block-down" data-i="${i}" title="پایین">↓</button>
+            <button type="button" class="block-remove" data-i="${i}" title="حذف">✕</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    blockList.querySelectorAll(".block-input").forEach(el => {
+      el.addEventListener("input", () => {
+        const i = parseInt(el.getAttribute("data-i"), 10);
+        if (currentBlocks[i].type === "image") currentBlocks[i].url = el.value;
+        else currentBlocks[i].text = el.value;
+      });
+    });
+    blockList.querySelectorAll(".block-remove").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentBlocks.splice(parseInt(btn.getAttribute("data-i"), 10), 1);
+        renderBlocks();
+      });
+    });
+    blockList.querySelectorAll(".block-up").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const i = parseInt(btn.getAttribute("data-i"), 10);
+        if (i > 0) { [currentBlocks[i-1], currentBlocks[i]] = [currentBlocks[i], currentBlocks[i-1]]; renderBlocks(); }
+      });
+    });
+    blockList.querySelectorAll(".block-down").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const i = parseInt(btn.getAttribute("data-i"), 10);
+        if (i < currentBlocks.length - 1) { [currentBlocks[i+1], currentBlocks[i]] = [currentBlocks[i], currentBlocks[i+1]]; renderBlocks(); }
+      });
+    });
+  }
+
+  document.querySelectorAll(".block-add").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const type = btn.getAttribute("data-type");
+      currentBlocks.push(type === "image" ? { type, url: "" } : { type, text: "" });
+      renderBlocks();
+    });
+  });
+
+  function resetForm(){
+    editingId = null;
+    fType.value = "news"; fCat.value = "site"; fTitle.value = ""; fExcerpt.value = ""; fDate.value = ""; fImage.value = "";
+    currentBlocks = [];
+    renderBlocks();
+    formTitle.textContent = "افزودن خبر / آپدیت جدید";
+    cancelEditBtn.style.display = "none";
+  }
+  renderBlocks();
+
+  cancelEditBtn.addEventListener("click", resetForm);
+
+  document.getElementById("saveBtn").addEventListener("click", async () => {
+    const data = {
+      type: fType.value,
+      cat: fCat.value,
+      label: labelMap[fCat.value],
+      title: fTitle.value.trim(),
+      excerpt: fExcerpt.value.trim(),
+      date: fDate.value.trim(),
+      imageUrl: fImage.value.trim(),
+      blocks: currentBlocks.filter(b => (b.type === "image" ? b.url && b.url.trim() : b.text && b.text.trim())),
+      createdAt: Date.now(),
+    };
+    if (!data.title) { saveNote.textContent = "عنوان رو خالی نذار."; return; }
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, "articles", editingId), data);
+        saveNote.textContent = "ویرایش شد.";
+      } else {
+        await addDoc(collection(db, "articles"), data);
+        saveNote.textContent = "اضافه شد.";
+      }
+      resetForm();
+    } catch (e) {
+      saveNote.textContent = "خطا: " + e.message;
+    }
+  });
+
+  function startArticlesListener(){
+    if (unsub) return;
+    const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+    unsub = onSnapshot(q, (snap) => {
+      if (snap.empty) {
+        articleRows.innerHTML = '<div class="list-empty">هنوز چیزی اضافه نکردی.</div>';
+        return;
+      }
+      articleRows.innerHTML = "";
+      snap.forEach(docSnap => {
+        const a = docSnap.data();
+        const row = document.createElement("div");
+        row.className = "article-row";
+        row.innerHTML = `
+          <div class="article-row-body">
+            <div class="article-row-title">${a.title || "(بدون عنوان)"}</div>
+            <div class="article-row-meta">${a.type === "news" ? "خبر" : "آپدیت"} · ${a.label || ""} · ${a.date || ""}</div>
+          </div>
+          <div class="article-row-actions">
+            <button class="icon-btn edit-btn">✎</button>
+            <button class="icon-btn delete-btn">🗑</button>
+          </div>
+        `;
+        row.querySelector(".edit-btn").addEventListener("click", () => {
+          editingId = docSnap.id;
+          fType.value = a.type || "news";
+          fCat.value = a.cat || "site";
+          fTitle.value = a.title || "";
+          fExcerpt.value = a.excerpt || "";
+          fDate.value = a.date || "";
+          fImage.value = a.imageUrl || "";
+          currentBlocks = Array.isArray(a.blocks) ? JSON.parse(JSON.stringify(a.blocks)) : [];
+          renderBlocks();
+          formTitle.textContent = "ویرایش خبر / آپدیت";
+          cancelEditBtn.style.display = "block";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        row.querySelector(".delete-btn").addEventListener("click", async () => {
+          if (confirm("مطمئنی می‌خوای این رو حذف کنی؟")) {
+            await deleteDoc(doc(db, "articles", docSnap.id));
+          }
+        });
+        articleRows.appendChild(row);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
