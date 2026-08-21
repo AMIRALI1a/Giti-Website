@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت | GITI ROLE PLAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange-1: #e9860f; --orange-2: #c96b0a; --orange-deep: #4a2506;
+    --ink: #1c1108; --panel: #201409; --panel-2: #170d05; --panel-line: #3a2611;
+    --gold: #f2b705; --cream: #fbead2; --dim: #c79a6d; --red: #b3401f;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ background: var(--ink); color: var(--cream); font-family:'Vazirmatn', sans-serif; min-height:100vh; }
+  body{
+    background: radial-gradient(ellipse 700px 460px at 50% 0%, var(--orange-1) 0%, var(--orange-2) 40%, var(--orange-deep) 74%, var(--ink) 100%);
+    background-attachment: fixed;
+  }
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{
+    outline: 2px solid var(--gold); outline-offset: 2px;
+  }
+  .wrap{ max-width: 560px; margin:0 auto; padding: 24px 18px 60px; }
+
+  /* login */
+  .login-screen{ min-height: 80vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap: 18px; }
+  .login-screen h1{ font-family:'Vazirmatn', sans-serif; font-weight:800; font-size:22px; letter-spacing:0.5px; }
+  .login-screen p{ color: var(--dim); font-size: 13px; max-width: 320px; line-height: 1.9; }
+  .google-btn{
+    display:flex; align-items:center; gap:10px;
+    background:#fff; color:#1f1f1f; border:none; border-radius:10px;
+    padding: 13px 22px; font-family:'Vazirmatn'; font-size:14px; font-weight:600; cursor:pointer;
+  }
+  .google-btn img{ width:18px; height:18px; }
+  .error-box{
+    background: rgba(179,64,31,0.15); border:1px solid var(--red); color:#f2b8a5;
+    border-radius:10px; padding:12px 16px; font-size:12.5px; max-width: 320px; display:none;
+  }
+  .error-box.show{ display:block; }
+
+  /* panel shell */
+  .panel{ display:none; }
+  .panel.show{ display:block; }
+  .panel-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 20px; }
+  .panel-header h1{ font-family:'Vazirmatn'; font-weight:800; font-size: 18px; }
+  .panel-header .user-email{ font-size: 11px; color: var(--dim); margin-top:4px; }
+  .logout-btn{
+    background: var(--panel); border:1px solid var(--panel-line); color: var(--cream);
+    font-size: 12px; padding: 9px 14px; border-radius: 8px; cursor:pointer;
+  }
+
+  .hub-view{ display:none; }
+  .hub-view.show{ display:block; }
+  .back-link{
+    background:none; border:none; color:var(--dim); font-size:13px; cursor:pointer;
+    margin-bottom: 16px; padding: 6px 0;
+  }
+  .hub-btn{
+    display:block; width:100%; text-align:right;
+    background: linear-gradient(160deg, var(--panel), var(--panel-2));
+    border:1px solid var(--panel-line); color:var(--cream);
+    font-family:'Vazirmatn'; font-size:14px; font-weight:600;
+    padding: 16px 18px; border-radius:12px; cursor:pointer; margin-bottom:10px;
+  }
+  .hub-btn:active{ border-color: var(--gold); }
+
+  .blog-row{
+    display:flex; align-items:center; gap:10px;
+    background: var(--panel); border:1px solid var(--panel-line); border-radius: 10px;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .blog-row-body{ flex:1; min-width:0; }
+  .blog-row-title{ font-size:13px; font-weight:600; color: var(--cream); }
+  .blog-row-meta{ font-size:11px; color: var(--dim); margin-top:3px; }
+  .blog-row-actions{ display:flex; gap:6px; }
+  .icon-btn{
+    width:32px;height:32px;border-radius:8px;background:var(--panel-2);border:1px solid var(--panel-line);
+    color:var(--cream); font-size:13px; cursor:pointer;
+  }
+  .list-empty{ text-align:center; color:var(--dim); font-size:13px; padding: 20px; }
+
+  /* ================= EDITOR (full white overlay) ================= */
+  .editor-overlay{
+    position: fixed; inset:0; z-index: 200;
+    background:#fff; color:#111;
+    display:none; flex-direction:column;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(.2,.8,.25,1);
+  }
+  .editor-overlay.show{ display:flex; transform: translateX(0); }
+
+  .editor-topbar{
+    flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 14px; border-bottom:1px solid #eee;
+  }
+  .editor-icon-btn{
+    width:36px;height:36px;border-radius:50%;background:#f3f3f3;border:1px solid #eee;
+    color:#111; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .editor-status{ font-size:12px; color:#888; background:#f3f3f3; padding:5px 12px; border-radius:20px; }
+  .editor-topbar-right{ display:flex; align-items:center; gap:8px; }
+  .editor-lock-btn.editing{ background: var(--gold); border-color: var(--gold); color:#111; }
+
+  .editor-scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding: 18px 18px 120px; }
+  .editor-title-input{
+    display:block; width:100%; border:none; outline:none; font-family:'Vazirmatn';
+    font-size:26px; font-weight:800; color:#111; margin-bottom:14px; background:transparent;
+  }
+  .editor-title-input::placeholder{ color:#ccc; }
+  .editor-subtitle-input{
+    display:block; width:100%; border:none; outline:none; font-family:'Vazirmatn';
+    font-size:15px; color:#555; margin-bottom:20px; background:transparent;
+  }
+  .editor-subtitle-input::placeholder{ color:#ccc; }
+  .editor-body{
+    min-height: 200px; font-family:'Vazirmatn'; font-size:15px; line-height:2; color:#111; outline:none;
+  }
+  .editor-body:empty::before{ content: attr(data-placeholder); color:#ccc; }
+  .editor-body h2{ font-size:20px; margin:16px 0 8px; font-weight:800; }
+  .editor-body h3{ font-size:17px; margin:14px 0 6px; font-weight:700; }
+  .editor-body blockquote{ border-inline-start:3px solid var(--gold); padding:2px 14px; color:#555; font-style:italic; margin:12px 0; }
+  .editor-body img{ max-width:100%; display:block; margin:10px 0; border-radius:8px; }
+  .editor-body table{ border-collapse:collapse; width:100%; margin:12px 0; }
+  .editor-body td{ border:1px solid #ddd; padding:8px; min-width:40px; }
+  .editor-body ul, .editor-body ol{ padding-inline-start:22px; margin:8px 0; }
+  .editor-body[data-locked="true"]{ pointer-events:none; opacity:0.85; }
+  .editor-title-input:disabled, .editor-subtitle-input:disabled{ color:#333; }
+
+  .editor-save-row{ margin-top:34px; padding-top:20px; border-top:1px solid #eee; display:flex; justify-content:center; }
+  .editor-save-final-btn{
+    background: var(--gold); color:#1c1108; border:none; border-radius:10px;
+    padding:13px 30px; font-family:'Vazirmatn'; font-size:14px; font-weight:700; cursor:pointer;
+  }
+
+  /* bottom persistent toolbar */
+  .bottom-toolbar{
+    flex-shrink:0; display:flex; gap:6px; overflow-x:auto;
+    padding: 8px 10px; border-top:1px solid #eee; background:#fff;
+  }
+  .bottom-toolbar button{
+    flex-shrink:0; min-width:36px; height:36px; border-radius:8px;
+    background:#f3f3f3; border:1px solid #eee; color:#111; font-size:13px; cursor:pointer; padding:0 8px;
+  }
+
+  /* floating selection toolbar */
+  .sel-toolbar{
+    position: fixed; display:none; gap:2px; background:#222; border-radius:10px; padding:5px;
+    z-index: 250; box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .sel-toolbar.show{ display:flex; }
+  .sel-toolbar button{
+    width:30px;height:30px;border-radius:6px;background:transparent;border:none;color:#fff;font-size:13px;cursor:pointer;
+  }
+  .sel-toolbar button:active{ background:#444; }
+
+  /* highlight color popup */
+  .highlight-popup{
+    position:fixed; display:none; gap:6px; background:#222; border-radius:10px; padding:8px;
+    z-index:260; box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .highlight-popup.show{ display:flex; }
+  .highlight-popup button{ width:26px;height:26px;border-radius:50%;border:2px solid #fff; cursor:pointer; }
+
+  /* image config popup */
+  .image-popup{
+    position:fixed; display:none; flex-direction:column; gap:8px; background:#222; border-radius:12px; padding:12px;
+    z-index:260; box-shadow:0 8px 24px rgba(0,0,0,0.35); min-width:220px;
+  }
+  .image-popup.show{ display:flex; }
+  .image-popup-row{ display:flex; gap:6px; }
+  .image-popup-row button{
+    flex:1; background:#333; border:1px solid #444; color:#fff; font-size:12px; padding:8px 4px; border-radius:7px; cursor:pointer;
+  }
+  .image-popup-row button.active{ background: var(--gold); color:#111; border-color: var(--gold); }
+  .image-popup-delete{
+    background: rgba(179,64,31,0.25); border:1px solid var(--red); color:#f2b8a5;
+    font-size:12px; padding:8px; border-radius:7px; cursor:pointer;
+  }
+
+  /* category popup */
+  .cat-popup{
+    position:fixed; inset:0; z-index:270; background:rgba(0,0,0,0.5);
+    display:none; align-items:flex-end;
+  }
+  .cat-popup.show{ display:flex; }
+  .cat-popup-inner{
+    background:#fff; color:#111; width:100%; border-radius:16px 16px 0 0; padding:18px;
+  }
+  .cat-popup label{ display:block; font-size:12px; color:#666; margin:12px 0 6px; }
+  .cat-popup label:first-child{ margin-top:0; }
+  .cat-popup select, .cat-popup input{
+    width:100%; border:1px solid #ddd; border-radius:8px; padding:10px 12px; font-family:'Vazirmatn'; font-size:13px;
+  }
+  .cat-popup-close{
+    display:block; width:100%; margin-top:16px; background: var(--gold); color:#111; border:none;
+    border-radius:9px; padding:12px; font-family:'Vazirmatn'; font-weight:700; font-size:13.5px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="login-screen" id="loginScreen">
+    <h1>پنل مدیریت گیتی رول‌پلی</h1>
+    <p>این بخش فقط برای مدیر سایت است. برای ورود، با اکانت گوگل مجاز وارد شوید.</p>
+    <button class="google-btn" id="googleLoginBtn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+      ورود با گوگل
+    </button>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="panel-header">
+      <div>
+        <h1>پنل مدیریت</h1>
+        <div class="user-email" id="userEmail"></div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">خروج</button>
+    </div>
+
+    <div class="hub-view show" id="hubView">
+      <button class="hub-btn" id="openAddMenuBtn">+ افزودن وبلاگ</button>
+    </div>
+
+    <div class="hub-view" id="choiceView">
+      <button class="back-link" data-back="hub">‹ برگشت</button>
+      <button class="hub-btn" id="createNewBtn">ساخت وبلاگ جدید</button>
+      <button class="hub-btn" id="viewBlogsBtn">دیدن وبلاگ‌ها</button>
+    </div>
+
+    <div class="hub-view" id="listView">
+      <button class="back-link" data-back="choice">‹ برگشت</button>
+      <div id="blogRows"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= EDITOR OVERLAY ================= -->
+<div class="editor-overlay" id="editorOverlay">
+  <div class="editor-topbar">
+    <button class="editor-icon-btn" id="editorCloseBtn">✕</button>
+    <span class="editor-status" id="editorStatus">Draft</span>
+    <div class="editor-topbar-right">
+      <button class="editor-icon-btn" id="editorMenuBtn">⋯</button>
+      <button class="editor-icon-btn editor-lock-btn" id="editorLockBtn">✎</button>
+    </div>
+  </div>
+
+  <div class="editor-scroll" id="editorScroll">
+    <input type="text" id="fTitle" class="editor-title-input" placeholder="Title">
+    <input type="text" id="fSubtitle" class="editor-subtitle-input" placeholder="Add a subtitle...">
+    <div id="bodyEditor" class="editor-body" contenteditable="true" dir="auto" data-placeholder="Start writing an article..."></div>
+
+    <div class="editor-save-row">
+      <button class="editor-save-final-btn" id="saveFinalBtn">ذخیره کنید</button>
+    </div>
+  </div>
+
+  <div class="bottom-toolbar" id="bottomToolbar">
+    <button type="button" data-cmd="formatBlock" data-val="H2" title="Heading 2">H2</button>
+    <button type="button" data-cmd="formatBlock" data-val="H3" title="Heading 3">H3</button>
+    <button type="button" data-cmd="formatBlock" data-val="P" title="Paragraph">¶</button>
+    <button type="button" id="fontSizeBtn" title="Font Size">Aa</button>
+    <button type="button" data-cmd="insertUnorderedList" title="Bullet List">•≡</button>
+    <button type="button" data-cmd="insertOrderedList" title="Numbered List">1≡</button>
+    <button type="button" data-cmd="indent" title="Nest List">→</button>
+    <button type="button" data-cmd="outdent" title="Un-nest List">←</button>
+    <button type="button" data-cmd="formatBlock" data-val="BLOCKQUOTE" title="Blockquote">❝</button>
+    <button type="button" id="tableBtn" title="Table">▦</button>
+    <button type="button" id="imageInsertBtn" title="Image">🖼</button>
+    <button type="button" id="buttonInsertBtn" title="Button">⛶</button>
+    <button type="button" id="dirBtn" title="Direction">Auto</button>
+  </div>
+</div>
+
+<div class="sel-toolbar" id="selToolbar">
+  <button type="button" data-cmd="bold"><b>B</b></button>
+  <button type="button" data-cmd="italic"><i>I</i></button>
+  <button type="button" data-cmd="underline"><u>U</u></button>
+  <button type="button" data-cmd="strikeThrough"><s>S</s></button>
+  <button type="button" id="selHighlightBtn">🖍</button>
+  <button type="button" id="selLinkBtn">🔗</button>
+  <button type="button" data-cmd="removeFormat">✕</button>
+</div>
+
+<div class="highlight-popup" id="highlightPopup">
+  <button type="button" data-color="#fff59d" style="background:#fff59d"></button>
+  <button type="button" data-color="#b9f6ca" style="background:#b9f6ca"></button>
+  <button type="button" data-color="#ff8a80" style="background:#ff8a80"></button>
+  <button type="button" data-color="#82b1ff" style="background:#82b1ff"></button>
+  <button type="button" data-color="#ea80fc" style="background:#ea80fc"></button>
+</div>
+
+<div class="image-popup" id="imagePopup">
+  <div class="image-popup-row">
+    <button type="button" data-size="small">Small</button>
+    <button type="button" data-size="medium">Medium</button>
+    <button type="button" data-size="large">Large</button>
+  </div>
+  <div class="image-popup-row">
+    <button type="button" data-align="left">Left</button>
+    <button type="button" data-align="center">Center</button>
+    <button type="button" data-align="right">Right</button>
+  </div>
+  <button type="button" class="image-popup-delete" id="imageDeleteBtn">Delete</button>
+</div>
+
+<div class="cat-popup" id="catPopup">
+  <div class="cat-popup-inner">
+    <label>نوع</label>
+    <select id="fType">
+      <option value="news">خبر</option>
+      <option value="update">آپدیت</option>
+    </select>
+    <label>دسته‌بندی</label>
+    <select id="fCat">
+      <option value="site">سایت</option>
+      <option value="server">سرور</option>
+      <option value="shop">فروشگاه</option>
+    </select>
+    <label>لینک عکس کاور (اختیاری — خالی بمونه، عکس اول متن استفاده می‌شه)</label>
+    <input type="text" id="fCoverManual" placeholder="https://...">
+    <button class="cat-popup-close" id="catCloseBtn">باشه</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import {
+    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+  import {
+    getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, query
+  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB0oH5tB6CUiy_d-_XqtIhu_uY1xwLluNE",
+    authDomain: "giti-roleplay.firebaseapp.com",
+    projectId: "giti-roleplay",
+    storageBucket: "giti-roleplay.firebasestorage.app",
+    messagingSenderId: "3264333771",
+    appId: "1:3264333771:web:5e3b889685765004ccd84e"
+  };
+  const ADMIN_EMAIL = "amiralikargar.ir@gmail.com";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  const loginScreen = document.getElementById("loginScreen");
+  const panel = document.getElementById("panel");
+  const errorBox = document.getElementById("errorBox");
+  const userEmail = document.getElementById("userEmail");
+
+  document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+    errorBox.classList.remove("show");
+    try {
+      const result = await signInWithPopup(auth, provider);
+      if (result.user.email !== ADMIN_EMAIL) {
+        await signOut(auth);
+        errorBox.textContent = "این ایمیل دسترسی مدیریت نداره: " + result.user.email;
+        errorBox.classList.add("show");
+      }
+    } catch (e) {
+      errorBox.textContent = "خطا: " + (e.code || "") + " — " + (e.message || String(e));
+      errorBox.classList.add("show");
+    }
+  });
+  document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email === ADMIN_EMAIL) {
+      loginScreen.style.display = "none";
+      panel.classList.add("show");
+      userEmail.textContent = user.email;
+      startArticlesListener();
+    } else {
+      loginScreen.style.display = "flex";
+      panel.classList.remove("show");
+    }
+  });
+
+  // ---------------- hub view navigation ----------------
+  const hubViews = document.querySelectorAll(".hub-view");
+  function showHub(name){
+    hubViews.forEach(v => v.classList.toggle("show", v.id === name + "View"));
+  }
+  document.getElementById("openAddMenuBtn").addEventListener("click", () => showHub("choice"));
+  document.getElementById("viewBlogsBtn").addEventListener("click", () => showHub("list"));
+  document.querySelectorAll(".back-link[data-back]").forEach(btn => {
+    btn.addEventListener("click", () => showHub(btn.getAttribute("data-back")));
+  });
+
+  // ---------------- data ----------------
+  const labelMap = { site: "سایت", server: "سرور", shop: "فروشگاه" };
+  let editingId = null;
+  let editingCreatedAt = null;
+  let unsub = null;
+  let allArticles = [];
+
+  function formatDate(ms){
+    if (!ms) return "";
+    const d = new Date(ms);
+    const datePart = d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+    const timePart = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    return `${datePart} at ${timePart}`;
+  }
+  function firstImageSrc(html){
+    const m = (html || "").match(/<img[^>]+src=["']([^"']+)["']/i);
+    return m ? m[1] : "";
+  }
+
+  function startArticlesListener(){
+    if (unsub) return;
+    const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+    unsub = onSnapshot(q, (snap) => {
+      allArticles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderBlogRows();
+    });
+  }
+
+  const blogRows = document.getElementById("blogRows");
+  function renderBlogRows(){
+    if (allArticles.length === 0){
+      blogRows.innerHTML = '<div class="list-empty">هنوز چیزی اضافه نکردی.</div>';
+      return;
+    }
+    blogRows.innerHTML = allArticles.map(a => `
+      <div class="blog-row">
+        <div class="blog-row-body">
+          <div class="blog-row-title">${a.title || "(بدون عنوان)"}</div>
+          <div class="blog-row-meta">${a.type === "news" ? "خبر" : "آپدیت"} · ${a.label || ""} · ${formatDate(a.createdAt)}</div>
+        </div>
+        <div class="blog-row-actions">
+          <button class="icon-btn edit-row-btn" data-id="${a.id}">✎</button>
+          <button class="icon-btn delete-row-btn" data-id="${a.id}">🗑</button>
+        </div>
+      </div>
+    `).join("");
+    blogRows.querySelectorAll(".edit-row-btn").forEach(btn => {
+      btn.addEventListener("click", () => openEditor(btn.getAttribute("data-id")));
+    });
+    blogRows.querySelectorAll(".delete-row-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (confirm("مطمئنی می‌خوای این رو حذف کنی؟")) {
+          await deleteDoc(doc(db, "articles", btn.getAttribute("data-id")));
+        }
+      });
+    });
+  }
+
+  // ---------------- editor overlay ----------------
+  const editorOverlay = document.getElementById("editorOverlay");
+  const editorStatus = document.getElementById("editorStatus");
+  const editorLockBtn = document.getElementById("editorLockBtn");
+  const fTitle = document.getElementById("fTitle");
+  const fSubtitle = document.getElementById("fSubtitle");
+  const fType = document.getElementById("fType");
+  const fCat = document.getElementById("fCat");
+  const fCoverManual = document.getElementById("fCoverManual");
+  const bodyEditor = document.getElementById("bodyEditor");
+
+  function setLocked(locked){
+    fTitle.disabled = locked;
+    fSubtitle.disabled = locked;
+    bodyEditor.setAttribute("contenteditable", locked ? "false" : "true");
+    bodyEditor.setAttribute("data-locked", locked ? "true" : "false");
+    editorLockBtn.textContent = locked ? "✎" : "✓";
+    editorLockBtn.classList.toggle("editing", !locked);
+    editorStatus.textContent = locked ? "Saved" : "Editing";
+  }
+
+  function openEditorBlank(){
+    editingId = null; editingCreatedAt = null;
+    fTitle.value = ""; fSubtitle.value = ""; fCoverManual.value = "";
+    fType.value = "news"; fCat.value = "site";
+    bodyEditor.innerHTML = "";
+    editorOverlay.classList.add("show");
+    setLocked(false);
+  }
+
+  function openEditor(id){
+    const a = allArticles.find(x => x.id === id);
+    if (!a) return;
+    editingId = id; editingCreatedAt = a.createdAt || Date.now();
+    fTitle.value = a.title || ""; fSubtitle.value = a.subtitle || "";
+    fCoverManual.value = a.manualCover || "";
+    fType.value = a.type || "news"; fCat.value = a.cat || "site";
+    bodyEditor.innerHTML = a.bodyHTML || "";
+    editorOverlay.classList.add("show");
+    setLocked(true); // opens read-only; tap pencil to edit
+  }
+
+  document.getElementById("createNewBtn").addEventListener("click", openEditorBlank);
+
+  document.getElementById("editorCloseBtn").addEventListener("click", () => {
+    editorOverlay.classList.remove("show");
+  });
+
+  editorLockBtn.addEventListener("click", async () => {
+    const isLocked = bodyEditor.getAttribute("data-locked") === "true";
+    if (isLocked) {
+      setLocked(false); // unlock for editing
+    } else {
+      await saveArticle();
+      setLocked(true); // lock again after saving
+    }
+  });
+
+  document.getElementById("saveFinalBtn").addEventListener("click", async () => {
+    await saveArticle();
+    editorOverlay.classList.remove("show");
+  });
+
+  async function saveArticle(){
+    const bodyHTML = bodyEditor.innerHTML.trim();
+    const manualCover = fCoverManual.value.trim();
+    const data = {
+      type: fType.value,
+      cat: fCat.value,
+      label: labelMap[fCat.value],
+      title: fTitle.value.trim(),
+      subtitle: fSubtitle.value.trim(),
+      bodyHTML: bodyHTML,
+      manualCover: manualCover,
+      coverImage: manualCover || firstImageSrc(bodyHTML),
+      createdAt: editingId ? editingCreatedAt : Date.now(),
+    };
+    if (!data.title) { alert("عنوان رو خالی نذار."); return; }
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, "articles", editingId), data);
+      } else {
+        const ref = await addDoc(collection(db, "articles"), data);
+        editingId = ref.id;
+        editingCreatedAt = data.createdAt;
+      }
+    } catch (e) {
+      alert("خطا: " + e.message);
+    }
+  }
+
+  // ---------------- category popup ----------------
+  const catPopup = document.getElementById("catPopup");
+  document.getElementById("editorMenuBtn").addEventListener("click", () => catPopup.classList.add("show"));
+  document.getElementById("catCloseBtn").addEventListener("click", () => catPopup.classList.remove("show"));
+  catPopup.addEventListener("click", (e) => { if (e.target === catPopup) catPopup.classList.remove("show"); });
+
+  // ---------------- bottom toolbar (block-level commands) ----------------
+  document.querySelectorAll("#bottomToolbar button[data-cmd]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      bodyEditor.focus();
+      document.execCommand(btn.getAttribute("data-cmd"), false, btn.getAttribute("data-val") || null);
+    });
+  });
+
+  document.getElementById("fontSizeBtn").addEventListener("click", () => {
+    const size = prompt("اندازه فونت را وارد کن (1 تا 7):", "3");
+    if (size) { bodyEditor.focus(); document.execCommand("fontSize", false, size); }
+  });
+
+  document.getElementById("tableBtn").addEventListener("click", () => {
+    bodyEditor.focus();
+    const html = `<table><tbody>
+      <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+      <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+      <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    </tbody></table><p><br></p>`;
+    document.execCommand("insertHTML", false, html);
+  });
+
+  document.getElementById("imageInsertBtn").addEventListener("click", () => {
+    const url = prompt("لینک عکس رو وارد کن:");
+    if (url) { bodyEditor.focus(); document.execCommand("insertImage", false, url); }
+  });
+
+  document.getElementById("buttonInsertBtn").addEventListener("click", () => {
+    const text = prompt("متن دکمه:"); if (!text) return;
+    const url = prompt("لینک دکمه:") || "#";
+    const color = (prompt("رنگ (gold / dark / red / blue):", "gold") || "gold").toLowerCase();
+    const size = (prompt("اندازه (small / medium / large):", "medium") || "medium").toLowerCase();
+    const colors = { gold: "#f2b705", dark: "#1c1108", red: "#c0392b", blue: "#2980b9" };
+    const paddings = { small: "8px 14px", medium: "12px 22px", large: "16px 30px" };
+    const fontSizes = { small: "12px", medium: "14px", large: "16px" };
+    const bg = colors[color] || colors.gold;
+    const textColor = (color === "dark" || color === "red" || color === "blue") ? "#fff" : "#1c1108";
+    const pad = paddings[size] || paddings.medium;
+    const fs = fontSizes[size] || fontSizes.medium;
+    const html = `<p><a href="${url}" target="_blank" style="display:inline-block;background:${bg};color:${textColor};padding:${pad};border-radius:8px;text-decoration:none;font-weight:600;font-size:${fs};">${text}</a></p>`;
+    bodyEditor.focus();
+    document.execCommand("insertHTML", false, html);
+  });
+
+  const dirModes = ["auto", "rtl", "ltr"];
+  let dirIndex = 0;
+  document.getElementById("dirBtn").addEventListener("click", () => {
+    dirIndex = (dirIndex + 1) % dirModes.length;
+    const mode = dirModes[dirIndex];
+    bodyEditor.setAttribute("dir", mode);
+    document.getElementById("dirBtn").textContent = mode === "auto" ? "Auto" : mode.toUpperCase();
+  });
+
+  // ---------------- floating selection toolbar ----------------
+  const selToolbar = document.getElementById("selToolbar");
+  const highlightPopup = document.getElementById("highlightPopup");
+  const imagePopup = document.getElementById("imagePopup");
+
+  function clampTop(top){
+    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+    return Math.max(8, Math.min(top, vh - 60));
+  }
+
+  document.addEventListener("selectionchange", () => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0){
+      selToolbar.classList.remove("show");
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    if (!bodyEditor.contains(range.commonAncestorContainer)){
+      selToolbar.classList.remove("show");
+      return;
+    }
+    const rect = range.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0){
+      selToolbar.classList.remove("show");
+      return;
+    }
+    selToolbar.style.top = clampTop(rect.top - 44) + "px";
+    selToolbar.style.left = Math.max(8, rect.left) + "px";
+    selToolbar.classList.add("show");
+    highlightPopup.classList.remove("show");
+  });
+
+  selToolbar.querySelectorAll("button[data-cmd]").forEach(btn => {
+    btn.addEventListener("mousedown", (e) => e.preventDefault());
+    btn.addEventListener("click", () => {
+      document.execCommand(btn.getAttribute("data-cmd"), false, null);
+    });
+  });
+
+  document.getElementById("selLinkBtn").addEventListener("mousedown", (e) => e.preventDefault());
+  document.getElementById("selLinkBtn").addEventListener("click", () => {
+    const url = prompt("لینک را وارد کن:");
+    if (url) document.execCommand("createLink", false, url);
+  });
+
+  document.getElementById("selHighlightBtn").addEventListener("mousedown", (e) => e.preventDefault());
+  document.getElementById("selHighlightBtn").addEventListener("click", (e) => {
+    const rect = selToolbar.getBoundingClientRect();
+    highlightPopup.style.top = clampTop(rect.top - 44) + "px";
+    highlightPopup.style.left = rect.left + "px";
+    highlightPopup.classList.add("show");
+  });
+  highlightPopup.querySelectorAll("button[data-color]").forEach(btn => {
+    btn.addEventListener("mousedown", (e) => e.preventDefault());
+    btn.addEventListener("click", () => {
+      document.execCommand("hiliteColor", false, btn.getAttribute("data-color"));
+      highlightPopup.classList.remove("show");
+    });
+  });
+
+  // ---------------- image click-to-configure ----------------
+  let activeImg = null;
+  bodyEditor.addEventListener("click", (e) => {
+    if (e.target.tagName === "IMG") {
+      activeImg = e.target;
+      const rect = activeImg.getBoundingClientRect();
+      imagePopup.style.top = clampTop(rect.bottom + 8) + "px";
+      imagePopup.style.left = Math.max(8, rect.left) + "px";
+      imagePopup.classList.add("show");
+    }
+  });
+  imagePopup.querySelectorAll("button[data-size]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (!activeImg) return;
+      const map = { small: "35%", medium: "65%", large: "100%" };
+      activeImg.style.maxWidth = map[btn.getAttribute("data-size")];
+      activeImg.style.width = map[btn.getAttribute("data-size")];
+    });
+  });
+  imagePopup.querySelectorAll("button[data-align]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (!activeImg) return;
+      activeImg.style.display = "block";
+      const align = btn.getAttribute("data-align");
+      if (align === "left") activeImg.style.margin = "10px auto 10px 0";
+      else if (align === "right") activeImg.style.margin = "10px 0 10px auto";
+      else activeImg.style.margin = "10px auto";
+    });
+  });
+  document.getElementById("imageDeleteBtn").addEventListener("click", () => {
+    if (activeImg) activeImg.remove();
+    imagePopup.classList.remove("show");
+    activeImg = null;
+  });
+  document.addEventListener("click", (e) => {
+    if (!imagePopup.contains(e.target) && e.target.tagName !== "IMG") imagePopup.classList.remove("show");
+  });
+
+  // ---------------- markdown paste handling ----------------
+  function markdownToHTML(text){
+    let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    html = html
+      .replace(/^### (.*)$/gm, "<h4>$1</h4>")
+      .replace(/^## (.*)$/gm, "<h3>$1</h3>")
+      .replace(/^# (.*)$/gm, "<h2>$1</h2>");
+    html = html
+      .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+      .replace(/\*(.+?)\*/g, "<i>$1</i>");
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    html = html.replace(/^(?:- |\* )(.*)$/gm, "<li>$1</li>");
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, m => "<ul>" + m + "</ul>");
+    html = html.split(/\n{2,}/).map(block => {
+      if (/^\s*<h\d|^\s*<ul|^\s*<ol|^\s*<li/.test(block)) return block;
+      return "<p>" + block.replace(/\n/g, "<br>") + "</p>";
+    }).join("");
+    return html;
+  }
+
+  bodyEditor.addEventListener("paste", (e) => {
+    const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+    if (!text) return;
+    const looksLikeMarkdown = /(^#{1,3} )|(\*\*.+\*\*)|(\[.+\]\(.+\))|(^- )|(^\* )|(^\d+\. )/m.test(text);
+    if (looksLikeMarkdown) {
+      e.preventDefault();
+      document.execCommand("insertHTML", false, markdownToHTML(text));
+    }
+  });
+</script>
+
+</body>
+</html>
