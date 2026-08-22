@@ -9,16 +9,15 @@
 <style>
 
   :root{
-    --orange-1: #e9860f;
-    --orange-2: #c96b0a;
-    --orange-deep: #4a2506;
-    --ink: #1c1108;
-    --panel: #201409;
-    --panel-2: #170d05;
-    --panel-line: #3a2611;
-    --gold: #f2b705;
-    --cream: #fbead2;
-    --dim: #c79a6d;
+    --bg-top: #1E1E36;
+    --bg-bottom: #0F1120;
+    --ink: #1E1E36;
+    --panel: #262646;
+    --panel-2: #17172c;
+    --panel-line: #38386080;
+    --gold: #FFD4A9;
+    --cream: #ffffff;
+    --dim: #a9a9cc;
   }
 
   *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
@@ -31,8 +30,7 @@
   }
 
   body{
-    background:
-      radial-gradient(ellipse 700px 520px at 50% 0%, var(--orange-1) 0%, var(--orange-2) 40%, var(--orange-deep) 74%, var(--ink) 100%);
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     background-attachment: fixed;
   }
 
@@ -44,7 +42,7 @@
   .wrap{ max-width: 480px; margin: 0 auto; padding: 0 18px 60px; }
 
   /* top bar */
-  .topbar{ display:flex; align-items:center; justify-content:flex-start; padding-top: 16px; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding-top: 16px; }
   .hamburger-btn{
     width: 44px; height: 44px;
     border-radius: 12px;
@@ -55,11 +53,32 @@
   }
   .hamburger-btn img{ width:18px;height:18px;opacity:0.9; }
   .hamburger-btn:active{ transform: scale(0.92); }
+  .topbar-logo{ height: 44px; display:block; }
 
   /* hero */
   .hero{ text-align:center; margin-top: 8px; }
-  .logo{ width: 130px; margin: 0 auto; }
-  .logo img{ width:100%; display:block; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)); }
+  .hero-carousel{
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+  }
+  .hero-carousel img{
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    animation: heroJiggle 5s ease-in-out infinite;
+  }
+  .hero-carousel img.active{ opacity: 1; }
+  @keyframes heroJiggle{
+    0%, 100% { transform: rotate(0deg) translateY(0); }
+    25% { transform: rotate(-0.6deg) translateY(-2px); }
+    50% { transform: rotate(0deg) translateY(0); }
+    75% { transform: rotate(0.6deg) translateY(2px); }
+  }
 
   .eyebrow{
     font-family:'Anton', sans-serif;
@@ -216,7 +235,7 @@
     border-radius: 20px;
     overflow: hidden;
     cursor: pointer;
-    background: repeating-linear-gradient(135deg, #241708, #241708 10px, #1a1108 10px, #1a1108 20px);
+    background: repeating-linear-gradient(135deg, #262646, #262646 10px, #17172c 10px, #17172c 20px);
   }
 
   .no-image-watermark{
@@ -225,7 +244,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(20,12,4,0.35);
+    color: rgba(30,30,54,0.35);
     font-family: 'Vazirmatn', sans-serif;
     font-weight: 700;
     font-size: 15px;
@@ -234,7 +253,7 @@
     transform: rotate(-8deg);
   }
   .article-card.no-photo{
-    background: linear-gradient(160deg, #e9dfca, #d8cbaa);
+    background: linear-gradient(160deg, #ffe6d0, #FFD4A9);
   }
 
   .article-photo{
@@ -267,7 +286,7 @@
     direction: ltr;
     text-shadow: 0 1px 4px rgba(0,0,0,0.5);
   }
-  .card-date.dark{ color: rgba(20,12,4,0.6); text-shadow: none; }
+  .card-date.dark{ color: rgba(30,30,54,0.65); text-shadow: none; }
 
   .card-bottom-row{
     position: absolute;
@@ -284,7 +303,7 @@
     line-height: 1.45;
     text-shadow: 0 2px 6px rgba(0,0,0,0.45);
   }
-  .article-card.no-photo .card-title{ color: #1c1108; text-shadow: none; }
+  .article-card.no-photo .card-title{ color: #1E1E36; text-shadow: none; }
 
   .card-subtitle-row{
     display: flex; align-items: flex-end; justify-content: space-between; gap: 10px;
@@ -297,7 +316,7 @@
     line-height: 1.6;
     text-shadow: 0 1px 5px rgba(0,0,0,0.45);
   }
-  .article-card.no-photo .card-subtitle{ color: rgba(28,17,8,0.65); text-shadow: none; }
+  .article-card.no-photo .card-subtitle{ color: rgba(30,30,54,0.7); text-shadow: none; }
 
   .card-more-btn{
     flex-shrink: 0;
@@ -314,7 +333,7 @@
     direction: ltr;
   }
   .article-card.no-photo .card-more-btn{
-    color: #1c1108; background: rgba(28,17,8,0.08); border-color: rgba(28,17,8,0.18);
+    color: #1E1E36; background: rgba(30,30,54,0.1); border-color: rgba(30,30,54,0.2);
   }
 
   .empty-articles{
@@ -473,7 +492,7 @@
   }
   .reader-content img{ max-width: 100%; display: block; border-radius: 12px; margin: 14px 0; }
   .reader-content ul, .reader-content ol{ padding-inline-start: 22px; margin: 10px 0; color: #111; line-height: 2; }
-  .reader-content a{ color: var(--orange-2); }
+  .reader-content a{ color: #1E1E36; text-decoration: underline; }
   .reader-content b, .reader-content strong{ color: #000; }
   .reader-content blockquote{
     margin: 16px 0; padding: 4px 16px; border-inline-start: 3px solid var(--gold);
@@ -484,28 +503,46 @@
   .reader-content mark{ padding: 1px 3px; border-radius: 3px; }
 
   .reader-save-row{
-    display:flex; justify-content:center; margin-top: 34px; padding-top: 20px;
+    display:flex; justify-content:center; gap:10px; margin-top: 24px; padding-top: 16px;
     border-top: 1px solid #eee;
   }
   .reader-save-btn{
-    display:flex; align-items:center; gap:8px;
-    background: var(--gold); color: var(--ink); border:none; border-radius:10px;
-    padding: 13px 26px; font-family:'Vazirmatn'; font-size:13.5px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    background:#111; color:#fff; border:none; border-radius:8px;
+    padding: 9px 16px; font-family:'Vazirmatn'; font-size:12px; font-weight:600; cursor:pointer;
   }
-  .reader-save-btn svg{ width:16px; height:16px; }
+  .reader-save-btn svg{ width:13px; height:13px; }
   .reader-save-btn.saved{ background: #f4f4f4; color: #111; border:1px solid #ddd; }
+  .reader-share-btn{
+    display:flex; align-items:center; gap:6px;
+    background:#f4f4f4; color:#111; border:1px solid #eee; border-radius:8px;
+    padding: 9px 14px; font-family:'Vazirmatn'; font-size:12px; font-weight:600; cursor:pointer;
+  }
+  .reader-share-btn img{ width:13px; height:13px; opacity:0.8; }
+  .reader-share-toast{
+    position: fixed; bottom: 24px; left:50%; transform: translateX(-50%);
+    background:#111; color:#fff; font-size:12.5px; padding:10px 18px; border-radius:20px;
+    z-index: 300; opacity:0; pointer-events:none; transition: opacity 0.25s ease;
+  }
+  .reader-share-toast.show{ opacity:1; }
 </style>
 </head>
 <body>
+<div class="reader-share-toast" id="shareToast">لینک کپی شد</div>
 
 <div class="wrap">
 
   <div class="topbar">
     <button class="hamburger-btn" id="hamburgerBtn"><img src="icon-hamburger.png" alt="منو"></button>
+    <img class="topbar-logo" src="logo.png" alt="GITI Role Play">
   </div>
 
   <div class="hero">
-    <div class="logo"><img src="logo.png" alt="GITI Role Play"></div>
+    <div class="hero-carousel" id="heroCarousel">
+      <img src="hero1.webp" alt="GITI Role Play" class="active">
+      <img src="hero2.webp" alt="GITI Role Play">
+      <img src="hero3.webp" alt="GITI Role Play">
+    </div>
     <div class="eyebrow">SAMP ROLEPLAY SERVER</div>
     <h1>گیتی رول‌پلی</h1>
     <p class="tagline">تجربه‌ی چندنفره‌ی Grand Theft Auto: San Andreas، در کنار دوستانت.</p>
@@ -636,6 +673,18 @@
     const key = el.getAttribute("data-social");
     if (key && socialLinks[key]) el.href = socialLinks[key];
   });
+
+  // hero image carousel — cross-fades between the 3 images every few seconds
+  (function(){
+    const imgs = document.querySelectorAll("#heroCarousel img");
+    if (imgs.length < 2) return;
+    let idx = 0;
+    setInterval(() => {
+      imgs[idx].classList.remove("active");
+      idx = (idx + 1) % imgs.length;
+      imgs[idx].classList.add("active");
+    }, 4500);
+  })();
 
   // hamburger menu
   const menuBackdrop = document.getElementById("menuBackdrop");
@@ -796,6 +845,8 @@
         <button class="reader-save-btn ${saved ? "saved" : ""}" id="readerSaveBtn" data-id="${a.id}">
           ${icons.bookmark} <span>${saved ? "ذخیره شد" : "ذخیره کن"}</span>
         </button>
+        <button class="reader-share-btn" id="readerShareBtn"><img src="icon-share.png" alt=""> اشتراک‌گذاری</button>
+        <button class="reader-share-btn" id="readerCopyBtn">کپی لینک</button>
       </div>
     `;
     readerBody.scrollTop = 0;
@@ -810,6 +861,34 @@
       renderArticles();
       if (typeof renderSaved === "function") renderSaved();
     });
+
+    const articleUrl = location.origin + location.pathname + "#article-" + a.id;
+    document.getElementById("readerShareBtn").addEventListener("click", async () => {
+      if (navigator.share) {
+        try { await navigator.share({ title: a.title || "GITI RP", text: a.subtitle || "", url: articleUrl }); }
+        catch (e) { /* user cancelled — no action needed */ }
+      } else {
+        copyLink(articleUrl);
+      }
+    });
+    document.getElementById("readerCopyBtn").addEventListener("click", () => copyLink(articleUrl));
+  }
+
+  function copyLink(url){
+    const showToast = () => {
+      const toast = document.getElementById("shareToast");
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(showToast).catch(showToast);
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = url; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch(e){}
+      document.body.removeChild(ta);
+      showToast();
+    }
   }
 
   function closeArticle(){
