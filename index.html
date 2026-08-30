@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GITI ROLE PLAY</title>
+<script>
+  // Runs immediately, before the page paints. If this visit is from a
+  // shared article link (#article-XXXX), flag it right away so the CSS
+  // below can hide the homepage and show the reader frame instantly —
+  // instead of the homepage flashing first and jumping to the article
+  // a moment later once the article data has loaded.
+  if (/^#article-/.test(location.hash)) {
+    document.documentElement.classList.add('opening-shared-article');
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Anton&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg-top: #1E1E36;
+    --bg-bottom: #0F1120;
+    --ink: #1E1E36;
+    --panel: #262646;
+    --panel-2: #17172c;
+    --panel-line: #38386080;
+    --gold: #FFD4A9;
+    --cream: #ffffff;
+    --dim: #a9a9cc;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+  html,body{
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Vazirmatn', sans-serif;
+    min-height: 100vh;
+  }
+
+  body{
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    background-attachment: fixed;
+  }
+
+  a:focus-visible, button:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  .wrap{ max-width: 480px; margin: 0 auto; padding: 0 18px 60px; }
+
+  /* top bar */
+  .hero-screen{ display:flex; flex-direction:column; min-height: 92svh; min-height: 92vh; }
+  .hero-spacer{ flex: 1 1 auto; min-height: 0; }
+  .topbar{ display:flex; align-items:center; justify-content:flex-end; padding-top: 16px; }
+  .hamburger-btn{
+    position: fixed;
+    top: 16px; right: 18px;
+    z-index: 90;
+    width: 44px; height: 44px;
+    background: none;
+    border: none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+    cursor:pointer;
+  }
+  .hb-bar{
+    width: 22px; height: 2px; border-radius: 2px;
+    background: var(--cream);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .hamburger-btn.open .hb-bar:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+  .hamburger-btn.open .hb-bar:nth-child(2){ opacity: 0; }
+  .hamburger-btn.open .hb-bar:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+  .hamburger-btn:active{ opacity: 0.7; }
+  .topbar-logo{ height: 44px; display:block; }
+
+  /* hero */
+  .hero{ text-align:center; margin-top: 4px; }
+  .hero-carousel{
+    position: relative;
+    width: 100%;
+    max-width: 230px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+  }
+  .hero-carousel img{
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    animation: heroJiggle 5s ease-in-out infinite;
+  }
+  .hero-carousel img.active{ opacity: 1; }
+  @keyframes heroJiggle{
+    0%, 100% { transform: rotate(0deg) translateY(0); }
+    25% { transform: rotate(-0.6deg) translateY(-2px); }
+    50% { transform: rotate(0deg) translateY(0); }
+    75% { transform: rotate(0.6deg) translateY(2px); }
+  }
+
+  .eyebrow{
+    font-family:'Anton', sans-serif;
+    letter-spacing: 4px;
+    font-size: 12px;
+    color: var(--gold);
+    margin-top: 6px;
+    direction: ltr;
+  }
+
+  h1{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--cream);
+    margin-top: 4px;
+  }
+
+  .tagline{
+    color: var(--dim);
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 6px;
+    padding: 0 10px;
+  }
+
+  /* IP block */
+  .ip-block{
+    position: relative;
+    margin-top: 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(160deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--panel-line);
+    border-radius: 14px;
+    padding: 14px 54px;
+  }
+  .ip-center{ display:flex; align-items:center; gap:10px; direction: ltr; }
+  .ip-label{ font-size: 12.5px; color: var(--dim); }
+  .ip-value{ font-family:'Anton', sans-serif; font-size: 15px; color: var(--cream); direction: ltr; }
+  .ip-copy-btn{
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; padding: 4px; cursor: pointer;
+    color: var(--gold); display:flex; align-items:center; justify-content:center;
+  }
+  .ip-copy-btn svg{ width: 17px; height: 17px; }
+  .ip-copy-btn:active{ transform: translateY(-50%) scale(0.9); }
+
+  .cta-row{ display:flex; justify-content:center; margin-top: 12px; }
+  .cta-store{
+    position: relative;
+    font-family:'Vazirmatn', sans-serif;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--ink);
+    background: var(--gold);
+    padding: 13px 28px;
+    border-radius: 10px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    display:flex; align-items:center; justify-content:center;
+    min-height: 46px;
+    transition: width 0.25s ease, height 0.25s ease;
+  }
+  .cta-store:active{ transform: scale(0.97); }
+
+  .play-wrap{ position: relative; }
+  .play-inner{ position:relative; display:flex; align-items:center; justify-content:center; }
+  .play-label, .play-x{
+    display:flex; align-items:center; justify-content:center;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    opacity: 1; transform: scale(1);
+  }
+  .play-x{
+    position:absolute; inset:0;
+    opacity: 0; transform: scale(0.6);
+    font-size: 17px;
+  }
+  .play-wrap.open .play-label{ opacity:0; transform: scale(0.6); }
+  .play-wrap.open .play-x{ opacity:1; transform: scale(1); }
+
+  .play-options{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) scale(0.85);
+    display:flex; flex-direction:column; gap:8px;
+    opacity:0; pointer-events:none;
+    transition: opacity 0.28s cubic-bezier(.2,.8,.25,1), transform 0.28s cubic-bezier(.2,.8,.25,1);
+    z-index: 30;
+  }
+  .play-options.show{ opacity:1; pointer-events:auto; transform: translateX(-50%) scale(1); }
+  .play-options.above{ bottom: calc(100% + 10px); transform-origin: bottom center; }
+  .play-options.below{ top: calc(100% + 10px); transform-origin: top center; }
+  .play-option{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    background:#fff; color:#111; border-radius: 10px;
+    padding: 10px 8px; text-decoration:none; direction:ltr;
+    font-family:'Vazirmatn'; font-size: 11px; font-weight:600;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    min-height: 46px;
+    box-sizing: border-box;
+  }
+  .play-option .po-logo{
+    width: 56px; height: 22px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .play-option .po-logo img{ max-width:100%; max-height:100%; object-fit:contain; display:block; }
+  .play-option .po-sep{ color:#ccc; font-weight:400; flex-shrink:0; }
+
+  /* scroll cue */
+  .scroll-cue{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:none; border:none; width:100%;
+    margin-top: 30px;
+    color: var(--dim);
+    font-size: 11px;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    cursor: pointer;
+  }
+  .scroll-cue svg{ width:18px; height:18px; animation: scrollBounce 1.6s ease-in-out infinite; }
+  @keyframes scrollBounce{
+    0%, 100% { transform: translateY(0); opacity:0.6; }
+    50% { transform: translateY(5px); opacity:1; }
+  }
+
+  /* why-giti section */
+  .why-section{ margin-top: 28px; }
+  .why-section h2{
+    font-family:'Vazirmatn', sans-serif; font-weight:800; font-size:20px; color:var(--cream); text-align:center;
+  }
+  .why-text{
+    color: var(--dim); font-size: 13px; line-height: 2; margin-top: 14px; text-align:center;
+  }
+  .why-features{ margin-top: 24px; display:flex; flex-direction:column; gap: 12px; }
+
+  .skill-item{
+    background: linear-gradient(160deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--panel-line); border-radius: 14px;
+    overflow: hidden;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .skill-item.show{ opacity: 1; transform: translateY(0); }
+  .skill-toggle{
+    width: 100%; display:flex; align-items:center; gap: 0; overflow: hidden;
+    background: none; border: none; padding: 16px; cursor: pointer; text-align: right;
+    font-family: 'Vazirmatn', sans-serif;
+    transition: background-color 0.3s ease;
+    scroll-margin-top: 76px;
+  }
+  .skill-item.open .skill-toggle{ background: #ffffff; }
+  .skill-icon{
+    width: 42px; height:42px; border-radius:10px; flex-shrink:0;
+    margin-inline-end: 14px;
+    background: rgba(255,212,169,0.12); display:flex; align-items:center; justify-content:center;
+    transition: opacity 0.3s ease, width 0.3s ease, margin 0.3s ease, transform 0.3s ease;
+  }
+  .skill-icon svg{ width:22px; height:22px; stroke: var(--gold); flex-shrink:0; }
+  .skill-item.open .skill-icon{
+    opacity: 0; width: 0; margin-inline-end: 0; transform: scale(0.7);
+  }
+  .skill-name{
+    font-size:13.5px; font-weight:700; color:var(--cream); flex:1; text-align:right;
+    transition: color 0.3s ease, font-size 0.3s ease;
+  }
+  .skill-item.open .skill-name{ color:#111; font-weight:800; font-size:15px; }
+  .skill-chevron{
+    font-size: 17px; color: var(--dim); flex-shrink:0; line-height:1;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  .skill-item.open .skill-chevron{ transform: rotate(180deg); color:#111; }
+
+  .skill-panel{ max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .skill-panel-inner{
+    background: #ffffff; padding: 4px 16px 22px;
+  }
+  .skill-panel-desc{ font-size: 13px; line-height: 2; color: #333; }
+
+  .skill-carousel{
+    display: flex; gap: 10px; overflow-x: auto; margin-top: 16px; padding-bottom: 2px;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .skill-carousel::-webkit-scrollbar{ display: none; }
+  .skill-carousel img{
+    scroll-snap-align: start; flex-shrink: 0;
+    width: 78%; border-radius: 10px; object-fit: cover; aspect-ratio: 16/9;
+  }
+  .skill-carousel:has(img:only-child) img{ width: 100%; }
+
+  .skill-subitems{ margin-top: 16px; display:flex; flex-direction:column; }
+  .subitem{ border-top: 1px solid #eee; }
+  .subitem:first-child{ border-top: none; }
+  .subitem-toggle{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:none; border:none; padding:13px 2px; cursor:pointer; text-align:right;
+    font-family: 'Vazirmatn', sans-serif; font-size:13px; font-weight:700; color:#111;
+  }
+  .subitem-sign{ position:relative; width:14px; height:14px; flex-shrink:0; }
+  .subitem-sign::before, .subitem-sign::after{
+    content:""; position:absolute; top:50%; left:50%;
+    background:#999; border-radius:1px; transform: translate(-50%,-50%);
+  }
+  .subitem-sign::before{ width:14px; height:2px; }
+  .subitem-sign::after{ width:2px; height:14px; transition: transform 0.3s ease; }
+  .subitem.open .subitem-sign::after{ transform: translate(-50%,-50%) scaleY(0); }
+  .subitem-panel{ max-height:0; overflow:hidden; transition: max-height 0.3s ease; }
+  .subitem-panel-inner{ padding: 0 2px 14px; }
+  .subitem-panel-inner p{ font-size:12.5px; line-height:1.9; color:#555; }
+
+  /* news section */
+  .news-section{ margin-top: 44px; }
+
+  .news-head h2{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--cream);
+  }
+  .news-head p{
+    color: var(--dim);
+    font-size: 12.5px;
+    margin-top: 6px;
+    line-height: 1.8;
+  }
+
+  .tab-switch{
+    display:flex;
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+    margin-top: 18px;
+  }
+  .tab-btn{
+    flex:1;
+    text-align:center;
+    padding: 10px;
+    border-radius: 7px;
+    font-family:'Vazirmatn', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dim);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .tab-btn.active{ background: var(--gold); color: var(--ink); }
+
+  .chip-row{
+    display:flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin-top: 14px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .chip-row::-webkit-scrollbar{ display:none; }
+  .chip{
+    flex-shrink: 0;
+    padding: 7px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--panel-line);
+    background: var(--panel);
+    color: var(--dim);
+    font-family:'Vazirmatn', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .chip.active{ background: rgba(242,183,5,0.14); border-color: var(--gold); color: var(--gold); font-weight:600; }
+
+  .article-list{
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-top: 8px;
+    padding: 6px 2px 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .article-list::-webkit-scrollbar{ display: none; }
+
+  .article-card{
+    position: relative;
+    flex: 0 0 86%;
+    scroll-snap-align: start;
+    aspect-ratio: 3 / 2;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    background: repeating-linear-gradient(135deg, #262646, #262646 10px, #17172c 10px, #17172c 20px);
+  }
+
+  .no-image-watermark{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(30,30,54,0.35);
+    font-family: 'Vazirmatn', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    text-align: center;
+    padding: 0 20px;
+    transform: rotate(-8deg);
+  }
+  .article-card.no-photo{
+    background: linear-gradient(160deg, #ffe6d0, #FFD4A9);
+  }
+
+  .article-photo{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-glow{
+    position: absolute;
+    left: 0; right: 0; bottom: 0; height: 65%;
+    background: linear-gradient(180deg, transparent 0%, rgba(20,12,6,0.5) 45%, rgba(10,6,3,0.88) 100%);
+    pointer-events: none;
+  }
+  .article-card.no-photo .card-glow{ display: none; }
+
+  .card-top-row{
+    position: absolute;
+    top: 14px; left: 14px; right: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 2;
+  }
+  .card-logo{ height: 20px; display:block; filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5)); }
+  .article-card.no-photo .card-logo{ filter: none; }
+  .card-date{
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 10.5px; color: rgba(255,255,255,0.9);
+    direction: ltr;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .card-date.dark{ color: rgba(30,30,54,0.65); text-shadow: none; }
+
+  .card-bottom-row{
+    position: absolute;
+    left: 14px; right: 14px; bottom: 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    z-index: 2;
+  }
+
+  .card-title{
+    text-align: right;
+    font-weight: 800;
+    font-size: 16px;
+    color: #fff;
+    line-height: 1.45;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.45);
+  }
+  .article-card.no-photo .card-title{ color: #1E1E36; text-shadow: none; }
+
+  .card-subtitle-row{
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 10px;
+  }
+  .card-subtitle{
+    flex: 1; min-width: 0;
+    text-align: right;
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.6;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.45);
+  }
+  .article-card.no-photo .card-subtitle{ color: rgba(30,30,54,0.7); text-shadow: none; }
+
+  .card-more-btn{
+    flex-shrink: 0;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(255,255,255,0.16);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 8px 14px;
+    white-space: nowrap;
+    direction: ltr;
+  }
+  .article-card.no-photo .card-more-btn{
+    color: #1E1E36; background: rgba(30,30,54,0.1); border-color: rgba(30,30,54,0.2);
+  }
+
+  .empty-articles{
+    text-align:center;
+    color: var(--dim);
+    font-size: 13px;
+    padding: 40px 10px;
+    flex: 0 0 100%;
+  }
+
+  /* hamburger menu — right-side sliding drawer (GTA6-style, reskinned) */
+  .menu-backdrop{
+    position: fixed; inset:0; background: rgba(0,0,0,0.55);
+    z-index: 70; opacity:0; pointer-events:none; transition: opacity .25s ease;
+  }
+  .menu-backdrop.show{ opacity:1; pointer-events:auto; }
+
+  .menu-sheet{
+    position: fixed; top:0; right:0; bottom:0;
+    width: min(300px, 82vw);
+    background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+    border-left: 1px solid var(--panel-line);
+    z-index: 80;
+    transform: translateX(100%);
+    transition: transform .32s cubic-bezier(.2,.8,.25,1);
+    overflow-y: auto;
+    padding: 18px 18px 24px;
+  }
+  .menu-sheet.show{ transform: translateX(0); }
+
+  .menu-lang-row{
+    display:flex; align-items:center; gap:14px; justify-content:flex-start;
+    font-family:'Vazirmatn'; font-size:12.5px; font-weight:600; color: var(--cream);
+    direction: ltr;
+  }
+  .menu-lang-row span{ display:flex; align-items:center; gap:5px; opacity:0.9; }
+  .menu-lang-row svg{ width:14px; height:14px; }
+
+  .menu-brand-row{
+    display:flex; align-items:center; gap:10px; margin-top: 26px;
+    direction: ltr; justify-content:flex-start;
+  }
+  .menu-brand-row img{ height: 20px; }
+  .menu-brand-sep{ color: var(--panel-line); font-size: 14px; }
+  .menu-brand-name{ font-family:'Vazirmatn'; font-weight:700; font-size:13px; color: var(--cream); direction:ltr; }
+
+  .menu-title{ font-family:'Vazirmatn', sans-serif; font-weight:700; font-size:14px; color:var(--cream); }
+
+  .menu-body{ margin-top: 30px; display:flex; flex-direction:column; }
+  .menu-item{
+    display:flex; align-items:center; gap:10px; width:100%;
+    background:transparent; border:none; padding:13px 0;
+    color:var(--cream); font-family:'Vazirmatn'; font-size:19px; font-weight:800;
+    cursor:pointer; text-align:right; text-decoration:none;
+    transition: color 0.15s ease;
+  }
+  .menu-item.active{ color: var(--gold); }
+  .menu-item .chev{ margin-inline-start:auto; color:var(--dim); font-size:16px; transform:rotate(180deg); }
+  .menu-view[hidden]{ display:none; }
+  .menu-back{
+    display:flex; align-items:center; gap:8px;
+    width:100%; background:transparent; border:none; padding: 46px 0 18px;
+    color:var(--dim); font-family:'Vazirmatn'; font-size:13px; cursor:pointer;
+  }
+  .chev-back{ transform: rotate(0deg); display:inline-block; font-size:16px; }
+
+  .saved-list{ margin-top: 14px; display:flex; flex-direction:column; gap:10px; }
+  .saved-row{
+    display:flex; align-items:center; gap:10px;
+    padding: 12px; border:1px solid var(--panel-line); border-radius:10px;
+    background: rgba(255,255,255,0.02);
+    cursor: pointer;
+  }
+  .saved-row-badge{
+    width:34px;height:34px;border-radius:8px; flex-shrink:0;
+    background: var(--panel-2); overflow:hidden;
+  }
+  .saved-row-badge img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .saved-row-body{ flex:1; min-width:0; }
+  .saved-row-title{ font-size:12.5px; color:var(--cream); font-weight:600; line-height:1.5; }
+  .saved-row-meta{ font-size:10.5px; color:var(--dim); margin-top:3px; }
+  .saved-row-remove{
+    width:28px;height:28px;border-radius:7px;background:transparent;border:none;
+    color:var(--dim); font-size:14px; cursor:pointer; flex-shrink:0;
+  }
+
+  .footer{
+    margin-top: 40px;
+    text-align:center;
+    border-top: 1px solid var(--panel-line);
+    padding-top: 20px;
+  }
+  .footer-row{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+  .social-btn{
+    width:42px;height:42px;border-radius:12px;background:var(--panel);
+    border:1px solid var(--panel-line); display:flex;align-items:center;justify-content:center;
+  }
+  .social-btn img{ width:19px;height:19px;opacity:0.9; }
+  .footer-tag{ margin-top:16px; font-size:10px; letter-spacing:2px; color:var(--dim); opacity:0.5; }
+
+  /* full-screen article reader */
+  .reader-overlay{
+    position: fixed; inset: 0; z-index: 90;
+    background: #ffffff;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(.2,.8,.25,1);
+    display: flex; flex-direction: column;
+  }
+  .reader-overlay.show{ transform: translateX(0); }
+
+  /* Shared-article deep link: skip the homepage flash entirely — show the
+     (empty, still-loading) reader frame right away instead of animating in
+     after the homepage has already been visible for a moment. */
+  html.opening-shared-article .wrap{ display: none; }
+  html.opening-shared-article .reader-overlay{ transform: translateX(0) !important; transition: none !important; }
+  html.opening-shared-article .reader-header{ transform: translateX(0) !important; transition: none !important; }
+
+  .reader-loading{
+    display: none;
+    position: absolute; inset: 0;
+    align-items: center; justify-content: center;
+    background: #ffffff; z-index: 5;
+  }
+  html.opening-shared-article .reader-loading{ display: flex; }
+  html.opening-shared-article .reader-header,
+  html.opening-shared-article .reader-body{ opacity: 0; }
+  .reader-header, .reader-body{ transition: opacity 0.4s ease; }
+  .reader-spinner{
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 3px solid #eee; border-top-color: #1E1E36;
+    animation: reader-spin 0.8s linear infinite;
+  }
+  @keyframes reader-spin{ to{ transform: rotate(360deg); } }
+
+  .reader-header{
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 97;
+    display: flex; justify-content: flex-start;
+    padding: 8px 16px;
+    border-bottom: 1px solid #eee;
+    background: #ffffff;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(.2,.8,.25,1), opacity 0.4s ease;
+  }
+  .reader-header.show{ transform: translateX(0); }
+  /* Only the article page itself should have the white backdrop bar behind
+     the icon — once the menu drawer is open, hide the bar's background so
+     it doesn't sit on top of the menu, while keeping the (now morphed to X)
+     button visible and clickable so it can still close the menu. */
+  .reader-header.menu-open{ background: transparent; border-bottom-color: transparent; }
+  .reader-close{
+    width: 40px; height: 40px; border-radius: 10px;
+    background: #f4f4f4; border: 1px solid #eee;
+    color: #111; font-size: 16px; cursor: pointer;
+  }
+
+  /* Direct-link / other-platform entry only: swap the close X for a
+     hamburger that opens a trimmed-down (خانه / فروشگاه) version of the
+     homepage's menu — since arriving fresh from an outside link, there's
+     no in-site "back" to return to. The whole header bar (not just this
+     button) lives outside reader-overlay's stacking context (its transform
+     traps descendants' z-index) so it stays above the menu drawer. */
+  .reader-hamburger-btn{
+    width: 44px; height: 44px;
+    background: none; border: none;
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    cursor: pointer;
+  }
+  .reader-header.direct-entry .reader-close{ display: none; }
+  .reader-header.direct-entry .reader-hamburger-btn{ display: flex; }
+  .reader-hb-bar{
+    width: 22px; height: 2px; border-radius: 2px;
+    background: #111;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .reader-hamburger-btn.open .reader-hb-bar:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+  .reader-hamburger-btn.open .reader-hb-bar:nth-child(2){ opacity: 0; }
+  .reader-hamburger-btn.open .reader-hb-bar:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+
+  .reader-menu-backdrop{
+    position: fixed; inset:0; background: rgba(0,0,0,0.55);
+    z-index: 95; opacity:0; pointer-events:none; transition: opacity .25s ease;
+  }
+  .reader-menu-backdrop.show{ opacity:1; pointer-events:auto; }
+  .reader-menu-sheet{
+    position: fixed; top:0; right:0; bottom:0;
+    width: min(300px, 82vw);
+    background: #ffffff;
+    border-left: 1px solid #eee;
+    z-index: 96;
+    transform: translateX(100%);
+    transition: transform .32s cubic-bezier(.2,.8,.25,1);
+    overflow-y: auto;
+    padding: 18px 18px 24px;
+  }
+  .reader-menu-sheet.show{ transform: translateX(0); }
+  .reader-menu-sheet .menu-lang-row{ color:#111; }
+  .reader-menu-sheet .menu-brand-sep{ color:#ddd; }
+  .reader-menu-sheet .menu-brand-name{ color:#111; }
+  .reader-menu-sheet .menu-item{ color:#111; }
+
+  .reader-body{
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 76px 20px 60px;
+    max-width: 560px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .reader-eyebrow{
+    font-family:'Vazirmatn', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1px; color: #999;
+  }
+  .reader-title{
+    font-family:'Vazirmatn', sans-serif; font-size: 25px; color: #111;
+    margin-top: 8px; line-height: 1.4; font-weight: 800;
+  }
+  .reader-subtitle{
+    color: #666; font-size: 14px; margin-top: 6px; line-height: 1.7;
+  }
+  .reader-author{
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 10px;
+  }
+  .reader-author img{ width: 32px; height: 32px; border-radius: 50%; flex-shrink:0; }
+  .reader-author-name{ font-size: 12.5px; font-weight: 700; color: #111; }
+  .reader-author-date{ font-size: 10.5px; color: #888; margin-top: 1px; }
+  .reader-rule{ height:1px; background: #eee; margin: 12px 0 14px; }
+
+  .reader-content{ font-family: 'Vazirmatn', sans-serif; }
+  .reader-content h2{ font-size: 20px; color: #111; margin: 22px 0 10px; line-height: 1.5; font-weight: 800; }
+  .reader-content h3{
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 17px; color: #111; margin: 20px 0 8px; line-height: 1.5; font-weight: 700;
+  }
+  .reader-content h4{ font-size: 15px; color: #111; margin: 16px 0 6px; line-height: 1.5; font-weight: 700; }
+  .reader-content p, .reader-content div{
+    font-size: 14.5px; color: #111; line-height: 2.1; margin: 10px 0;
+  }
+  /* A blank line typed in the editor becomes an empty <p>/<div> (often with
+     just a <br> inside, which contenteditable inserts automatically). Left
+     alone, each one still gets the full margin + line-height above, so a
+     couple of blank lines in a row turn into a huge gap. Collapse those
+     specifically instead of the real spacing between actual paragraphs. */
+  .reader-content p:empty, .reader-content div:empty,
+  .reader-content p:has(> br:only-child), .reader-content div:has(> br:only-child){
+    margin: 4px 0; line-height: 1; min-height: 1px;
+  }
+  .reader-content img{ max-width: 100%; display: block; border-radius: 12px; margin: 14px 0; }
+  .reader-content ul, .reader-content ol{ padding-inline-start: 22px; margin: 10px 0; color: #111; line-height: 2; }
+  .reader-content a{ color: #1E1E36; text-decoration: underline; }
+  .reader-content b, .reader-content strong{ color: #000; }
+  .reader-content blockquote{
+    margin: 16px 0; padding: 4px 16px; border-inline-start: 3px solid var(--gold);
+    color: #444; font-style: italic; font-size: 14.5px; line-height: 2;
+  }
+  .reader-content table{ border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 13.5px; }
+  .reader-content td, .reader-content th{ border: 1px solid #ddd; padding: 8px 10px; text-align: right; }
+  .reader-content mark{ padding: 1px 3px; border-radius: 3px; }
+
+  .reader-save-row{
+    display:flex; justify-content:center; gap:10px; margin-top: 24px; padding-top: 16px;
+    border-top: 1px solid #eee;
+  }
+  .reader-save-btn{
+    display:flex; align-items:center; gap:6px;
+    background:#111; color:#fff; border:none; border-radius:8px;
+    padding: 9px 16px; font-family:'Vazirmatn'; font-size:12px; font-weight:600; cursor:pointer;
+  }
+  .reader-save-btn svg{ width:13px; height:13px; }
+  .reader-save-btn.saved{ background: #f4f4f4; color: #111; border:1px solid #ddd; }
+  .reader-share-btn{
+    display:flex; align-items:center; gap:6px;
+    background:#f4f4f4; color:#111; border:1px solid #eee; border-radius:8px;
+    padding: 9px 14px; font-family:'Vazirmatn'; font-size:12px; font-weight:600; cursor:pointer;
+  }
+  .reader-share-btn img{ width:13px; height:13px; opacity:0.8; }
+  .reader-share-toast{
+    position: fixed; bottom: 24px; left:50%; transform: translateX(-50%);
+    background:#111; color:#fff; font-size:12.5px; padding:10px 18px; border-radius:20px;
+    z-index: 300; opacity:0; pointer-events:none; transition: opacity 0.25s ease;
+  }
+  .reader-share-toast.show{ opacity:1; }
+
+  /* ===== Android download-flow overlay ===== */
+  .android-overlay{
+    position: fixed; inset: 0; z-index: 200;
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(.2,.8,.25,1);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .android-overlay.show{ transform: translateX(0); }
+  .agd-wrap{ max-width: 480px; margin: 0 auto; padding: 16px 16px 60px; }
+
+  .agd-topbar{ direction: ltr; display:flex; align-items:center; justify-content:space-between; padding: 4px 0 14px; }
+  .agd-brand{ display:flex; align-items:center; gap:10px; }
+  .agd-logo-img{ height:20px; width:auto; display:block; }
+  .agd-sep{ color: var(--panel-line); font-size:18px; }
+  .agd-platform-icon{ height:16px; width:auto; display:block; }
+  .agd-close{
+    width:34px; height:34px; border-radius:50%; background: var(--panel); border:1px solid var(--panel-line);
+    color: var(--cream); font-size:13px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    flex-shrink:0;
+  }
+  .agd-title{ font-family:'Vazirmatn'; font-weight:800; font-size:18px; color: var(--cream); margin: 22px 0 18px; }
+
+  .agd-pick-row{ display:flex; gap:12px; margin-bottom: 10px; }
+  .agd-pick-card{
+    flex:1; border:1.5px solid var(--panel-line); border-radius: 14px; padding: 20px 16px;
+    cursor:pointer; transition: border-color .3s ease, opacity .35s ease, background .3s ease;
+    background: linear-gradient(160deg, var(--panel), var(--panel-2));
+  }
+  .agd-pick-card.selected{ border-color: var(--gold); }
+  .agd-pick-card.disabled{ opacity: 0.5; cursor: default; }
+  .agd-pick-title{ font-weight:800; font-size:17px; color: var(--cream); margin-bottom:5px; }
+  .agd-pick-sub{ font-size:12.5px; color: var(--dim); }
+
+  .agd-sub-pick-row{
+    display:flex; gap:10px; margin-top: 12px; margin-bottom: 4px;
+    max-height:0; overflow:hidden; opacity:0;
+    transition: max-height .4s ease, opacity .4s ease, margin .4s ease;
+  }
+  .agd-sub-pick-row.show{ max-height:200px; opacity:1; }
+  .agd-sub-pick-card{
+    flex:1; border:1.5px solid var(--panel-line); border-radius: 12px; padding: 12px 12px;
+    cursor:pointer; transition: border-color .3s ease, background .3s ease, color .3s ease;
+    background: linear-gradient(160deg, var(--panel), var(--panel-2));
+    color: var(--cream); font-weight:700; font-size:13px; text-align:center;
+  }
+  .agd-sub-pick-card.selected{ border-color: var(--gold); color: var(--gold); }
+
+  .agd-guide-area{ margin-top: 22px; display:flex; flex-direction:column; gap:12px; }
+  .agd-item{
+    display:none;
+    scroll-margin: 80px 0;
+    background: linear-gradient(160deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--panel-line); border-radius: 14px; overflow:hidden;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .35s ease, transform .35s ease;
+  }
+  .agd-item.show{ opacity:1; transform: translateY(0); }
+  .agd-toggle{
+    width:100%; display:flex; align-items:center; gap:0; overflow:hidden;
+    background:none; border:none; padding:16px; cursor:default; text-align:right; font-family:'Vazirmatn';
+    transition: background-color .3s ease;
+  }
+  .agd-item.open .agd-toggle{ background:#fff; }
+  .agd-name{ font-size:14px; font-weight:700; color:var(--cream); flex:1; text-align:right; transition: color .3s ease, font-size .3s ease; }
+  .agd-item.open .agd-name{ color:#111; font-weight:800; font-size:15.5px; }
+  .agd-back{
+    font-size:12.5px; font-weight:700; color: var(--gold); background:none; border:none; cursor:pointer;
+    padding: 0 0 0 4px; display:none; align-items:center; gap:4px;
+  }
+  .agd-item.open .agd-back{ color:#111; opacity:0.75; }
+  .agd-item.locked-open .agd-back{ display: inline-flex; }
+  .agd-panel{ max-height:0; overflow:hidden; transition: max-height .35s ease; }
+  .agd-panel-inner{ background:#fff; padding: 4px 16px 22px; }
+  .agd-desc{ font-size:12.5px; line-height:1.95; color:#333; margin-bottom: 4px; }
+
+  .agd-subitems{ display:flex; flex-direction:column; margin-top:14px; }
+  .agd-subitem{ border-top:1px solid #eee; }
+  .agd-subitem:first-child{ border-top:none; }
+  .agd-subitem-toggle{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:none; border:none; padding:13px 2px; cursor:pointer; text-align:right;
+    font-family:'Vazirmatn'; font-size:13px; font-weight:700; color:#111;
+  }
+  .agd-subitem-num{ color:#999; font-weight:800; margin-inline-end:6px; }
+  .agd-subitem-sign{ position:relative; width:14px; height:14px; flex-shrink:0; }
+  .agd-subitem-sign::before, .agd-subitem-sign::after{ content:""; position:absolute; top:50%; left:50%; background:#999; border-radius:1px; transform:translate(-50%,-50%); }
+  .agd-subitem-sign::before{ width:14px; height:2px; }
+  .agd-subitem-sign::after{ width:2px; height:14px; transition: transform .3s ease; }
+  .agd-subitem.open .agd-subitem-sign::after{ transform: translate(-50%,-50%) scaleY(0); }
+  .agd-subitem-panel{ max-height:0; overflow:hidden; transition: max-height .3s ease; }
+  .agd-subitem-panel-inner{ padding: 0 2px 14px; font-size:12.3px; line-height:1.9; color:#555; }
+
+  .agd-app-row{ direction: ltr; display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f0f0f0; }
+  .agd-app-row:last-of-type{ border-bottom:none; }
+  .agd-app-icon{ width:38px; height:38px; border-radius:9px; background:#eee; flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .agd-app-icon img{ width:100%; height:100%; object-fit:cover; }
+  .agd-app-info{ flex:1; }
+  .agd-app-name{ font-size:12.5px; font-weight:700; color:#111; }
+  .agd-app-dl-btn{
+    background: var(--gold); color:#1E1E36; font-weight:800; font-size:11.5px; border:none;
+    border-radius: 8px; padding: 7px 14px; cursor:pointer;
+  }
+  .agd-rules-link{ display:inline-flex; align-items:center; gap:4px; font-size:11.5px; color:#999; margin-top:8px; }
+
+  .agd-cta-btn{
+    width:100%; margin-top:16px; background: var(--gold); color:#1E1E36; font-weight:800; font-size:13.5px;
+    border:none; border-radius:12px; padding:14px; cursor:pointer; font-family:'Vazirmatn';
+  }
+  .agd-username-check{ display:flex; align-items:center; gap:6px; font-size:12px; margin:4px 0; }
+  .agd-username-x{ color:#c0392b; }
+  .agd-username-ok{ color:#1a8a3e; }
+  .agd-ip-copy{
+    display:inline-flex; align-items:center; gap:8px; margin-top:8px;
+    background:#f3f3f3; border:1px solid #e2e2e2; border-radius:8px;
+    padding:8px 12px; cursor:pointer; direction:ltr; font-family: monospace;
+    transition: background .2s ease;
+  }
+  .agd-ip-copy:active{ background:#e8e8e8; }
+  .agd-ip-copy-text{ font-size:12.5px; color:#111; font-weight:700; }
+  .agd-ip-copy-icon{ font-size:13px; color:#888; }
+  .agd-ip-copy.copied .agd-ip-copy-text::after{ content: ' ✓ کپی شد'; color:#1a8a3e; font-family:'Vazirmatn'; direction:rtl; }
+</style>
+</head>
+<body>
+<div class="reader-share-toast" id="shareToast">لینک کپی شد</div>
+
+<div class="wrap">
+
+  <div class="hero-screen">
+  <div class="topbar">
+    <button class="hamburger-btn" id="hamburgerBtn">
+      <span class="hb-bar"></span><span class="hb-bar"></span><span class="hb-bar"></span>
+    </button>
+    <img class="topbar-logo" src="logo.png" alt="GITI Role Play">
+  </div>
+
+  <div class="hero">
+    <div class="hero-carousel" id="heroCarousel">
+      <img src="hero1.webp" alt="GITI Role Play" class="active">
+      <img src="hero2.webp" alt="GITI Role Play">
+      <img src="hero3.webp" alt="GITI Role Play">
+    </div>
+    <div class="eyebrow">SAMP ROLEPLAY SERVER</div>
+    <h1>گیتی رول‌پلی</h1>
+    <p class="tagline">تجربه‌ی چندنفره‌ی Grand Theft Auto: San Andreas، در کنار دوستانت.</p>
+  </div>
+
+  <div class="ip-block">
+    <div class="ip-center">
+      <span class="ip-label">Server IP</span>
+      <span class="ip-value" id="ipValueText">—</span>
+    </div>
+    <button class="ip-copy-btn" id="ipCopyBtn" aria-label="کپی">
+      <svg class="ip-icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <svg class="ip-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M5 12l5 5L20 7"/></svg>
+    </button>
+  </div>
+
+  <div class="cta-row">
+    <div class="play-wrap" id="playWrap">
+      <div class="play-options" id="playOptions">
+        <a class="play-option" href="#" onclick="return false;">
+          <span class="po-logo"><img src="icon-windows.png" alt=""></span>
+          <span class="po-sep">|</span>
+          <span>Play Now</span>
+        </a>
+        <a class="play-option" id="playOptionAndroid" href="#" onclick="return false;">
+          <span class="po-logo"><img src="icon-android.png" alt=""></span>
+          <span class="po-sep">|</span>
+          <span>Play Now</span>
+        </a>
+      </div>
+      <button class="cta-store" id="playNowBtn" type="button">
+        <span class="play-inner">
+          <span class="play-label">همین حالا بازی کنید</span>
+          <span class="play-x">✕</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <button class="scroll-cue" id="scrollCueBtn" type="button">
+    <span>اسکرول کنید</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+  </button>
+  <div class="hero-spacer"></div>
+  </div>
+
+  <div class="why-section" id="whySection">
+    <h2>چرا گیتی؟</h2>
+    <p class="why-text">گیتی رول‌پلی یک سرور ساخته‌شده بر بستر SAMP است که به بازیکنان اجازه می‌دهد بازی Grand Theft Auto: San Andreas را در محیطی چندنفره و در کنار دوستان خود تجربه کنند. این سرور با بهره‌گیری از سیستم‌های پیشرفته چندنفره، تجربه‌ای پویاتر و فراگیرتر از نسخه آفلاین بازی ارائه می‌دهد و به کاربران امکان می‌دهد از قابلیت‌های تعاملی نوآورانه و نگاهی تازه به این بازی لذت ببرند.</p>
+
+    <div class="why-features" id="whyFeatures">
+      <div class="skill-item" data-skill="economy">
+        <button class="skill-toggle">
+          <span class="skill-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>
+          <span class="skill-name">سیستم اقتصادی واقع‌گرایانه</span>
+          <span class="skill-chevron">⌄</span>
+        </button>
+        <div class="skill-panel">
+          <div class="skill-panel-inner">
+            <p class="skill-panel-desc">سیستم اقتصادی گیتی بر پایه فعالیت‌های داخل بازی شکل می‌گیرد. بازیکنان از فعالیت‌های مختلف درآمد کسب می‌کنند، برای نیازهای خود هزینه می‌پردازند و از امکانات مالی و معاملاتی موجود در شهر استفاده می‌کنند.</p>
+            <div class="skill-subitems">
+              <div class="subitem">
+                <button class="subitem-toggle">
+                  <span>درآمد و هزینه‌ها</span>
+                  <span class="subitem-sign"></span>
+                </button>
+                <div class="subitem-panel">
+                  <div class="subitem-panel-inner">
+                    <p>بازیکنان از فعالیت‌های مختلف درآمد کسب می‌کنند و برای خرید، خدمات و امکانات مورد نیاز خود هزینه پرداخت می‌کنند.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="subitem">
+                <button class="subitem-toggle">
+                  <span>بانک و امور مالی</span>
+                  <span class="subitem-sign"></span>
+                </button>
+                <div class="subitem-panel">
+                  <div class="subitem-panel-inner">
+                    <p>بازیکنان می‌توانند امور مالی خود را از طریق سیستم بانکی مدیریت کرده و از امکانات مالی موجود در گیتی استفاده کنند.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="subitem">
+                <button class="subitem-toggle">
+                  <span>خرید و فروش</span>
+                  <span class="subitem-sign"></span>
+                </button>
+                <div class="subitem-panel">
+                  <div class="subitem-panel-inner">
+                    <p>بخشی از نیازها و دارایی‌های بازیکنان از طریق خرید و فروش تأمین می‌شود و معاملات، بخشی از گردش اقتصادی شهر را تشکیل می‌دهند.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="subitem">
+                <button class="subitem-toggle">
+                  <span>کنترل اقتصاد</span>
+                  <span class="subitem-sign"></span>
+                </button>
+                <div class="subitem-panel">
+                  <div class="subitem-panel-inner">
+                    <p>سیستم اقتصادی با هدف حفظ تعادل و ارزش پول داخل بازی طراحی شده است تا پیشرفت اقتصادی بازیکنان به فعالیت‌های آن‌ها در بازی وابسته باشد.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="skill-carousel">
+              <img src="skill-economy-1.jpg" alt="سیستم اقتصادی واقع‌گرایانه">
+              <img src="skill-economy-2.jpg" alt="سیستم اقتصادی واقع‌گرایانه">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="skill-item" data-skill="jobs">
+        <button class="skill-toggle">
+          <span class="skill-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </span>
+          <span class="skill-name">مشاغل و ارگان‌های اختصاصی</span>
+          <span class="skill-chevron">⌄</span>
+        </button>
+        <div class="skill-panel">
+          <div class="skill-panel-inner">
+            <p class="skill-panel-desc">مشاغل و ارگان‌های گیتی به بازیکنان امکان می‌دهند در بخش‌های مختلف شهر فعالیت کنند و نقش‌های متفاوتی را در جریان بازی بر عهده بگیرند.</p>
+            <div class="skill-subitems">
+              <div class="subitem">
+                <button class="subitem-toggle">
+                  <span>مشاغل</span>
+                  <span class="subitem-sign"></span>
+                </button>
+                <div class="subitem-panel">
+                  <div class="subitem-panel-inner">
+                    <p>مشاغل مختلف به بازیکنان امکان می‌دهند با انجام وظایف مشخص، درآمد کسب کنند و بخشی از فعالیت‌های روزمره شهر را بر عهده بگیرند.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="subitem">
+                <button class="subitem-toggle">
+                  <span>ارگان‌ها</span>
+                  <span class="subitem-sign"></span>
+                </button>
+                <div class="subitem-panel">
+                  <div class="subitem-panel-inner">
+                    <p>ارگان‌های گیتی دارای وظایف و ساختار مشخص هستند و بازیکنان می‌توانند با عضویت در آن‌ها، نقش‌ها و مسئولیت‌های متفاوتی را تجربه کنند.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="subitem">
+                <button class="subitem-toggle">
+                  <span>مسیر پیشرفت</span>
+                  <span class="subitem-sign"></span>
+                </button>
+                <div class="subitem-panel">
+                  <div class="subitem-panel-inner">
+                    <p>فعالیت و عملکرد بازیکنان می‌تواند زمینه دسترسی به موقعیت‌ها و مسئولیت‌های بیشتر را فراهم کند.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="skill-carousel">
+              <img src="skill-jobs-1.jpg" alt="مشاغل و ارگان‌های اختصاصی">
+              <img src="skill-jobs-2.jpg" alt="مشاغل و ارگان‌های اختصاصی">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="skill-item" data-skill="events">
+        <button class="skill-toggle">
+          <span class="skill-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4zM7 6H4a2 2 0 0 0 2 2M17 6h3a2 2 0 0 1-2 2"/></svg>
+          </span>
+          <span class="skill-name">ایونت‌ها و جوایز هیجان‌انگیز</span>
+          <span class="skill-chevron">⌄</span>
+        </button>
+        <div class="skill-panel">
+          <div class="skill-panel-inner">
+            <p class="skill-panel-desc">ایونت‌های گیتی در زمان‌های مختلف برگزار می‌شوند و بازیکنان را در فعالیت‌ها و رقابت‌های متنوع درگیر می‌کنند. بسته به نوع رویداد، شرکت‌کنندگان می‌توانند برای کسب جوایز مختلف با یکدیگر رقابت کنند و تجربه‌ای متفاوت از روند معمول بازی داشته باشند.</p>
+            <div class="skill-carousel">
+              <img src="skill-events-1.jpg" alt="ایونت‌ها و جوایز هیجان‌انگیز">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="skill-item" data-skill="updates">
+        <button class="skill-toggle">
+          <span class="skill-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>
+          </span>
+          <span class="skill-name">آپدیت‌های مداوم و نوآوری‌های جدید</span>
+          <span class="skill-chevron">⌄</span>
+        </button>
+        <div class="skill-panel">
+          <div class="skill-panel-inner">
+            <p class="skill-panel-desc">آپدیت‌های گیتی می‌توانند شامل اضافه شدن امکانات جدید، بهبود سیستم‌های موجود، رفع مشکلات و ایجاد محتوای تازه باشند. هدف، حفظ کیفیت بازی و ایجاد تجربه‌ای پویا و در حال پیشرفت برای بازیکنان است.</p>
+            <div class="skill-carousel">
+              <img src="skill-updates-1.jpg" alt="آپدیت‌های مداوم و نوآوری‌های جدید">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="news-section" id="newsSection">
+    <div class="news-head">
+      <h2>اخبار و آپدیت‌ها</h2>
+      <p>آخرین تغییرات و اعلامیه‌های مربوط به سایت، سرور و فروشگاه.</p>
+    </div>
+
+    <div class="tab-switch" id="mainTabSwitch">
+      <button class="tab-btn active" data-type="news">اخبار</button>
+      <button class="tab-btn" data-type="update">آپدیت‌ها</button>
+    </div>
+
+    <div class="chip-row">
+      <button class="chip active" data-cat="all">همه</button>
+      <button class="chip" data-cat="site">سایت</button>
+      <button class="chip" data-cat="server">سرور</button>
+      <button class="chip" data-cat="shop">فروشگاه</button>
+    </div>
+
+    <div class="article-list" id="articleList">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-row">
+      <a class="social-btn" data-social="telegram" href="#"><img src="icon-telegram.png" alt="Telegram"></a>
+      <a class="social-btn" data-social="instagram" href="#"><img src="icon-instagram.png" alt="Instagram"></a>
+      <a class="social-btn" data-social="youtube" href="#"><img src="icon-youtube.png" alt="YouTube"></a>
+      <a class="social-btn" data-social="discord" href="#"><img src="icon-discord.png" alt="Discord"></a>
+    </div>
+    <div class="footer-tag">GITI ROLE PLAY</div>
+  </div>
+
+</div>
+
+<div class="menu-backdrop" id="menuBackdrop"></div>
+<div class="menu-sheet" id="menuSheet">
+
+  <div class="menu-view" data-view="main">
+    <div class="menu-lang-row">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg> فارسی</span>
+    </div>
+
+    <div class="menu-brand-row">
+      <img src="logo.png" alt="">
+      <span class="menu-brand-sep">|</span>
+      <span class="menu-brand-name">Giti Role Play</span>
+    </div>
+
+    <div class="menu-body">
+      <button class="menu-item" data-home="true">
+        <span>خانه</span>
+      </button>
+      <a class="menu-item" href="https://store.gitirp.ir">
+        <span>فروشگاه</span>
+      </a>
+      <button class="menu-item" data-goto="saved">
+        <span>ذخیره‌شده‌ها</span>
+        <span class="chev">‹</span>
+      </button>
+      <a class="menu-item" href="admin.html">
+        <span>ورود مدیران</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="menu-view" data-view="saved" hidden>
+    <button class="menu-back" data-back="main"><span class="chev-back">›</span> برگشت</button>
+    <div class="menu-body">
+      <div class="tab-switch" id="savedTabSwitch">
+        <button class="tab-btn active" data-savetype="news">اخبار</button>
+        <button class="tab-btn" data-savetype="update">آپدیت‌ها</button>
+      </div>
+      <div id="savedList" class="saved-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="android-overlay" id="androidOverlay">
+  <div class="agd-wrap">
+    <div class="agd-topbar">
+      <div class="agd-brand">
+        <img class="agd-logo-img" src="logo.png" alt="GITI">
+        <span class="agd-sep">|</span>
+        <img class="agd-platform-icon" src="icon-android.png" alt="Android">
+      </div>
+      <button class="agd-close" id="agdCloseBtn">✕</button>
+    </div>
+
+    <div class="agd-title">نسخهٔ خود را انتخاب کنید</div>
+
+    <div class="agd-pick-row">
+      <div class="agd-pick-card" id="agdCardOfficial">
+        <div class="agd-pick-title" id="agdOfficialTitle">لانچر رسمی</div>
+        <div class="agd-pick-sub" id="agdOfficialSub">نسخهٔ اختصاصی گیتی</div>
+      </div>
+      <div class="agd-pick-card" id="agdCardAlt">
+        <div class="agd-pick-title">مسیر جایگزین</div>
+        <div class="agd-pick-sub">با لانچرهای سمپ موجود</div>
+      </div>
+    </div>
+
+    <div class="agd-sub-pick-row" id="agdSubPickRow">
+      <div class="agd-sub-pick-card" id="agdCardNew">تازه‌کار</div>
+      <div class="agd-sub-pick-card" id="agdCardVeteran">کهنه‌کار</div>
+    </div>
+
+    <div class="agd-guide-area">
+
+      <div class="agd-item" id="agdStartGuide">
+        <div class="agd-toggle">
+          <span class="agd-name">راهنمای شروع</span>
+        </div>
+        <div class="agd-panel">
+          <div class="agd-panel-inner">
+            <p class="agd-desc">پیش از نصب، بهتر است با گیتی و نحوهٔ شروع بازی آشنا شوید.</p>
+            <div class="agd-subitems">
+              <div class="agd-subitem">
+                <button class="agd-subitem-toggle"><span>Giti چیست؟</span><span class="agd-subitem-sign"></span></button>
+                <div class="agd-subitem-panel"><div class="agd-subitem-panel-inner">
+                  گیتی یک سرور رول‌پلی بر پایهٔ Grand Theft Auto: San Andreas Multiplayer است. بازیکنان در این سرور شخصیت، شغل و دارایی‌های خود را می‌سازند و در یک محیط شهری چندنفره با یکدیگر تعامل دارند.
+                </div></div>
+              </div>
+              <div class="agd-subitem">
+                <button class="agd-subitem-toggle"><span>چه کارهایی می‌توانم انجام دهم؟</span><span class="agd-subitem-sign"></span></button>
+                <div class="agd-subitem-panel"><div class="agd-subitem-panel-inner">
+                  بازیکنان می‌توانند شغل انتخاب کنند، درآمد کسب کنند، وسیله نقلیه و ملک تهیه کنند، به یکی از مشاغل یا ارگان‌های اختصاصی بپیوندند و در ایونت‌های سرور شرکت کنند. مسیر پیشرفت هر بازیکن بر اساس انتخاب‌ها و فعالیت‌های او در سرور شکل می‌گیرد.
+                </div></div>
+              </div>
+              <div class="agd-subitem">
+                <button class="agd-subitem-toggle"><span>از کجا شروع کنم؟</span><span class="agd-subitem-sign"></span></button>
+                <div class="agd-subitem-panel"><div class="agd-subitem-panel-inner">
+                  پس از نصب کلاینت و ورود به سرور، شخصیت ساخته می‌شود و بازیکن در نقطه‌ای مشخص از شهر وارد بازی می‌شود. قوانین سرور در بخش راهنما در دسترس است و در هر مرحله قابل مراجعه است.
+                </div></div>
+              </div>
+            </div>
+            <button class="agd-cta-btn" id="agdStartInstallBtn">همین الان نصب کنید</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="agd-item" id="agdInstallGuide">
+        <div class="agd-toggle">
+          <button class="agd-back" id="agdBackBtn">‹ برگشت</button>
+          <span class="agd-name">راهنمای نصب</span>
+        </div>
+        <div class="agd-panel">
+          <div class="agd-panel-inner">
+            <div class="agd-subitems">
+              <div class="agd-subitem" id="agdStep1">
+                <button class="agd-subitem-toggle"><span><span class="agd-subitem-num">۱.</span>لانچرهای جایگزین را نصب کن</span><span class="agd-subitem-sign"></span></button>
+                <div class="agd-subitem-panel"><div class="agd-subitem-panel-inner">
+                  یکی از لانچرهای جایگزین سمپ زیر را، به ترتیب اولویت، نصب کنید:
+                  <div class="agd-app-row"><div class="agd-app-icon"></div><div class="agd-app-info"><div class="agd-app-name">SAMP Unity</div></div><button class="agd-app-dl-btn">نصب</button></div>
+                  <div class="agd-app-row"><div class="agd-app-icon"></div><div class="agd-app-info"><div class="agd-app-name">Eagle Vision SAMP Launcher</div></div><button class="agd-app-dl-btn">نصب</button></div>
+                  <div class="agd-app-row"><div class="agd-app-icon"></div><div class="agd-app-info"><div class="agd-app-name">Alyn SAMP Mobile Launcher</div></div><button class="agd-app-dl-btn">نصب</button></div>
+                  <div class="agd-rules-link">دیدن قوانین ‹</div>
+                </div></div>
+              </div>
+              <div class="agd-subitem" id="agdStep2">
+                <button class="agd-subitem-toggle"><span><span class="agd-subitem-num">۲.</span>مجوز فایل‌ها را تایید کن</span><span class="agd-subitem-sign"></span></button>
+                <div class="agd-subitem-panel"><div class="agd-subitem-panel-inner">
+                  برای ذخیرهٔ اطلاعات بازی، لانچر به دسترسی فایل‌های دستگاه نیاز دارد. این دسترسی باید تایید شود.
+                </div></div>
+              </div>
+              <div class="agd-subitem" id="agdStep3">
+                <button class="agd-subitem-toggle"><span><span class="agd-subitem-num">۳.</span>دریافت دیتا را کامل کن</span><span class="agd-subitem-sign"></span></button>
+                <div class="agd-subitem-panel"><div class="agd-subitem-panel-inner">
+                  تا پایان دانلود، برنامه و اتصال اینترنت باید باز و برقرار بماند.
+                </div></div>
+              </div>
+              <div class="agd-subitem" id="agdStep4">
+                <button class="agd-subitem-toggle"><span><span class="agd-subitem-num">۴.</span>شخصیتت را وارد کن</span><span class="agd-subitem-sign"></span></button>
+                <div class="agd-subitem-panel"><div class="agd-subitem-panel-inner">
+                  پس از اتمام دانلود، از داخل لانچر روی نماد پخش بزنید تا وارد فهرست سرورها شوید. سرور گیتی را با آی‌پی زیر به لیست علاقه‌مندی‌ها اضافه کنید:<br>
+                  <div class="agd-ip-copy" id="agdIpCopy">
+                    <span class="agd-ip-copy-text" id="agdIpCopyText">—</span>
+                    <span class="agd-ip-copy-icon">⧉</span>
+                  </div><br>
+                  سپس نام کاربری را با فرمت <b>Nick_Name</b> وارد کرده و وارد بازی شوید.
+                  <div class="agd-username-check"><span class="agd-username-x">✗</span> Nick name / nick_name</div>
+                  <div class="agd-username-check"><span class="agd-username-ok">✓</span> Nick_Name</div>
+                </div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="reader-overlay" id="readerOverlay">
+  <div class="reader-loading" id="readerLoading"><div class="reader-spinner"></div></div>
+  <div class="reader-body" id="readerBody"></div>
+</div>
+
+<div class="reader-header" id="readerHeader">
+  <button class="reader-close" id="readerClose">✕</button>
+  <button class="reader-hamburger-btn" id="readerHamburgerBtn">
+    <span class="reader-hb-bar"></span><span class="reader-hb-bar"></span><span class="reader-hb-bar"></span>
+  </button>
+</div>
+
+<div class="reader-menu-backdrop" id="readerMenuBackdrop"></div>
+<div class="reader-menu-sheet" id="readerMenuSheet">
+  <div class="menu-lang-row">
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg> فارسی</span>
+  </div>
+  <div class="menu-brand-row">
+    <img src="logo-black.png" alt="">
+    <span class="menu-brand-sep">|</span>
+    <span class="menu-brand-name">Giti Role Play</span>
+  </div>
+  <div class="menu-body">
+    <a class="menu-item" href="https://gitirp.ir">
+      <span>خانه</span>
+    </a>
+    <a class="menu-item" href="https://store.gitirp.ir">
+      <span>فروشگاه</span>
+    </a>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import {
+    getFirestore, collection, onSnapshot, orderBy, query
+  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB0oH5tB6CUiy_d-_XqtIhu_uY1xwLluNE",
+    authDomain: "giti-roleplay.firebaseapp.com",
+    projectId: "giti-roleplay",
+    storageBucket: "giti-roleplay.firebasestorage.app",
+    messagingSenderId: "3264333771",
+    appId: "1:3264333771:web:5e3b889685765004ccd84e"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+
+  const socialLinks = {
+    telegram:  "https://t.me/GitiRolePlay",
+    instagram: "https://www.instagram.com/gitirpofficial?igsh=YW43NWh0YmZlbTZu",
+    youtube:   "https://youtube.com/@gitirp?si=hdAkUo8BNQbCBGmJ",
+    discord:   "https://discord.gg/BP2UtCbPe",
+  };
+  document.querySelectorAll(".social-btn").forEach(el => {
+    const key = el.getAttribute("data-social");
+    if (key && socialLinks[key]) el.href = socialLinks[key];
+  });
+
+  // hero image carousel — cross-fades between the 3 images every few seconds
+  (function(){
+    const imgs = document.querySelectorAll("#heroCarousel img");
+    if (imgs.length < 2) return;
+    let idx = 0;
+    setInterval(() => {
+      imgs[idx].classList.remove("active");
+      idx = (idx + 1) % imgs.length;
+      imgs[idx].classList.add("active");
+    }, 4500);
+  })();
+
+  // scroll-cue button: smooth-scrolls to the "چرا گیتی؟" section
+  document.getElementById("scrollCueBtn").addEventListener("click", () => {
+    const target = document.getElementById("whySection");
+    const targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+    window.scrollTo({ top: targetTop - 20, behavior: "smooth" });
+  });
+
+  // staggered fade-in for the four skill cards once they scroll into view
+  if ("IntersectionObserver" in window) {
+    const featureCards = document.querySelectorAll(".skill-item");
+    const featureObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          featureCards.forEach((card, i) => {
+            setTimeout(() => card.classList.add("show"), i * 180);
+          });
+          featureObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+    featureObserver.observe(document.querySelector(".why-features"));
+  } else {
+    document.querySelectorAll(".skill-item").forEach(card => card.classList.add("show"));
+  }
+
+  // "چرا گیتی؟" skill accordion — only one main skill open at a time,
+  // and within a skill only one subitem (+/−) open at a time.
+  //
+  // The outer skill-panel animates open with a max-height transition, but
+  // once fully open it switches to max-height:none so it can never clip
+  // content again — otherwise, opening a subitem inside it needs the outer
+  // panel's max-height recalculated in lockstep, and racing that against
+  // the subitem's own transition is exactly what caused content to get cut
+  // off. With max-height:none once settled, the outer panel just grows and
+  // shrinks naturally with whatever is inside it.
+  document.querySelectorAll(".skill-item").forEach(item => {
+    const toggle = item.querySelector(".skill-toggle");
+    const panel = item.querySelector(".skill-panel");
+    const panelInner = item.querySelector(".skill-panel-inner");
+
+    function openPanel(){
+      panel.style.maxHeight = panelInner.scrollHeight + "px";
+      panel.addEventListener("transitionend", function onEnd(e){
+        if (e.propertyName === "max-height") {
+          if (item.classList.contains("open")) panel.style.maxHeight = "none";
+          panel.removeEventListener("transitionend", onEnd);
+        }
+      });
+    }
+    function closePanel(){
+      // if currently "none", first snap to an explicit pixel height (you
+      // can't transition away from "none") before animating down to 0
+      panel.style.maxHeight = panelInner.scrollHeight + "px";
+      panel.offsetHeight; // force reflow so the browser registers that value
+      requestAnimationFrame(() => { panel.style.maxHeight = "0px"; });
+    }
+
+    toggle.addEventListener("click", () => {
+      const isOpen = item.classList.contains("open");
+      const HEADER_MS = 300; // matches the CSS transition durations above exactly
+
+      document.querySelectorAll(".skill-item.open").forEach(openItem => {
+        if (openItem !== item) {
+          openItem.classList.remove("open");
+          const otherPanel = openItem.querySelector(".skill-panel");
+          const otherInner = openItem.querySelector(".skill-panel-inner");
+          otherPanel.style.maxHeight = otherInner.scrollHeight + "px";
+          otherPanel.offsetHeight;
+          requestAnimationFrame(() => { otherPanel.style.maxHeight = "0px"; });
+        }
+      });
+      if (isOpen) {
+        item.classList.remove("open");
+        closePanel();
+      } else {
+        item.classList.add("open");
+        // Let the header finish turning white before the panel expands
+        // beneath it — one continuous white surface growing down from an
+        // already-white header, instead of the panel racing ahead. The
+        // delay matches the CSS transition duration exactly (no guessing),
+        // and scrolling into view happens at that same moment — by which
+        // point any previously-open skill has had the same amount of time
+        // to finish collapsing, so the page isn't still shifting under the
+        // scroll animation.
+        setTimeout(() => {
+          openPanel();
+          toggle.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, HEADER_MS);
+      }
+    });
+
+    item.querySelectorAll(".subitem").forEach(sub => {
+      const subToggle = sub.querySelector(".subitem-toggle");
+      const subPanel = sub.querySelector(".subitem-panel");
+      const subInner = sub.querySelector(".subitem-panel-inner");
+      subToggle.addEventListener("click", () => {
+        const subIsOpen = sub.classList.contains("open");
+        item.querySelectorAll(".subitem.open").forEach(openSub => {
+          if (openSub !== sub) {
+            openSub.classList.remove("open");
+            openSub.querySelector(".subitem-panel").style.maxHeight = "0px";
+          }
+        });
+        if (subIsOpen) {
+          sub.classList.remove("open");
+          subPanel.style.maxHeight = "0px";
+        } else {
+          sub.classList.add("open");
+          subPanel.style.maxHeight = subInner.scrollHeight + "px";
+        }
+        // the outer panel is already max-height:none by the time any
+        // subitem is reachable (it's only visible once its skill is open),
+        // so it grows/shrinks on its own — nothing to recalculate here.
+      });
+    });
+  });
+
+  // hamburger menu (side drawer) — the hamburger button itself morphs into an X
+  const menuBackdrop = document.getElementById("menuBackdrop");
+  const menuSheet = document.getElementById("menuSheet");
+  const menuViews = document.querySelectorAll(".menu-view");
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+
+  function showMenuView(name){
+    menuViews.forEach(v => { v.hidden = (v.getAttribute("data-view") !== name); });
+    if (name === "saved") renderSaved();
+  }
+  function openMenu(){
+    showMenuView("main");
+    menuBackdrop.classList.add("show");
+    menuSheet.classList.add("show");
+    hamburgerBtn.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeMenu(){
+    menuBackdrop.classList.remove("show");
+    menuSheet.classList.remove("show");
+    hamburgerBtn.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  hamburgerBtn.addEventListener("click", () => {
+    hamburgerBtn.classList.contains("open") ? closeMenu() : openMenu();
+  });
+  menuBackdrop.addEventListener("click", closeMenu);
+
+  document.querySelectorAll(".menu-item[data-goto]").forEach(btn => {
+    btn.addEventListener("click", () => showMenuView(btn.getAttribute("data-goto")));
+  });
+  document.querySelectorAll(".menu-back[data-back]").forEach(btn => {
+    btn.addEventListener("click", () => showMenuView(btn.getAttribute("data-back")));
+  });
+
+  // "خانه" (Home) — scrolls to the top of this same page and closes the drawer
+  document.querySelectorAll(".menu-item[data-home]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      closeMenu();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // brief accent-color highlight feedback on any menu item tap
+  document.querySelectorAll(".menu-item").forEach(item => {
+    item.addEventListener("click", () => {
+      document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
+    });
+  });
+
+  // Server IP copy button
+  const ipCopyBtn = document.getElementById("ipCopyBtn");
+  ipCopyBtn.addEventListener("click", () => {
+    const text = document.getElementById("ipValueText").textContent.trim();
+    const doneFeedback = () => {
+      ipCopyBtn.querySelector(".ip-icon-copy").style.display = "none";
+      ipCopyBtn.querySelector(".ip-icon-check").style.display = "block";
+      setTimeout(() => {
+        ipCopyBtn.querySelector(".ip-icon-copy").style.display = "block";
+        ipCopyBtn.querySelector(".ip-icon-check").style.display = "none";
+      }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(doneFeedback).catch(doneFeedback);
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch(e){}
+      document.body.removeChild(ta);
+      doneFeedback();
+    }
+  });
+
+  // "Play Now" — platform picker, positioned above/below based on button's screen position
+  const playWrap = document.getElementById("playWrap");
+  const playNowBtn = document.getElementById("playNowBtn");
+  const playOptions = document.getElementById("playOptions");
+
+  playNowBtn.addEventListener("click", () => {
+    const isOpen = playWrap.classList.contains("open");
+    if (isOpen) {
+      playWrap.classList.remove("open");
+      playOptions.classList.remove("show");
+      playNowBtn.style.width = "";
+      playNowBtn.style.height = "";
+      return;
+    }
+    // lock the button's current full size so the box itself never resizes when the label swaps to "✕"
+    const rect = playNowBtn.getBoundingClientRect();
+    playNowBtn.style.width = rect.width + "px";
+    playNowBtn.style.height = rect.height + "px";
+    const isInBottomHalf = rect.top > window.innerHeight / 2;
+    playOptions.style.width = rect.width + "px";
+    playOptions.classList.remove("above", "below");
+    playOptions.classList.add(isInBottomHalf ? "above" : "below");
+    playWrap.classList.add("open");
+    playOptions.classList.add("show");
+  });
+
+  // ===== Android download-flow overlay =====
+  const androidOverlay = document.getElementById("androidOverlay");
+  const agdCloseBtn = document.getElementById("agdCloseBtn");
+  const playOptionAndroid = document.getElementById("playOptionAndroid");
+  const agdCardOfficial = document.getElementById("agdCardOfficial");
+  const agdCardAlt = document.getElementById("agdCardAlt");
+  const agdSubPickRow = document.getElementById("agdSubPickRow");
+  const agdCardNew = document.getElementById("agdCardNew");
+  const agdCardVeteran = document.getElementById("agdCardVeteran");
+  const agdStartGuide = document.getElementById("agdStartGuide");
+  const agdInstallGuide = document.getElementById("agdInstallGuide");
+  const agdStartInstallBtn = document.getElementById("agdStartInstallBtn");
+  const agdBackBtn = document.getElementById("agdBackBtn");
+
+  playOptionAndroid.addEventListener("click", (e) => {
+    e.preventDefault();
+    playWrap.classList.remove("open");
+    playOptions.classList.remove("show");
+    playNowBtn.style.width = "";
+    playNowBtn.style.height = "";
+    androidOverlay.classList.add("show");
+    document.body.style.overflow = "hidden";
+    history.pushState({ android: true }, "", location.href);
+  });
+  function agdCloseOverlay(){
+    androidOverlay.classList.remove("show");
+    document.body.style.overflow = "";
+  }
+  agdCloseBtn.addEventListener("click", () => {
+    if (history.state && history.state.android) history.back();
+    else agdCloseOverlay();
+  });
+
+  agdCardOfficial.addEventListener("click", () => {
+    if (agdCardOfficial.classList.contains("disabled")) return;
+    document.getElementById("agdOfficialTitle").textContent = "در حال توسعه";
+    document.getElementById("agdOfficialSub").textContent = "";
+    agdCardOfficial.classList.add("disabled");
+  });
+  agdCardAlt.addEventListener("click", () => {
+    agdCardAlt.classList.add("selected");
+    agdSubPickRow.classList.add("show");
+    setTimeout(() => { agdSubPickRow.scrollIntoView({ behavior: "smooth", block: "center" }); }, 400);
+  });
+
+  function agdRevealCard(item){
+    item.style.display = "block";
+    item.offsetHeight;
+    requestAnimationFrame(() => item.classList.add("show"));
+  }
+  function agdHideCard(item){
+    item.classList.remove("show");
+    setTimeout(() => { item.style.display = "none"; }, 350);
+  }
+  function agdCenterOnScreen(item){
+    setTimeout(() => { item.scrollIntoView({ behavior: "smooth", block: "center" }); }, 60);
+  }
+  function agdOpenSkill(item, onSettled){
+    const panel = item.querySelector(".agd-panel");
+    const inner = item.querySelector(".agd-panel-inner");
+    item.classList.add("open");
+    // Always animate from a concrete 0, even if this panel was already left
+    // at "none" from a previous open — animating "none" to that same exact
+    // height produces no visible change and no transitionend event, so a
+    // callback waiting on it (like auto-opening step 1) would silently
+    // never fire the second time around.
+    panel.style.maxHeight = "0px";
+    panel.offsetHeight;
+    requestAnimationFrame(() => { panel.style.maxHeight = inner.scrollHeight + "px"; });
+    panel.addEventListener("transitionend", function onEnd(e){
+      if (e.propertyName === "max-height" && item.classList.contains("open")){
+        panel.style.maxHeight = "none";
+        if (onSettled) onSettled();
+      }
+      panel.removeEventListener("transitionend", onEnd);
+    });
+  }
+  function agdCloseSkill(item){
+    const panel = item.querySelector(".agd-panel");
+    const inner = item.querySelector(".agd-panel-inner");
+    panel.style.maxHeight = inner.scrollHeight + "px";
+    panel.offsetHeight;
+    requestAnimationFrame(() => { panel.style.maxHeight = "0px"; });
+    item.classList.remove("open");
+  }
+  function agdOpenSubitem(sub){
+    const panel = sub.querySelector(".agd-subitem-panel");
+    const inner = sub.querySelector(".agd-subitem-panel-inner");
+    sub.classList.add("open");
+    panel.style.maxHeight = inner.scrollHeight + "px";
+  }
+  function agdCloseSubitem(sub){
+    sub.querySelector(".agd-subitem-panel").style.maxHeight = "0px";
+    sub.classList.remove("open");
+  }
+  document.querySelectorAll(".agd-subitem-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const sub = btn.parentElement;
+      const group = sub.parentElement;
+      const isOpen = sub.classList.contains("open");
+      group.querySelectorAll(".agd-subitem.open").forEach(o => { if (o !== sub) agdCloseSubitem(o); });
+      if (isOpen) {
+        agdCloseSubitem(sub);
+      } else {
+        agdOpenSubitem(sub);
+        setTimeout(() => { sub.scrollIntoView({ behavior: "smooth", block: "center" }); }, 320);
+      }
+    });
+  });
+
+  agdCardNew.addEventListener("click", () => {
+    agdCardNew.classList.add("selected");
+    agdCardVeteran.classList.remove("selected");
+    agdHideCard(agdInstallGuide);
+    agdInstallGuide.classList.remove("locked-open", "open");
+    agdStartGuide.classList.add("locked-open");
+    agdRevealCard(agdStartGuide);
+    agdOpenSkill(agdStartGuide, () => agdCenterOnScreen(agdStartGuide));
+  });
+
+  agdCardVeteran.addEventListener("click", () => {
+    agdCardVeteran.classList.add("selected");
+    agdCardNew.classList.remove("selected");
+    agdHideCard(agdStartGuide);
+    agdStartGuide.classList.remove("locked-open", "open");
+    agdInstallGuide.classList.add("locked-open");
+    agdRevealCard(agdInstallGuide);
+    document.querySelectorAll("#agdInstallGuide .agd-subitem.open").forEach(agdCloseSubitem);
+    // Centering waits until the outer panel has fully settled AND step 1 has
+    // opened, so it scrolls to the true final (taller) height instead of
+    // the shorter pre-expansion height — otherwise the bottom gets cut off.
+    agdOpenSkill(agdInstallGuide, () => {
+      agdOpenSubitem(document.getElementById("agdStep1"));
+      agdCenterOnScreen(agdInstallGuide);
+    });
+  });
+
+  agdStartInstallBtn.addEventListener("click", () => {
+    agdCloseSkill(agdStartGuide);
+    agdStartGuide.classList.remove("locked-open");
+    agdInstallGuide.classList.add("locked-open");
+    agdRevealCard(agdInstallGuide);
+    agdOpenSkill(agdInstallGuide, () => agdCenterOnScreen(agdInstallGuide));
+  });
+
+  agdBackBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    agdHideCard(agdInstallGuide);
+    agdInstallGuide.classList.remove("locked-open", "open");
+    agdStartGuide.classList.add("locked-open");
+    agdOpenSkill(agdStartGuide, () => agdCenterOnScreen(agdStartGuide));
+  });
+
+  // Reuse the real, live server IP already shown on the homepage instead of
+  // duplicating a hardcoded value that could drift out of sync.
+  const agdIpCopy = document.getElementById("agdIpCopy");
+  const agdIpCopyText = document.getElementById("agdIpCopyText");
+  agdIpCopyText.textContent = document.getElementById("ipValueText").textContent;
+  agdIpCopy.addEventListener("click", async () => {
+    const ip = agdIpCopyText.textContent.trim();
+    try { await navigator.clipboard.writeText(ip); } catch (e) {}
+    agdIpCopy.classList.add("copied");
+    setTimeout(() => agdIpCopy.classList.remove("copied"), 1800);
+  });
+
+
+  // --- live content, loaded from Firestore (edited from admin.html) ---
+  let articles = [];
+
+  const icons = {
+    bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>',
+  };
+
+  function formatCardDate(ms){
+    if (!ms) return "";
+    return new Date(ms).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  }
+  function formatDate(ms){
+    if (!ms) return "";
+    const d = new Date(ms);
+    const datePart = d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+    const timePart = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    return `${datePart} at ${timePart}`;
+  }
+
+  function stripHTML(html){
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html || "";
+    return (tmp.textContent || "").trim();
+  }
+  function snippet(html, len){
+    const t = stripHTML(html);
+    return t.length > len ? t.slice(0, len).trim() + "…" : t;
+  }
+
+  // --- saved articles (persisted on this device) ---
+  const SAVED_KEY = "giti_saved_articles";
+  function getSavedIds(){
+    try { return JSON.parse(localStorage.getItem(SAVED_KEY) || "[]"); }
+    catch(e){ return []; }
+  }
+  function toggleSaved(id){
+    let ids = getSavedIds();
+    if (ids.includes(id)) ids = ids.filter(x => x !== id);
+    else ids.push(id);
+    localStorage.setItem(SAVED_KEY, JSON.stringify(ids));
+    return ids;
+  }
+
+  function articleCardHTML(a){
+    const hasPhoto = !!a.coverImage;
+    const imageBlock = hasPhoto
+      ? `<img class="article-photo" src="${a.coverImage}" alt="" onerror="window.__giti_imgError(this)">`
+      : `<div class="no-image-watermark">تصویر موجود نیست</div>`;
+    const logoSrc = hasPhoto ? "logo.png" : "logo-black.png";
+    const dateClass = hasPhoto ? "" : " dark";
+    return `
+      <div class="article-card${hasPhoto ? "" : " no-photo"}" data-open="${a.id}">
+        ${imageBlock}
+        <div class="card-glow"></div>
+        <div class="card-top-row">
+          <img class="card-logo" src="${logoSrc}" alt="">
+          <span class="card-date${dateClass}">${formatCardDate(a.createdAt)}</span>
+        </div>
+        <div class="card-bottom-row">
+          <div class="card-title">${a.title || ""}</div>
+          <div class="card-subtitle-row">
+            ${a.subtitle ? `<div class="card-subtitle">${a.subtitle}</div>` : "<span></span>"}
+            <button class="card-more-btn" type="button">Learn more</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // If a real cover-image URL fails to load, fall back to the placeholder
+  // and switch the logo/date to their dark variants for readability.
+  window.__giti_imgError = function(imgEl){
+    const card = imgEl.closest(".article-card");
+    imgEl.remove();
+    card.classList.add("no-photo");
+    card.insertAdjacentHTML("afterbegin", '<div class="no-image-watermark">تصویر موجود نیست</div>');
+    const logo = card.querySelector(".card-logo");
+    if (logo) logo.src = "logo-black.png";
+    const dateEl = card.querySelector(".card-date");
+    if (dateEl) dateEl.classList.add("dark");
+  };
+
+  function bindCardOpen(container){
+    container.querySelectorAll(".article-card[data-open]").forEach(card => {
+      card.addEventListener("click", () => openArticle(card.getAttribute("data-open")));
+    });
+  }
+
+  let currentType = "news";
+  let currentCat = "all";
+
+  const articleList = document.getElementById("articleList");
+
+  function renderArticles(){
+    const filtered = articles.filter(a =>
+      a.type === currentType && (currentCat === "all" || a.cat === currentCat)
+    );
+    if (filtered.length === 0){
+      articleList.innerHTML = '<div class="empty-articles">موردی برای نمایش وجود ندارد.</div>';
+      return;
+    }
+    articleList.innerHTML = filtered.map(a => articleCardHTML(a)).join("");
+    bindCardOpen(articleList);
+  }
+
+  // --- full-screen reader ---
+  const readerOverlay = document.getElementById("readerOverlay");
+  const readerBody = document.getElementById("readerBody");
+  const readerHeader = document.getElementById("readerHeader");
+  const readerClose = document.getElementById("readerClose");
+
+  function openArticle(id, replaceHistory){
+    const a = articles.find(x => x.id === id);
+    if (!a) return;
+    const saved = getSavedIds().includes(a.id);
+    readerBody.innerHTML = `
+      <div class="reader-eyebrow">${a.label || ""}</div>
+      <div class="reader-title">${a.title || ""}</div>
+      ${a.subtitle ? `<div class="reader-subtitle">${a.subtitle}</div>` : ""}
+      <div class="reader-author">
+        <img src="logo-black.png" alt="">
+        <div>
+          <div class="reader-author-name">GITI RP</div>
+          <div class="reader-author-date">${formatDate(a.createdAt)}</div>
+        </div>
+      </div>
+      <div class="reader-rule"></div>
+      <div class="reader-content">${a.bodyHTML || ""}</div>
+      <div class="reader-save-row">
+        <button class="reader-save-btn ${saved ? "saved" : ""}" id="readerSaveBtn" data-id="${a.id}">
+          ${icons.bookmark} <span>${saved ? "ذخیره شد" : "ذخیره کن"}</span>
+        </button>
+        <button class="reader-share-btn" id="readerShareBtn"><img src="icon-share.png" alt=""> اشتراک‌گذاری</button>
+        <button class="reader-share-btn" id="readerCopyBtn">کپی لینک</button>
+      </div>
+    `;
+    readerBody.scrollTop = 0;
+    readerOverlay.classList.add("show");
+    readerHeader.classList.add("show");
+    readerHeader.classList.toggle("direct-entry", !!replaceHistory);
+    document.body.style.overflow = "hidden";
+    if (replaceHistory) {
+      history.replaceState({ reader: true }, "", "#article-" + id);
+    } else {
+      history.pushState({ reader: true }, "", "#article-" + id);
+    }
+
+    document.getElementById("readerSaveBtn").addEventListener("click", (e) => {
+      const ids = toggleSaved(a.id);
+      const isSaved = ids.includes(a.id);
+      e.currentTarget.classList.toggle("saved", isSaved);
+      e.currentTarget.querySelector("span").textContent = isSaved ? "ذخیره شد" : "ذخیره کن";
+      renderArticles();
+      if (typeof renderSaved === "function") renderSaved();
+    });
+
+    const articleUrl = location.origin + location.pathname + "#article-" + a.id;
+    document.getElementById("readerShareBtn").addEventListener("click", async () => {
+      if (navigator.share) {
+        try { await navigator.share({ title: a.title || "GITI RP", text: a.subtitle || "", url: articleUrl }); }
+        catch (e) { /* user cancelled — no action needed */ }
+      } else {
+        copyLink(articleUrl);
+      }
+    });
+    document.getElementById("readerCopyBtn").addEventListener("click", () => copyLink(articleUrl));
+  }
+
+  function copyLink(url){
+    const showToast = () => {
+      const toast = document.getElementById("shareToast");
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(showToast).catch(showToast);
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = url; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch(e){}
+      document.body.removeChild(ta);
+      showToast();
+    }
+  }
+
+  function closeArticle(){
+    readerOverlay.classList.remove("show");
+    readerHeader.classList.remove("show");
+    readerHeader.classList.remove("direct-entry");
+    closeReaderMenu();
+    document.body.style.overflow = "";
+  }
+
+  readerClose.addEventListener("click", () => {
+    if (history.state && history.state.reader) history.back();
+    else closeArticle();
+  });
+
+  const readerHamburgerBtn = document.getElementById("readerHamburgerBtn");
+  const readerMenuBackdrop = document.getElementById("readerMenuBackdrop");
+  const readerMenuSheet = document.getElementById("readerMenuSheet");
+  function openReaderMenu(){
+    readerMenuBackdrop.classList.add("show");
+    readerMenuSheet.classList.add("show");
+    readerHamburgerBtn.classList.add("open");
+    readerHeader.classList.add("menu-open");
+  }
+  function closeReaderMenu(){
+    readerMenuBackdrop.classList.remove("show");
+    readerMenuSheet.classList.remove("show");
+    readerHamburgerBtn.classList.remove("open");
+    readerHeader.classList.remove("menu-open");
+  }
+  readerHamburgerBtn.addEventListener("click", () => {
+    readerHamburgerBtn.classList.contains("open") ? closeReaderMenu() : openReaderMenu();
+  });
+  readerMenuBackdrop.addEventListener("click", closeReaderMenu);
+
+  window.addEventListener("popstate", (e) => {
+    if (!(e.state && e.state.reader)) closeArticle();
+    if (!(e.state && e.state.android)) agdCloseOverlay();
+  });
+
+  document.querySelectorAll("#mainTabSwitch .tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#mainTabSwitch .tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentType = btn.getAttribute("data-type");
+      renderArticles();
+    });
+  });
+
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentCat = chip.getAttribute("data-cat");
+      renderArticles();
+    });
+  });
+
+  // Tracks whether we've already tried to auto-open an article from a shared link
+  // (e.g. gitirp.ir/#article-XXXX). Without this, opening a shared link just
+  // loaded the homepage because nothing ever read the URL's hash on page load.
+  let sharedLinkOpened = false;
+
+  const articlesQuery = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+  onSnapshot(articlesQuery, (snap) => {
+    articles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderArticles();
+    if (typeof renderSaved === "function") renderSaved();
+    if (!sharedLinkOpened) {
+      sharedLinkOpened = true;
+      const hashMatch = location.hash.match(/^#article-(.+)$/);
+      if (hashMatch) {
+        const targetArticle = articles.find(x => x.id === hashMatch[1]);
+        if (targetArticle) openArticle(targetArticle.id, true);
+      }
+      document.documentElement.classList.remove('opening-shared-article');
+    }
+  }, (err) => {
+    articleList.innerHTML = '<div class="empty-articles">اتصال به سرور اخبار ناموفق بود.</div>';
+  });
+
+  // --- saved-articles view (inside hamburger menu) ---
+  let savedType = "news";
+  const savedList = document.getElementById("savedList");
+
+  function renderSaved(){
+    const ids = getSavedIds();
+    const items = articles.filter(a => ids.includes(a.id) && a.type === savedType);
+    if (items.length === 0){
+      savedList.innerHTML = '<div class="empty-articles">چیزی ذخیره نکردی.</div>';
+      return;
+    }
+    savedList.innerHTML = items.map(a => `
+      <div class="saved-row" data-open="${a.id}">
+        <span class="saved-row-badge"><img src="${a.coverImage || "logo.png"}" alt=""></span>
+        <div class="saved-row-body">
+          <div class="saved-row-title">${a.title}</div>
+          <div class="saved-row-meta">${a.label} · ${formatDate(a.createdAt)}</div>
+        </div>
+        <button class="saved-row-remove" data-id="${a.id}" aria-label="حذف">${icons.bookmark}</button>
+      </div>
+    `).join("");
+    savedList.querySelectorAll(".saved-row").forEach(row => {
+      row.addEventListener("click", (e) => {
+        if (e.target.closest(".saved-row-remove")) return;
+        closeMenu();
+        openArticle(row.getAttribute("data-open"));
+      });
+    });
+    savedList.querySelectorAll(".saved-row-remove").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleSaved(btn.getAttribute("data-id"));
+        renderSaved();
+        renderArticles();
+      });
+    });
+  }
+
+  document.querySelectorAll("#savedTabSwitch .tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#savedTabSwitch .tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      savedType = btn.getAttribute("data-savetype");
+      renderSaved();
+    });
+  });
+</script>
+
+</body>
+</html>
