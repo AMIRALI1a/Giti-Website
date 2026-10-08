@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="درباره گیتی رول‌پلی: معرفی، مسیر و آیندهٔ گیتی و راه ارتباط با ما.">
+<meta name="theme-color" content="#ffffff">
+<title>درباره ما | گیتی رول‌پلی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#fff;color:#111;font-family:'Vazirmatn',Tahoma,sans-serif}
+body{display:flex;flex-direction:column;justify-content:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.back{position:fixed;top:max(env(safe-area-inset-top),14px);right:14px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#a5a5a5;text-decoration:none;font-size:24px;z-index:5;transition:color .2s,background .2s}
+.back:hover,.back:focus-visible{color:#111;background:#f3f3f3;outline:0}
+.stage{width:100%;max-width:980px;margin:0 auto}
+.track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior:contain;outline:0}
+.track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;padding:0 clamp(16px,5vw,56px);display:flex;align-items:center;justify-content:center;min-height:clamp(260px,46vh,420px)}
+.row{display:flex;align-items:center;gap:clamp(16px,4vw,48px);width:100%}
+.txt{flex:1;min-width:0}
+.head{display:flex;align-items:center;gap:clamp(8px,1.4vw,14px);color:#c8c8c8;font-size:clamp(20px,5.4vw,34px);font-weight:500;line-height:1.5}
+.head:before{content:"";width:clamp(18px,5vw,40px);height:1px;background:#c8c8c8}
+.head b{font-weight:500}
+.body{margin-top:clamp(12px,2.4vh,22px);font-size:clamp(14.5px,3.9vw,20px);line-height:2;font-weight:500;color:#111;text-align:justify}
+.rule{width:clamp(34px,9vw,60px);height:1px;background:#d0d0d0;margin-top:clamp(14px,3vh,26px)}
+.contact{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%}
+.contact h2{font-size:clamp(28px,7vw,44px);font-weight:700;color:#111;line-height:1.5}
+.contact p{margin-top:6px;font-size:clamp(12.5px,3.2vw,15px);color:#b4b4b4;font-weight:400}
+.pill{margin-top:clamp(22px,4vh,34px);width:min(100%,540px);direction:ltr;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 20px;border-radius:24px;background:#fcfcfc;border:1px solid #ececec;box-shadow:0 4px 20px rgba(0,0,0,.05)}
+.pill svg{flex:none;color:#777}
+.pill .addr{flex:1;min-width:0;text-align:left;color:#9a9a9a;text-decoration:none;font-size:clamp(14px,3.8vw,17px);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill .go{flex:none;background:#171717;color:#fff;text-decoration:none;border-radius:16px;padding:13px clamp(16px,4vw,26px);font-size:14.5px;font-weight:500;transition:transform .2s,background .2s}
+.pill .go:hover,.pill .go:focus-visible{background:#000;transform:translateY(-1px);outline:0}
+.in{opacity:0;transform:translateX(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.txt>.in:nth-child(2),.contact>.in:nth-child(2){transition-delay:.1s}
+.txt>.in:nth-child(3),.contact>.in:nth-child(3){transition-delay:.2s}
+.slide.on .in{opacity:1;transform:none}
+.dots{display:flex;gap:10px;width:100%;padding:0 clamp(16px,5vw,56px);margin-top:clamp(18px,4vh,40px)}
+.dot{width:6px;height:6px;border-radius:50%;border:0;padding:0;background:#dedede;cursor:pointer;position:relative;transition:background .3s,transform .3s,box-shadow .3s}
+.dot:before{content:"";position:absolute;inset:-10px}
+.dot.on{background:#111;transform:scale(1.35);box-shadow:0 0 0 3px #fff,0 0 0 4px #bdbdbd}
+@media(max-height:520px){.body{font-size:13.5px;line-height:1.8}.head{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.in,.dot{transition:none}.track{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="back" href="/" aria-label="بازگشت به صفحهٔ اصلی">›</a>
+<h1 class="sr">درباره ما</h1>
+<div class="stage">
+<div class="track" id="track" tabindex="0" aria-label="درباره ما">
+<section class="slide" aria-label="01">
+<div class="row">
+<div class="txt"><div class="head in"><b dir="ltr">01</b><span>—</span><span>گیتی چیست؟</span></div><p class="body in">گیتی یک مجموعه بازی و سرگرمی با تمرکز بر تجربه‌های آنلاین و نقش‌آفرینی است. هدف ما ایجاد محیطی منظم و قابل توسعه است که بازیکنان بتوانند در آن در کنار دیگران بازی کنند، فعالیت‌های مختلف انجام دهند و تجربه‌ای پایدار و قابل اعتماد داشته باشند.</p><div class="rule in"></div></div>
+</div>
+</section>
+<section class="slide" aria-label="02">
+<div class="row">
+<div class="txt"><div class="head in"><b dir="ltr">02</b><span>—</span><span>مسیر گیتی</span></div><p class="body in">گیتی فعالیت خود را با تمرکز بر تجربه RolePlay و ساخت یک جامعه فعال از بازیکنان دنبال می‌کند. ما در توسعه گیتی روی سیستم‌های بازی، اقتصاد، مشاغل، گروه‌ها، امکانات اجتماعی و زیرساخت‌های فنی تمرکز داریم و تلاش می‌کنیم هر بخش با برنامه و به‌صورت مرحله‌ای توسعه پیدا کند.</p><div class="rule in"></div></div>
+</div>
+</section>
+<section class="slide" aria-label="03">
+<div class="row">
+<div class="txt"><div class="head in"><b dir="ltr">03</b><span>—</span><span>آینده گیتی</span></div><p class="body in">گیتی یک پروژه بلندمدت است و توسعه آن به یک نسخه یا یک دوره محدود نمی‌شود. برنامه ما ادامه توسعه زیرساخت‌ها و تجربه بازی، حفظ بخش‌های موفق گذشته و حرکت تدریجی به سمت نسخه‌های جدیدتر است؛ با این هدف که گیتی برای بازیکنان قدیمی و نسل‌های جدید، یک تجربه پایدار و قابل ادامه باقی بماند.</p><div class="rule in"></div></div>
+</div>
+</section>
+<section class="slide" aria-label="ارتباط با ما">
+<div class="contact">
+<h2 class="in">ارتباط با ما</h2>
+<p class="in">از طریق ایمیل با ما ارتباط داشته باشید</p>
+<div class="pill in"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><a class="addr" href="mailto:info@gitirp.ir">info@gitirp.ir</a><a class="go" href="mailto:info@gitirp.ir">ارسال ایمیل</a></div>
+</div>
+</section>
+</div>
+<div class="dots" id="dots" role="tablist" aria-label="صفحه‌ها"></div>
+</div>
+<script>
+(function(){
+  var track=document.getElementById('track'),slides=[].slice.call(track.children),dotsEl=document.getElementById('dots'),cur=0,lock=false,dots=[];
+  slides.forEach(function(_,i){var b=document.createElement('button');b.className='dot';b.type='button';b.setAttribute('aria-label','صفحهٔ '+(i+1));b.onclick=function(){go(i)};dotsEl.appendChild(b);dots.push(b)});
+  function set(i){cur=i;slides.forEach(function(s,k){s.classList.toggle('on',k===i)});dots.forEach(function(d,k){d.classList.toggle('on',k===i)})}
+  function go(i){i=Math.max(0,Math.min(slides.length-1,i));slides[i].scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});set(i)}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>=.6)set(slides.indexOf(e.target))})},{root:track,threshold:[.6]});
+  slides.forEach(function(s){io.observe(s)});
+  set(0);
+  window.addEventListener('wheel',function(e){e.preventDefault();if(lock)return;var d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?-e.deltaX:e.deltaY;if(Math.abs(d)<8)return;lock=true;go(cur+(d>0?1:-1));setTimeout(function(){lock=false},650)},{passive:false});
+  window.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')go(cur+1);else if(e.key==='ArrowRight')go(cur-1)});
+  var sx=null;
+  track.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse')sx=e.clientX});
+  window.addEventListener('pointerup',function(e){if(sx===null)return;var dx=e.clientX-sx;sx=null;if(Math.abs(dx)>50)go(cur+(dx>0?1:-1))});
+})();
+</script>
+</body>
+</html>
