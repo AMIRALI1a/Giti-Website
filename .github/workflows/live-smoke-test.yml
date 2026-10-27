@@ -1,0 +1,26 @@
+name: Live site smoke test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check live site responds successfully
+        env:
+          SITE_URL: https://gitirp.ir
+          EXPECTED_TITLE: "GITI ROLE PLAY"
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 3 --retry-delay 2 --max-time 20 "$SITE_URL" --output /tmp/site.html
+          grep -Fqi "$EXPECTED_TITLE" /tmp/site.html
+          echo "Live site returned HTTP success and expected title."
