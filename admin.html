@@ -419,6 +419,8 @@
 </div>
 
 <script type="module">
+function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;").split(String.fromCharCode(39)).join("&#39;"); }
+
   const API_BASE = "https://api.gitirp.ir";
 
   const loginScreen = document.getElementById("loginScreen");
