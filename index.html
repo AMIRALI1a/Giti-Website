@@ -1068,6 +1068,8 @@
     color: #444; font-style: italic; font-size: 14.5px; line-height: 2;
   }
   .reader-content table{ border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 13.5px; }
+  .reader-content iframe{ display:block; width:100%; max-width:100%; aspect-ratio:16/9; height:auto; border:0; border-radius:12px; margin:14px 0; background:#000; }
+  .reader-content video{ display:block; max-width:100%; border-radius:12px; margin:14px 0; }
   .reader-content td, .reader-content th{ border: 1px solid #ddd; padding: 8px 10px; text-align: right; }
   .reader-content mark{ padding: 1px 3px; border-radius: 3px; }
 
@@ -2710,6 +2712,186 @@
     tmp.innerHTML = html || "";
     return (tmp.textContent || "").trim();
   }
+  // ===== articles v2: safer text, lighter list, no more list jumping =====
+  const G_IFRAME_HOSTS = ["www.aparat.com", "aparat.com", "www.youtube.com", "youtube.com", "www.youtube-nocookie.com"];
+  const G_DROP = new Set(["SCRIPT","STYLE","OBJECT","EMBED","LINK","META","BASE","FORM","INPUT","BUTTON","TEXTAREA","SELECT","OPTION","SVG","MATH","TEMPLATE","NOSCRIPT","FRAME","FRAMESET","APPLET","TITLE","HEAD"]);
+  const G_OK = new Set(["A","B","STRONG","I","EM","U","S","STRIKE","DEL","INS","MARK","SUB","SUP","P","DIV","SPAN","BR","HR","H1","H2","H3","H4","H5","H6","UL","OL","LI","BLOCKQUOTE","PRE","CODE","TABLE","THEAD","TBODY","TFOOT","TR","TD","TH","CAPTION","COLGROUP","COL","IMG","FIGURE","FIGCAPTION","FONT","SMALL","BIG","CENTER","DETAILS","SUMMARY","IFRAME","VIDEO","SOURCE"]);
+  const G_ATTR = {
+    "*": ["class","dir","lang","title","align","style","colspan","rowspan"],
+    A: ["href","target","rel"],
+    IMG: ["src","alt","width","height"],
+    IFRAME: ["src","width","height","allowfullscreen","frameborder"],
+    VIDEO: ["src","controls","poster","width","height","playsinline"],
+    SOURCE: ["src","type"],
+    FONT: ["color","size","face"]
+  };
+
+  function gEsc(s){
+    return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function gSafeUrl(v, kind){
+    const s = String(v == null ? "" : v).trim();
+    const t = s.replace(/[\u0000-\u0020\u007f-\u009f\u200b-\u200f\u2028\u2029]/g, "");
+    if (!t) return "";
+    if (!/^[a-z][a-z0-9+.\-]*:/i.test(t)) return t.startsWith("//") ? "" : s;   // no scheme = same-site relative path
+    if (kind === "link") return /^(https?:|mailto:|tel:)/i.test(t) ? s : "";
+    if (kind === "img")  return /^(https:|data:image\/(png|jpe?g|gif|webp);base64,)/i.test(t) ? s : "";
+    return /^https:/i.test(t) ? s : "";
+  }
+  function gIframeOk(src){
+    try {
+      const u = new URL(src, location.href);
+      if (u.protocol !== "https:" || !G_IFRAME_HOSTS.includes(u.hostname)) return false;
+      if (/youtube/.test(u.hostname)) return u.pathname.startsWith("/embed/");
+      return u.pathname.includes("/embed");
+    } catch (e) { return false; }
+  }
+  function gCleanStyle(v){
+    return String(v || "").split(";").map(x => x.trim()).filter(Boolean).filter(d => {
+      const i = d.indexOf(":"); if (i < 1) return false;
+      const p = d.slice(0, i).trim().toLowerCase(), val = d.slice(i + 1).trim();
+      return /^(color|background-color|font-size|font-weight|font-style|font-family|text-align|text-decoration|line-height|direction|margin(-top|-bottom|-left|-right)?|padding(-top|-bottom|-left|-right)?|width|max-width|height|border(-radius)?|text-indent|letter-spacing|white-space)$/.test(p)
+        && val.length < 80 && !/url\s*\(|expression|javascript|@import|behavior|binding|\\/i.test(val);
+    }).join(";");
+  }
+  // Rebuilds article HTML keeping only normal formatting, pictures, tables and Aparat/YouTube videos.
+  function gSanitize(html){
+    const doc = new DOMParser().parseFromString("<!doctype html><body>" + String(html == null ? "" : html), "text/html");
+    (function walk(node){
+      Array.from(node.childNodes).forEach(ch => {
+        if (ch.nodeType === 8) { ch.remove(); return; }
+        if (ch.nodeType !== 1) return;
+        const tag = ch.tagName.toUpperCase();
+        if (G_DROP.has(tag)) { ch.remove(); return; }
+        if (!G_OK.has(tag)) { walk(ch); ch.replaceWith(...ch.childNodes); return; }
+        const okAttr = (G_ATTR["*"]).concat(G_ATTR[tag] || []);
+        Array.from(ch.attributes).forEach(at => {
+          const n = at.name.toLowerCase();
+          if (n.startsWith("on") || !okAttr.includes(n)) { ch.removeAttribute(at.name); return; }
+          if (n === "style") { const c = gCleanStyle(at.value); c ? ch.setAttribute("style", c) : ch.removeAttribute("style"); }
+          else if (n === "href") { const u = gSafeUrl(at.value, "link"); u ? ch.setAttribute("href", u) : ch.removeAttribute("href"); }
+          else if (n === "src" || n === "poster") {
+            const u = gSafeUrl(at.value, tag === "IMG" || n === "poster" ? "img" : "media");
+            u ? ch.setAttribute(at.name, u) : ch.removeAttribute(at.name);
+          }
+        });
+        if (tag === "A" && ch.getAttribute("href")) { ch.setAttribute("target", "_blank"); ch.setAttribute("rel", "noopener noreferrer"); }
+        if (tag === "IMG") { if (!ch.getAttribute("src")) { ch.remove(); return; } ch.setAttribute("loading", "lazy"); ch.setAttribute("decoding", "async"); }
+        if (tag === "IFRAME") {
+          if (!gIframeOk(ch.getAttribute("src"))) { ch.remove(); return; }
+          ch.setAttribute("sandbox", "allow-scripts allow-same-origin allow-presentation allow-popups");
+          ch.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+          ch.setAttribute("allow", "fullscreen; picture-in-picture");
+          ch.setAttribute("loading", "lazy");
+        }
+        if (tag === "VIDEO" || tag === "SOURCE") {
+          if (!ch.getAttribute("src") && tag === "SOURCE") { ch.remove(); return; }
+          if (tag === "VIDEO") { ch.setAttribute("preload", "metadata"); ch.setAttribute("controls", ""); }
+        }
+        walk(ch);
+      });
+    })(doc.body);
+    return doc.body.innerHTML;
+  }
+
+  function gMapArticle(a){
+    const [type, cat] = (a.category || "news|site").split("|");
+    return {
+      id: a.id, type, cat, label: labelMap[cat], createdAt: a.createdAt,
+      rawTitle: a.title || "", rawSubtitle: a.subtitle || "",
+      title: gEsc(a.title), subtitle: gEsc(a.subtitle),
+      coverImage: a.image && gSafeUrl(a.image, "img") ? gEsc(a.image) : "",
+      bodyHTML: a.body != null ? gSanitize(a.body) : null
+    };
+  }
+
+  let gNoLight = false;   // set once we learn the server has no light-list route yet (older server)
+  async function gFetchList(){
+    if (!gNoLight) {
+      const res = await fetch(API_BASE + "/api/articles/list");      // light list: no article text
+      if (res.ok) { const d = await res.json(); if (d && Array.isArray(d.articles)) return d.articles; }
+      if (res.status === 404) gNoLight = true;
+    }
+    const res2 = await fetch(API_BASE + "/api/articles");             // older server: full list
+    if (!res2.ok) throw new Error("HTTP " + res2.status);
+    return (await res2.json()).articles || [];
+  }
+
+  const gFull = new Map();
+  function gFetchFull(id, force){
+    if (!force && gFull.has(id)) return gFull.get(id);
+    const p = (async () => {
+      try {
+        if (!gNoLight) {
+          const r = await fetch(API_BASE + "/api/articles/" + encodeURIComponent(id));
+          if (r.ok) { const d = await r.json(); if (d && d.article) return d.article; }
+        }
+        // older server, or the single-article route failed: look in the full list instead
+        const r2 = await fetch(API_BASE + "/api/articles");
+        if (r2.ok) { const d2 = await r2.json(); return (d2.articles || []).find(x => x.id === id) || null; }
+      } catch (e) {}
+      return null;
+    })();
+    gFull.set(id, p);
+    p.then(v => { if (!v && gFull.get(id) === p) gFull.delete(id); });
+    return p;
+  }
+
+  async function gEnsureBody(a){
+    const had = a.bodyHTML != null, prev = a.bodyHTML;
+    const full = await gFetchFull(a.id, had);        // already downloaded once? show it now and quietly re-check
+    const el = readerBody.dataset.openId === a.id ? document.getElementById("readerContent") : null;
+    if (!el) return;                                  // user already closed or opened another article
+    if (!full) {
+      if (!had) {
+        el.innerHTML = '<div style="text-align:center;color:#888;font-size:13px;padding:30px 0">بارگذاری متن مقاله ناموفق بود.<br><button type="button" class="reader-share-btn" id="readerRetryBtn" style="margin:14px auto 0">دوباره تلاش کن</button></div>';
+        document.getElementById("readerRetryBtn").addEventListener("click", () => {
+          el.innerHTML = '<div class="reader-spinner" style="margin:40px auto"></div>';
+          gEnsureBody(a);
+        });
+      }
+      return;
+    }
+    const html = gSanitize(full.body);
+    a.bodyHTML = html;
+    if (html !== prev) el.innerHTML = html;
+  }
+
+  let gSig = "";
+  let gBusy = false;
+  async function loadArticles(){
+    if (gBusy || (document.hidden && sharedLinkOpened)) return;
+    gBusy = true;
+    try {
+      const list = (await gFetchList()).map(gMapArticle);
+      const old = new Map(articles.map(x => [x.id, x]));
+      list.forEach(n => { const o = old.get(n.id); if (o && o.bodyHTML != null && n.bodyHTML == null) n.bodyHTML = o.bodyHTML; });
+      const sig = JSON.stringify(list.map(a => [a.id, a.rawTitle, a.rawSubtitle, a.type, a.cat, a.coverImage, a.createdAt]));
+      const changed = sig !== gSig;
+      gSig = sig;
+      articles = list;
+      if (changed) {                                  // only redraw when something really changed
+        const sx = articleList.scrollLeft;
+        renderArticles();
+        articleList.scrollLeft = sx;
+        if (typeof renderSaved === "function") renderSaved();
+      }
+      if (!sharedLinkOpened) {
+        sharedLinkOpened = true;
+        const hashMatch = location.hash.match(/^#article-(.+)$/);
+        if (hashMatch) {
+          const targetArticle = articles.find(x => x.id === hashMatch[1]);
+          if (targetArticle) openArticle(targetArticle.id, true);
+        }
+        document.documentElement.classList.remove('opening-shared-article');
+      }
+    } catch (err) {
+      if (!articles.length) articleList.innerHTML = '<div class="empty-articles">اتصال به سرور اخبار ناموفق بود.</div>';
+      if (!sharedLinkOpened) { sharedLinkOpened = true; document.documentElement.classList.remove('opening-shared-article'); }
+    } finally { gBusy = false; }
+  }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) loadArticles(); });
+  { const m = location.hash.match(/^#article-(.+)$/); if (m) gFetchFull(m[1]); }   // shared link: start downloading its text right away
   function snippet(html, len){
     const t = stripHTML(html);
     return t.length > len ? t.slice(0, len).trim() + "…" : t;
@@ -2813,7 +2995,7 @@
         </div>
       </div>
       <div class="reader-rule"></div>
-      <div class="reader-content">${a.bodyHTML || ""}</div>
+      <div class="reader-content" id="readerContent">${a.bodyHTML != null ? a.bodyHTML : '<div class="reader-spinner" style="margin:40px auto"></div>'}</div>
       <div class="reader-save-row">
         <button class="reader-save-btn ${saved ? "saved" : ""}" id="readerSaveBtn" data-id="${a.id}">
           ${icons.bookmark} <span>${saved ? "ذخیره شد" : "ذخیره کن"}</span>
@@ -2845,13 +3027,15 @@
     const articleUrl = location.origin + location.pathname + "#article-" + a.id;
     document.getElementById("readerShareBtn").addEventListener("click", async () => {
       if (navigator.share) {
-        try { await navigator.share({ title: a.title || "GITI RP", text: a.subtitle || "", url: articleUrl }); }
+        try { await navigator.share({ title: a.rawTitle || a.title || "GITI RP", text: a.rawSubtitle || a.subtitle || "", url: articleUrl }); }
         catch (e) { /* user cancelled — no action needed */ }
       } else {
         copyLink(articleUrl);
       }
     });
     document.getElementById("readerCopyBtn").addEventListener("click", () => copyLink(articleUrl));
+    readerBody.dataset.openId = a.id;
+    gEnsureBody(a);
   }
 
   function copyLink(url){
@@ -2932,7 +3116,7 @@
   // loaded the homepage because nothing ever read the URL's hash on page load.
   let sharedLinkOpened = false;
 
-  async function loadArticles(){
+  async function loadArticlesOld(){   // old version, no longer used
     try {
       const res = await fetch(API_BASE + "/api/articles");
       const data = await res.json();
