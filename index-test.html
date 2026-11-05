@@ -1102,7 +1102,6 @@
   .g-msg h3{ font-size:19px; font-weight:800; color:#111; margin:16px 0 8px; }
   .g-msg h3{ margin-bottom:22px; }
   .g-msg-btns{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-  html.g-reader-open, html.g-reader-open body{ background:#ffffff !important; background-image:none !important; }
   .reader-overlay, .reader-body{ overscroll-behavior:contain; }
   /* --- new footer --- */
   .g-footer{ width:min(100%,1200px); margin:72px auto 0; padding:40px 4px 30px; border-top:1px solid var(--panel-line); text-align:right; }
@@ -1124,6 +1123,32 @@
     .g-f-legal{ margin-top:18px; }
     .g-f-copy{ grid-column:1 / -1; margin-top:44px; }
   }
+  /* --- page background on its own fixed layer (the old "fixed background" repainted on every scroll and flashed on phones) --- */
+  html:root{ background-color:#161729; }
+  body{ background:none !important; }
+  body::before{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(180deg,var(--bg-top) 0%,var(--bg-bottom) 100%); }
+  /* --- while a full-page article is open (not the phone bottom sheet), hide the page behind it so nothing can flash through --- */
+  html.g-reader-open:not(.rs-sheet):root{ background-color:#ffffff; }
+  html.g-reader-open:not(.rs-sheet) body::before{ display:none; }
+  html.g-reader-open:not(.rs-sheet) .wrap{ visibility:hidden; }
+  /* --- reading progress, reading time, next article, picture viewer --- */
+  .g-prog{ position:fixed; top:0; left:0; right:0; height:3px; z-index:98; pointer-events:none; opacity:0; transition:opacity .25s; }
+  html.g-reader-on .g-prog{ opacity:1; }
+  .g-prog i{ display:block; height:100%; width:100%; transform:scaleX(0); transform-origin:100% 50%; background:linear-gradient(90deg,#FFB070,#FF7A59); border-radius:0 0 3px 3px; }
+  .g-read{ display:inline-block; margin-inline-start:6px; }
+  .g-next{ display:block; margin:34px 0 0; padding:16px 18px; border-radius:16px; background:#f6f6f8; text-decoration:none; color:#111; transition:background .2s, transform .2s; }
+  .g-next:hover, .g-next:focus-visible{ background:#eeeef2; outline:0; }
+  .g-next:active{ transform:scale(.985); }
+  .g-next small{ display:block; font-size:12px; font-weight:600; color:#8a8a96; margin-bottom:4px; }
+  .g-next b{ display:block; font-size:16px; font-weight:800; line-height:1.7; color:#111; }
+  .g-next span{ display:block; margin-top:2px; font-size:13px; line-height:1.9; color:#666; }
+  .reader-content img{ cursor:zoom-in; }
+  .g-lb{ position:fixed; inset:0; z-index:320; display:flex; align-items:center; justify-content:center; background:rgba(6,6,14,.93); opacity:0; pointer-events:none; transition:opacity .25s ease; }
+  .g-lb.on{ opacity:1; pointer-events:auto; }
+  .g-lb img{ max-width:96vw; max-height:88vh; object-fit:contain; border-radius:10px; transform:scale(.96); transition:transform .32s cubic-bezier(.2,.8,.25,1); cursor:zoom-out; }
+  .g-lb.on img{ transform:none; }
+  .g-lb button{ position:absolute; top:max(14px,env(safe-area-inset-top)); right:14px; width:42px; height:42px; border:0; border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:20px; line-height:1; cursor:pointer; }
+  @media (prefers-reduced-motion: reduce){ .g-lb, .g-lb img{ transition:none; } .g-prog i{ transition:none; } }
   .reader-content td, .reader-content th{ border: 1px solid #ddd; padding: 8px 10px; text-align: right; }
   .reader-content mark{ padding: 1px 3px; border-radius: 3px; }
 
@@ -2896,7 +2921,7 @@
 
   async function gEnsureBody(a){
     const had = a.bodyHTML != null, prev = a.bodyHTML;
-    { const el0 = document.getElementById("readerContent"); if (had && el0) gFx(el0); }
+    { const el0 = document.getElementById("readerContent"); if (had && el0) { gFx(el0); gMeta(a, a.bodyHTML); } gNext(a); }
     const full = await gFetchFull(a.id, had);        // already downloaded once? show it now and quietly re-check
     const el = readerBody.dataset.openId === a.id ? document.getElementById("readerContent") : null;
     if (!el) return;                                  // user already closed or opened another article
@@ -2913,6 +2938,7 @@
     const html = gSanitize(full.body);
     a.bodyHTML = html;
     if (html !== prev) { el.innerHTML = html; gFx(el); }
+    gMeta(a, html);
   }
 
   // ----- pictures: ask Cloudflare for a small copy when that is switched on; fall back to the original on any problem -----
@@ -3076,10 +3102,88 @@
   window.addEventListener("online", () => loadArticles());                      // connection came back: try straight away
   { const m = location.hash.match(/^#article-(.+)$/); if (m) gFetchFull(m[1]); }   // shared link: start downloading its text right away
 
-  { const ro = document.getElementById("readerOverlay");
-    if (ro) new MutationObserver(() => document.documentElement.classList.toggle("g-reader-open", ro.classList.contains("show"))).observe(ro, { attributes: true, attributeFilter: ["class"] }); }
   { const fs = document.getElementById("footerSupport");                       // footer "پشتیبانی" opens the same chat as the menu
     if (fs) fs.addEventListener("click", () => { if (window.openGitiChat) window.openGitiChat(); }); }
+
+  // ----- extras: page-behind handling, progress bar, reading time, next article, picture viewer -----
+  const gRO = document.getElementById("readerOverlay");
+  const gProg = document.createElement("div");
+  gProg.className = "g-prog"; gProg.innerHTML = "<i></i>";
+  document.body.appendChild(gProg);
+  let gOpenTimer = 0, gRaf = 0;
+  function gProgUpdate(){
+    gRaf = 0;
+    const rb = document.getElementById("readerBody"), bar = gProg.firstChild;
+    const max = rb.scrollHeight - rb.clientHeight;
+    bar.style.transform = "scaleX(" + (max > 8 ? Math.min(1, Math.max(0, rb.scrollTop / max)) : 0) + ")";
+  }
+  document.getElementById("readerBody").addEventListener("scroll", () => { if (!gRaf) gRaf = requestAnimationFrame(gProgUpdate); }, { passive: true });
+  if (gRO) new MutationObserver(() => {
+    const shown = gRO.classList.contains("show"), root = document.documentElement;
+    root.classList.toggle("g-reader-on", shown);
+    clearTimeout(gOpenTimer);
+    if (shown) { gProg.firstChild.style.transform = "scaleX(0)"; gOpenTimer = setTimeout(() => root.classList.add("g-reader-open"), 380); }   // after the slide-in has finished
+    else root.classList.remove("g-reader-open");                                                                                             // at once, so the page is there while the article slides away
+  }).observe(gRO, { attributes: true, attributeFilter: ["class"] });
+
+  function gFa(n){ return Number(n).toLocaleString("fa-IR"); }
+  function gMeta(a, html){
+    const d = document.querySelector("#readerBody .reader-author-date");
+    if (!d || document.getElementById("readerBody").dataset.openId !== a.id) return;
+    const words = (new DOMParser().parseFromString("<body>" + (html || ""), "text/html").body.textContent || "").trim().split(/\s+/).filter(Boolean).length;
+    let s = d.querySelector(".g-read");
+    if (!words) { if (s) s.remove(); return; }
+    if (!s) { s = document.createElement("span"); s.className = "g-read"; d.appendChild(s); }
+    s.textContent = "· " + gFa(Math.max(1, Math.round(words / 190))) + " دقیقه مطالعه";
+  }
+  function gNext(a){
+    const rb = document.getElementById("readerBody");
+    if (rb.dataset.openId !== a.id) return;
+    rb.querySelectorAll(".g-next").forEach(x => x.remove());
+    const same = articles.filter(x => x.type === a.type);
+    const i = same.findIndex(x => x.id === a.id);
+    const n = i >= 0 ? (same[i + 1] || same[i - 1]) : null;       // next one; if this is the last, the one before it
+    const host = rb.querySelector(".reader-content");
+    if (!n || n.id === a.id || !host) return;
+    const link = document.createElement("a");
+    link.className = "g-next"; link.href = "#article-" + n.id;
+    link.innerHTML = "<small>" + (same[i + 1] ? "مقالهٔ بعدی" : "مقالهٔ قبلی") + "</small><b>" + n.title + "</b>" + (n.subtitle ? "<span>" + n.subtitle + "</span>" : "");
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const rh = document.getElementById("readerHeader"), wasDirect = rh.classList.contains("direct-entry");
+      openArticle(n.id, true);                       // replaces this article in history, so BACK leaves the reader instead of showing a stale page
+      rh.classList.toggle("direct-entry", wasDirect);
+    });
+    host.insertAdjacentElement("afterend", link);
+  }
+
+  let gLb = null, gLbOpen = false;
+  function gLbEnsure(){
+    if (gLb) return gLb;
+    gLb = document.createElement("div");
+    gLb.className = "g-lb"; gLb.setAttribute("role", "dialog"); gLb.setAttribute("aria-label", "نمایش عکس");
+    gLb.innerHTML = '<img alt=""><button type="button" aria-label="بستن">✕</button>';
+    gLb.addEventListener("click", () => gLbClose());
+    document.body.appendChild(gLb);
+    return gLb;
+  }
+  function gLbShow(src, alt){
+    const box = gLbEnsure(); box.querySelector("img").src = src; box.querySelector("img").alt = alt || "";
+    gLbOpen = true; void box.offsetHeight; box.classList.add("on");
+    history.pushState({ reader: true, gLb: true }, "", location.href);
+  }
+  function gLbClose(silent){
+    if (!gLbOpen) return;
+    gLbOpen = false; gLb.classList.remove("on");
+    if (!silent && history.state && history.state.gLb) history.back();
+  }
+  document.getElementById("readerBody").addEventListener("click", e => {
+    const img = e.target.closest && e.target.closest(".reader-content img");
+    if (!img || img.closest("a") || img.classList.contains("g-load")) return;
+    gLbShow(img.currentSrc || img.src, img.alt);
+  });
+  window.addEventListener("popstate", e => { if (gLbOpen && !(e.state && e.state.gLb)) gLbClose(true); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && gLbOpen) gLbClose(); });
   function snippet(html, len){
     const t = stripHTML(html);
     return t.length > len ? t.slice(0, len).trim() + "…" : t;
@@ -3555,6 +3659,395 @@
     setTimeout(function(){if(window.openGitiChat)window.openGitiChat()},220);
   });
 })();
+</script>
+<script>
+/* GITI — article reader, mobile layer (v1)
+ * One self-contained file: it injects its own CSS and builds its own small pieces.
+ * It does NOT replace the existing reader code in index.html — it re-skins it on
+ * phones (<= 768px) and adds the "خلاصه کن" (AI summary) button.
+ *   - opened from inside the site  -> bottom sheet (no image), X on the right,
+ *                                     closes by pulling down / phone back button
+ *   - opened from an outside link  -> full page + menu button (unchanged logic)
+ * Desktop (> 768px) is left exactly as it was.
+ */
+(function () {
+  "use strict";
+  if (window.__gitiArticleSheet) return;
+  window.__gitiArticleSheet = true;
+
+  var API_BASE = "https://api.gitirp.ir";
+  var html = document.documentElement;
+  var overlay = document.getElementById("readerOverlay");
+  var readerBody = document.getElementById("readerBody");
+  var readerClose = document.getElementById("readerClose");
+  if (!overlay || !readerBody || !readerClose) return;
+  var mq = window.matchMedia("(max-width: 768px)");
+
+  /* ---------- styles ---------- */
+  var css = [
+    ".rs-pill,.rs-x,.rs-grab,.rs-backdrop,.rs-sum,.rs-sum-backdrop{display:none}",
+    "@media (max-width:768px){",
+
+    /* typography (both: sheet + direct-link full page) */
+    ".reader-body{padding:76px 16px 116px;max-width:none;overscroll-behavior:contain}",
+    "html.rs-sheet .reader-body{padding-top:64px}",
+    ".reader-eyebrow{font-size:12px;font-weight:600;letter-spacing:0;color:#8a8a96}",
+    ".reader-title{font-size:22px;line-height:1.5;font-weight:800;margin-top:6px;color:#0f0f14}",
+    ".reader-subtitle{font-size:14px;line-height:1.95;color:#555560;margin-top:10px}",
+    ".reader-author{margin-top:14px}",
+    ".reader-author img{width:28px;height:28px}",
+    ".reader-author-name{font-size:12.5px}",
+    ".reader-author-date{font-size:11px}",
+    ".reader-rule{margin:14px 0 6px}",
+    ".reader-content p,.reader-content div{font-size:14px;line-height:1.95;margin:0 0 14px}",
+    ".reader-content h2{font-size:18px;line-height:1.6;margin:26px 0 10px}",
+    ".reader-content h3{font-size:16px;line-height:1.6;margin:22px 0 8px}",
+    ".reader-content h4{font-size:15px;margin:18px 0 6px}",
+    ".reader-content ul,.reader-content ol{font-size:14px;line-height:1.95;margin:0 0 14px}",
+    ".reader-content blockquote{font-size:14px}",
+    ".reader-content img{border-radius:14px;margin:16px 0}",
+    ".reader-save-row{margin-top:26px;padding-top:18px;flex-wrap:wrap}",
+
+    /* "خلاصه کن" button — sits where the screenshot's "Follow up" pill sits */
+    "html.rs-sum-ok .rs-pill{display:flex}",
+    ".rs-pill{align-items:center;gap:8px;position:absolute;z-index:4;right:16px;",
+    "bottom:calc(18px + env(safe-area-inset-bottom));height:48px;padding:0 20px 0 18px;border:1px solid rgba(0,0,0,.06);",
+    "border-radius:999px;background:#fff;color:#14141c;font-family:'Vazirmatn',sans-serif;font-size:15px;font-weight:700;",
+    "box-shadow:0 8px 26px rgba(0,0,0,.2),0 1px 3px rgba(0,0,0,.08);cursor:pointer;transition:transform .15s ease}",
+    ".rs-pill:active{transform:scale(.95)}",
+    ".rs-pill svg{width:19px;height:19px;flex:none}",
+    "html.opening-shared-article .rs-pill{opacity:0}",
+
+    /* sheet mode (opened from inside the site) */
+    "html.rs-sheet .reader-overlay{top:max(34px,calc(env(safe-area-inset-top) + 20px));border-radius:28px 28px 0 0;overflow:hidden;",
+    "transform:translateY(100%);box-shadow:0 -12px 40px rgba(0,0,0,.35)}",
+    "html.rs-sheet .reader-overlay.show{transform:translateY(0)}",
+    "html.rs-noanim .reader-overlay{transition:none!important}",
+    "html.rs-sheet .reader-header{display:none!important}",
+    "html.rs-sheet .rs-x{display:grid;place-items:center;position:absolute;z-index:6;top:12px;right:14px;width:38px;height:38px;",
+    "border:0;border-radius:50%;background:#f1f1f5;color:#111;cursor:pointer}",
+    "html.rs-sheet .rs-x svg{width:18px;height:18px}",
+    "html.rs-sheet .rs-x:active{background:#e6e6ec}",
+    "html.rs-sheet .rs-grab{display:block;position:absolute;z-index:6;top:8px;left:50%;width:40px;height:4px;margin-left:-20px;",
+    "border-radius:4px;background:#d5d5dc;pointer-events:none}",
+    "html.rs-sheet .rs-backdrop{display:block;position:fixed;inset:0;z-index:90;background:rgba(8,8,18,.55);opacity:0;",
+    "pointer-events:none;transition:opacity .3s ease}",
+    "html.rs-sheet .rs-backdrop.on{opacity:1;pointer-events:auto}",
+    "html.rs-open{overscroll-behavior-y:contain}",
+
+    /* summary panel — small frosted-glass sheet */
+    ".rs-sum-backdrop{display:block;position:fixed;inset:0;z-index:120;background:rgba(6,6,16,.35);opacity:0;pointer-events:none;transition:opacity .28s ease}",
+    ".rs-sum-backdrop.on{opacity:1;pointer-events:auto}",
+    ".rs-sum{display:flex;flex-direction:column;position:fixed;z-index:121;left:0;right:0;bottom:0;max-height:62vh;",
+    "padding:10px 18px calc(18px + env(safe-area-inset-bottom));border-radius:26px 26px 0 0;",
+    "background:linear-gradient(180deg,rgba(46,46,82,.86),rgba(22,22,44,.93));",
+    "-webkit-backdrop-filter:blur(26px) saturate(1.5);backdrop-filter:blur(26px) saturate(1.5);",
+    "border:1px solid rgba(255,255,255,.16);border-bottom:0;box-shadow:0 -14px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.18);",
+    "color:#fff;transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.25,1);font-family:'Vazirmatn',sans-serif}",
+    ".rs-sum.on{transform:translateY(0)}",
+    ".rs-sum-grab{width:40px;height:4px;border-radius:4px;background:rgba(255,255,255,.35);margin:0 auto 10px;flex:none}",
+    ".rs-sum-head{display:flex;align-items:center;justify-content:space-between;flex:none;touch-action:none}",
+    ".rs-sum-title{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:800}",
+    ".rs-sum-title svg{width:19px;height:19px;color:#FFD4A9}",
+    ".rs-sum-x{width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer}",
+    ".rs-sum-x svg{width:16px;height:16px}",
+    ".rs-sum-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:12px;font-size:14px;line-height:2;color:rgba(255,255,255,.94)}",
+    ".rs-sum-body p{margin:0 0 8px}",
+    ".rs-sum-body ul{margin:0;padding:0;list-style:none}",
+    ".rs-sum-body li{position:relative;padding-right:18px;margin:0 0 7px}",
+    ".rs-sum-body li::before{content:'';position:absolute;right:2px;top:.95em;width:6px;height:6px;border-radius:50%;background:#FFD4A9}",
+    ".rs-sum-body b{color:#fff;font-weight:800}",
+    ".rs-sum-foot{flex:none;margin-top:10px;font-size:11px;line-height:1.7;color:rgba(255,255,255,.55)}",
+    ".rs-sum-load{display:flex;flex-direction:column;gap:10px;padding:2px 0 6px}",
+    ".rs-sum-load i{display:block;height:11px;border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.1) 25%,rgba(255,255,255,.26) 50%,rgba(255,255,255,.1) 75%);background-size:220% 100%;animation:rsShimmer 1.3s linear infinite}",
+    ".rs-sum-load i:nth-child(1){width:96%}.rs-sum-load i:nth-child(2){width:88%}.rs-sum-load i:nth-child(3){width:92%}.rs-sum-load i:nth-child(4){width:64%}",
+    ".rs-sum-hint{font-size:12.5px;color:rgba(255,255,255,.7);margin-bottom:12px}",
+    "@keyframes rsShimmer{from{background-position:120% 0}to{background-position:-120% 0}}",
+    ".rs-sum-err{text-align:center;padding:6px 0}",
+    ".rs-sum-retry{margin-top:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:9px 20px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}",
+    ".rs-sum-fade{animation:rsFade .35s ease}",
+    "@keyframes rsFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}",
+    "}"
+  ].join("\n");
+  var st = document.createElement("style");
+  st.id = "giti-article-sheet-css";
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  /* ---------- icons ---------- */
+  var SPARK = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+    '<path d="M9.5 8 11 13l5 1.5L11 16l-1.5 5L8 16l-5-1.5L8 13z"/>' +
+    '<path d="M18 2.5 18.8 5.2 21.5 6l-2.7.8L18 9.5l-.8-2.7L14.5 6l2.7-.8z"/>' +
+    '<path d="M19.5 14.5 20 16.5l2 .5-2 .5-.5 2-.5-2-2-.5 2-.5z"/></svg>';
+  var XICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+  /* ---------- build pieces ---------- */
+  var backdrop = document.createElement("div");
+  backdrop.className = "rs-backdrop";
+  overlay.parentNode.insertBefore(backdrop, overlay); // before the sheet in DOM so the sheet stays above it
+
+  var grab = document.createElement("div");
+  grab.className = "rs-grab";
+  var xBtn = document.createElement("button");
+  xBtn.type = "button";
+  xBtn.className = "rs-x";
+  xBtn.setAttribute("aria-label", "بستن");
+  xBtn.innerHTML = XICON;
+  var pill = document.createElement("button");
+  pill.type = "button";
+  pill.className = "rs-pill";
+  pill.setAttribute("aria-label", "خلاصه‌ی مقاله با هوش مصنوعی");
+  pill.innerHTML = SPARK + "<span>خلاصه کن</span>";
+  overlay.appendChild(grab);
+  overlay.appendChild(xBtn);
+  overlay.appendChild(pill);
+
+  var sumBackdrop = document.createElement("div");
+  sumBackdrop.className = "rs-sum-backdrop";
+  var sum = document.createElement("div");
+  sum.className = "rs-sum";
+  sum.setAttribute("role", "dialog");
+  sum.setAttribute("aria-label", "خلاصه‌ی مقاله");
+  sum.innerHTML =
+    '<div class="rs-sum-grab"></div>' +
+    '<div class="rs-sum-head"><span class="rs-sum-title">' + SPARK + "خلاصه‌ی مقاله</span>" +
+    '<button type="button" class="rs-sum-x" aria-label="بستن">' + XICON + "</button></div>" +
+    '<div class="rs-sum-body" id="rsSumBody"></div>' +
+    '<div class="rs-sum-foot">این خلاصه را هوش مصنوعی گیتی نوشته است؛ برای جزئیات، متن کامل را بخوانید.</div>';
+  document.body.appendChild(sumBackdrop);
+  document.body.appendChild(sum);
+  var sumBody = sum.querySelector("#rsSumBody");
+
+  /* ---------- sheet: open / close ---------- */
+  var removeTimer = null;
+
+  function prepSheet() {
+    clearTimeout(removeTimer);
+    if (html.classList.contains("rs-sheet")) return;
+    // Put the sheet in its "below the screen" starting position WITHOUT animating,
+    // so the next change (adding .show) slides it up instead of sweeping diagonally.
+    html.classList.add("rs-sheet", "rs-noanim");
+    void overlay.offsetHeight;
+    html.classList.remove("rs-noanim");
+  }
+
+  // capture phase: runs before the site's own card/saved-row handlers (which still run after)
+  document.addEventListener("click", function (e) {
+    if (!mq.matches) return;
+    var t = e.target.closest ? e.target.closest(".article-card[data-open], .saved-row[data-open]") : null;
+    if (!t || e.target.closest(".saved-row-remove")) return;
+    prepSheet();
+  }, true);
+
+  function clearInline() {
+    overlay.style.transition = "";
+    overlay.style.transform = "";
+    backdrop.style.opacity = "";
+  }
+
+  function probeSummary() {
+    if (window.__rsProbe) return;
+    window.__rsProbe = 1;
+    try { if (sessionStorage.getItem("giti_sum") === "1") { html.classList.add("rs-sum-ok"); return; } } catch (e) {}
+    fetch(API_BASE + "/api/summarize", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })
+      .then(function (r) {
+        if (r.status !== 404 && r.status < 500) {            // the server knows the route (a bad request answers 400)
+          html.classList.add("rs-sum-ok");
+          try { sessionStorage.setItem("giti_sum", "1"); } catch (e) {}
+        }
+      }).catch(function () {});
+  }
+
+  function sync() {
+    var shown = overlay.classList.contains("show");
+    backdrop.classList.toggle("on", shown && html.classList.contains("rs-sheet"));
+    html.classList.toggle("rs-open", shown);
+    if (shown) {
+      probeSummary();
+      clearTimeout(removeTimer);
+      clearInline();
+    } else {
+      closeSummary(true);
+      setTimeout(clearInline, 340);
+      clearTimeout(removeTimer);
+      removeTimer = setTimeout(function () {
+        if (!overlay.classList.contains("show")) html.classList.remove("rs-sheet");
+      }, 380);
+    }
+  }
+  new MutationObserver(sync).observe(overlay, { attributes: true, attributeFilter: ["class"] });
+
+  function requestClose() { readerClose.click(); } // reuses the site's own close + back-button logic
+  xBtn.addEventListener("click", requestClose);
+  backdrop.addEventListener("click", requestClose);
+
+  /* ---------- pull down to close ---------- */
+  var startY = 0, dy = 0, dragging = false, canDrag = false, startT = 0;
+  overlay.addEventListener("touchstart", function (e) {
+    if (!html.classList.contains("rs-sheet") || !overlay.classList.contains("show") || !e.touches.length) { canDrag = false; return; }
+    var t = e.touches[0];
+    startY = t.clientY; dy = 0; dragging = false; startT = Date.now();
+    var top = overlay.getBoundingClientRect().top;
+    canDrag = readerBody.scrollTop <= 0 || (t.clientY - top) < 64;
+  }, { passive: true });
+  overlay.addEventListener("touchmove", function (e) {
+    if (!canDrag || !e.touches.length) return;
+    var y = e.touches[0].clientY - startY;
+    if (!dragging) {
+      if (y < -4) { canDrag = false; return; }
+      if (y > 8 && readerBody.scrollTop <= 0) { dragging = true; startY = e.touches[0].clientY - 0; y = 0; overlay.style.transition = "none"; }
+      else return;
+    }
+    dy = Math.max(0, y);
+    overlay.style.transform = "translateY(" + dy + "px)";
+    backdrop.style.opacity = String(Math.max(0, 1 - dy / 420));
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  function endDrag() {
+    if (!dragging) { canDrag = false; return; }
+    var fast = dy / Math.max(1, Date.now() - startT) > 0.6;
+    dragging = false; canDrag = false;
+    if (dy > 110 || (fast && dy > 40)) {
+      overlay.style.transition = "transform .25s cubic-bezier(.2,.8,.25,1)";
+      overlay.style.transform = "translateY(100%)";
+      backdrop.style.opacity = "0";
+      requestClose();
+    } else {
+      overlay.style.transition = "transform .25s cubic-bezier(.2,.8,.25,1)";
+      overlay.style.transform = "translateY(0)";
+      backdrop.style.opacity = "";
+      setTimeout(function () { if (overlay.classList.contains("show")) clearInline(); }, 280);
+    }
+    dy = 0;
+  }
+  overlay.addEventListener("touchend", endDrag, { passive: true });
+  overlay.addEventListener("touchcancel", endDrag, { passive: true });
+
+  /* ---------- AI summary ---------- */
+  var cache = {};
+  var runId = 0;
+  var sumOpen = false;
+
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function renderSummary(text) {
+    var lines = String(text || "").replace(/\r/g, "").split("\n");
+    var out = "", list = false;
+    lines.forEach(function (raw) {
+      var ln = raw.trim();
+      if (!ln) return;
+      var m = ln.match(/^[-•*]\s+(.*)$/) || ln.match(/^[0-9۰-۹]+[.)]\s+(.*)$/);
+      var body = function (s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); };
+      if (m) { if (!list) { out += "<ul>"; list = true; } out += "<li>" + body(m[1]) + "</li>"; }
+      else { if (list) { out += "</ul>"; list = false; } out += "<p>" + body(ln.replace(/^#{1,4}\s*/, "")) + "</p>"; }
+    });
+    if (list) out += "</ul>";
+    return out;
+  }
+
+  function currentId() {
+    var b = document.getElementById("readerSaveBtn");
+    return b ? b.getAttribute("data-id") : "";
+  }
+
+  function fetchSummary(id) {
+    if (cache[id]) return Promise.resolve(cache[id]);
+    var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    var to = setTimeout(function () { if (ctrl) ctrl.abort(); }, 45000);
+    return fetch(API_BASE + "/api/summarize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: id }),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok || !d.summary) throw new Error(d.error || ("HTTP " + r.status));
+        cache[id] = d.summary;
+        return d.summary;
+      });
+    }).then(function (s) { clearTimeout(to); return s; }, function (e) { clearTimeout(to); throw e; });
+  }
+
+  function showLoading() {
+    sumBody.innerHTML = '<div class="rs-sum-hint">در حال خواندن مقاله و نوشتن خلاصه…</div><div class="rs-sum-load"><i></i><i></i><i></i><i></i></div>';
+  }
+  function runSummary() {
+    var id = currentId();
+    var my = ++runId;
+    if (!id) { sumBody.innerHTML = '<div class="rs-sum-err">مقاله‌ای برای خلاصه کردن پیدا نشد.</div>'; return; }
+    if (cache[id]) { sumBody.innerHTML = '<div class="rs-sum-fade">' + renderSummary(cache[id]) + "</div>"; return; }
+    showLoading();
+    fetchSummary(id).then(function (s) {
+      if (my !== runId || !sumOpen) return;
+      sumBody.innerHTML = '<div class="rs-sum-fade">' + renderSummary(s) + "</div>";
+    }).catch(function () {
+      if (my !== runId || !sumOpen) return;
+      sumBody.innerHTML = '<div class="rs-sum-err">الان نتوانستم این مقاله را خلاصه کنم.<br><button type="button" class="rs-sum-retry">دوباره امتحان کن</button></div>';
+      var rb = sumBody.querySelector(".rs-sum-retry");
+      if (rb) rb.addEventListener("click", runSummary);
+    });
+  }
+
+  function openSummary() {
+    if (sumOpen) return;
+    sumOpen = true;
+    sumBackdrop.classList.add("on");
+    sum.classList.add("on");
+    sum.style.transform = "";
+    // keep reader:true so the site's own back-button handler leaves the article open
+    history.pushState({ reader: true, rsSummary: true }, "", location.href);
+    runSummary();
+  }
+  function closeSummary(silent) {
+    if (!sumOpen) return;
+    sumOpen = false;
+    runId++;
+    sumBackdrop.classList.remove("on");
+    sum.classList.remove("on");
+    sum.style.transform = "";
+    sum.style.transition = "";
+    if (!silent && history.state && history.state.rsSummary) history.back();
+  }
+  pill.addEventListener("click", openSummary);
+  sum.querySelector(".rs-sum-x").addEventListener("click", function () { closeSummary(); });
+  sumBackdrop.addEventListener("click", function () { closeSummary(); });
+
+  // phone back button: close the summary first, article second (site handler does the article)
+  window.addEventListener("popstate", function (e) {
+    if (sumOpen && !(e.state && e.state.rsSummary)) closeSummary(true);
+  });
+
+  // drag the summary down to close
+  var sY = 0, sDy = 0, sDrag = false;
+  sum.addEventListener("touchstart", function (e) {
+    if (!e.touches.length) return;
+    sY = e.touches[0].clientY; sDy = 0; sDrag = false;
+    var top = sum.getBoundingClientRect().top;
+    sum._can = sumBody.scrollTop <= 0 || (e.touches[0].clientY - top) < 56;
+  }, { passive: true });
+  sum.addEventListener("touchmove", function (e) {
+    if (!sum._can || !e.touches.length) return;
+    var y = e.touches[0].clientY - sY;
+    if (!sDrag) {
+      if (y < -4) { sum._can = false; return; }
+      if (y > 8 && sumBody.scrollTop <= 0) { sDrag = true; sY = e.touches[0].clientY; y = 0; sum.style.transition = "none"; }
+      else return;
+    }
+    sDy = Math.max(0, y);
+    sum.style.transform = "translateY(" + sDy + "px)";
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  function sEnd() {
+    if (!sDrag) return;
+    sDrag = false;
+    sum.style.transition = "";
+    if (sDy > 90) closeSummary();
+    else sum.style.transform = "";
+    sDy = 0;
+  }
+  sum.addEventListener("touchend", sEnd, { passive: true });
+  sum.addEventListener("touchcancel", sEnd, { passive: true });
+})();
+
 </script>
 </body>
 </html>
