@@ -1100,8 +1100,30 @@
   /* --- friendly full-page messages (no connection / article not found) --- */
   .g-msg{ text-align:center; padding:80px 8px 0; }
   .g-msg h3{ font-size:19px; font-weight:800; color:#111; margin:16px 0 8px; }
-  .g-msg p{ font-size:13.5px; line-height:2; color:#666; margin:0 auto 20px; max-width:320px; }
+  .g-msg h3{ margin-bottom:22px; }
   .g-msg-btns{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  html.g-reader-open, html.g-reader-open body{ background:#ffffff !important; background-image:none !important; }
+  .reader-overlay, .reader-body{ overscroll-behavior:contain; }
+  /* --- new footer --- */
+  .g-footer{ width:min(100%,1200px); margin:72px auto 0; padding:40px 4px 30px; border-top:1px solid var(--panel-line); text-align:right; }
+  .g-f-main{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; }
+  .g-f-main a, .g-f-main button{ font-family:'Vazirmatn',sans-serif; font-size:clamp(22px,5.6vw,30px); font-weight:800; line-height:1.7; color:var(--cream); text-decoration:none; background:none; border:0; padding:3px 0; cursor:pointer; text-align:right; transition:color .2s, transform .25s; }
+  .g-f-main a:hover, .g-f-main button:hover, .g-f-main a:focus-visible, .g-f-main button:focus-visible{ color:var(--gold); transform:translateX(-5px); outline:0; }
+  .g-f-social{ display:flex; flex-wrap:wrap; gap:14px; margin-top:34px; }
+  .g-footer .social-btn{ width:auto; height:auto; padding:6px; border:0; border-radius:10px; background:none; }
+  .g-footer .social-btn img{ width:25px; height:25px; opacity:.85; transition:opacity .2s, transform .25s; }
+  .g-footer .social-btn:hover img, .g-footer .social-btn:focus-visible img{ opacity:1; transform:translateY(-2px); }
+  .g-f-legal{ display:flex; flex-direction:column; align-items:flex-start; margin-top:30px; }
+  .g-f-legal a{ font-size:15px; line-height:2.3; color:var(--dim); text-decoration:none; transition:color .2s; }
+  .g-f-legal a:hover, .g-f-legal a:focus-visible{ color:var(--cream); outline:0; }
+  .g-f-copy{ margin-top:26px; font-size:12px; letter-spacing:.5px; color:var(--dim); opacity:.55; }
+  @media (min-width:820px){
+    .g-footer{ display:grid; grid-template-columns:1.1fr 1fr; gap:0 60px; padding-top:52px; }
+    .g-f-main{ grid-row:1 / span 2; }
+    .g-f-social{ margin-top:6px; }
+    .g-f-legal{ margin-top:18px; }
+    .g-f-copy{ grid-column:1 / -1; margin-top:44px; }
+  }
   .reader-content td, .reader-content th{ border: 1px solid #ddd; padding: 8px 10px; text-align: right; }
   .reader-content mark{ padding: 1px 3px; border-radius: 3px; }
 
@@ -2069,24 +2091,27 @@
     </div>
   </div>
 
-  <div class="footer">
-    <div class="footer-contact">
-      <div class="footer-title">ارتباط با ما</div>
-      <a class="footer-email" href="mailto:info@gitirp.ir" aria-label="ارسال ایمیل به info@gitirp.ir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><span>info@gitirp.ir</span></a>
-      <div class="footer-row">
-      <a class="social-btn" data-social="telegram" href="#"><img loading="lazy" decoding="async" src="icon-telegram.png" alt="Telegram"></a>
-      <a class="social-btn" data-social="instagram" href="#"><img loading="lazy" decoding="async" src="icon-instagram.png" alt="Instagram"></a>
-      <a class="social-btn" data-social="youtube" href="#"><img loading="lazy" decoding="async" src="icon-youtube.png" alt="YouTube"></a>
-      <a class="social-btn" data-social="discord" href="#"><img loading="lazy" decoding="async" src="icon-discord.png" alt="Discord"></a>
-    </div>
-    </div>
-    <nav class="footer-links" aria-label="پیوندهای سایت">
+  <footer class="g-footer">
+    <nav class="g-f-main" aria-label="پیوندهای اصلی">
+      <a href="mailto:info@gitirp.ir">ارتباط با ما</a>
       <a href="about.html">درباره ما</a>
       <a href="https://store.gitirp.ir">فروشگاه</a>
-      <a href="profile.html">ورود / ثبت‌نام</a>
+      <button type="button" id="footerSupport">پشتیبانی</button>
     </nav>
-    <div class="footer-tag">GITI ROLE PLAY</div>
-  </div>
+    <div class="g-f-social" aria-label="شبکه‌های اجتماعی">
+      <a class="social-btn" data-social="telegram" href="#" aria-label="Telegram"><img loading="lazy" decoding="async" src="icon-telegram.png" alt="Telegram"></a>
+      <a class="social-btn" data-social="instagram" href="#" aria-label="Instagram"><img loading="lazy" decoding="async" src="icon-instagram.png" alt="Instagram"></a>
+      <a class="social-btn" data-social="youtube" href="#" aria-label="YouTube"><img loading="lazy" decoding="async" src="icon-youtube.png" alt="YouTube"></a>
+      <a class="social-btn" data-social="discord" href="#" aria-label="Discord"><img loading="lazy" decoding="async" src="icon-discord.png" alt="Discord"></a>
+    </div>
+    <nav class="g-f-legal" aria-label="پیوندهای حقوقی">
+      <a href="privacy.html">حریم خصوصی</a>
+      <a href="terms.html">شرایط استفاده</a>
+      <a href="mailto:info@gitirp.ir" dir="ltr">info@gitirp.ir</a>
+    </nav>
+    <div class="g-f-copy">© <span id="gYear"></span> GITI ROLE PLAY</div>
+  </footer>
+  <script>try{document.getElementById("gYear").textContent=new Date().toLocaleDateString("fa-IR-u-ca-persian",{year:"numeric"})}catch(e){}</script>
 
 </div>
 
@@ -2996,7 +3021,6 @@
     readerBody.dataset.openId = "";
     readerBody.innerHTML = '<div class="g-msg">' + (offline ? G_ICON_OFF : G_ICON_GONE) +
       "<h3>" + (offline ? "اتصال برقرار نشد" : "این مقاله پیدا نشد") + "</h3>" +
-      "<p>" + (offline ? "اینترنتت را بررسی کن. به‌محض وصل شدن، خودش دوباره تلاش می‌کند؛ می‌توانی دکمهٔ زیر را هم بزنی." : "ممکن است حذف شده باشد یا لینک ناقص باشد.") + "</p>" +
       '<div class="g-msg-btns">' + (offline ? '<button type="button" class="reader-save-btn" id="gRetryBtn">دوباره تلاش کن</button>' : "") +
       '<button type="button" class="reader-share-btn" id="gHomeBtn">رفتن به سایت</button></div></div>';
     readerBody.scrollTop = 0;
@@ -3051,6 +3075,11 @@
   document.addEventListener("visibilitychange", () => { if (!document.hidden) loadArticles(); });
   window.addEventListener("online", () => loadArticles());                      // connection came back: try straight away
   { const m = location.hash.match(/^#article-(.+)$/); if (m) gFetchFull(m[1]); }   // shared link: start downloading its text right away
+
+  { const ro = document.getElementById("readerOverlay");
+    if (ro) new MutationObserver(() => document.documentElement.classList.toggle("g-reader-open", ro.classList.contains("show"))).observe(ro, { attributes: true, attributeFilter: ["class"] }); }
+  { const fs = document.getElementById("footerSupport");                       // footer "پشتیبانی" opens the same chat as the menu
+    if (fs) fs.addEventListener("click", () => { if (window.openGitiChat) window.openGitiChat(); }); }
   function snippet(html, len){
     const t = stripHTML(html);
     return t.length > len ? t.slice(0, len).trim() + "…" : t;
