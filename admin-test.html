@@ -262,18 +262,57 @@
   .pkg-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .pkg-grid label{ display:flex; flex-direction:column; gap:6px; font-size:11.5px; color:var(--dim); }
   .pkg-grid input{ width:100%; min-width:0; direction:ltr; }
-  .pkg-hint{ font-size:11.5px; color:var(--dim); line-height:1.8; margin-top:-4px; }
-  .pkg-sub{ font-size:13px; font-weight:700; color:var(--cream); margin-top:6px; }
-  .pkg-item{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-  .pkg-item select{ flex:1.4; min-width:0; background:var(--panel); border:1px solid var(--panel-line); color:var(--cream); font-family:'Vazirmatn'; font-size:13px; padding:11px 10px; border-radius:10px; }
-  .pkg-item input{ flex:1; min-width:0; }
-  .pkg-item .pi-qty{ flex:.8; }
-  .pkg-add{ background:var(--panel); border:1px dashed var(--panel-line); color:var(--cream); font-family:'Vazirmatn'; font-size:12px; padding:10px 8px; border-radius:10px; cursor:pointer; }
+  .pkg-hint{ font-size:11.5px; color:var(--dim); line-height:1.8; }
+  .pkg-sub{ font-size:13px; font-weight:700; color:var(--cream); margin-top:8px; }
+  .pkg-unit{ position:relative; }
+  .pkg-unit input{ width:100%; direction:ltr; text-align:right; padding-left:64px; }
+  .pkg-unit-tag{ position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--dim); font-size:13px; pointer-events:none; }
   .pkg-cancel{ background:none; border:1px solid var(--panel-line); color:var(--dim); font-family:'Vazirmatn'; font-size:13px; padding:11px; border-radius:10px; cursor:pointer; }
   .pkg-chip{ display:inline-block; font-size:10.5px; font-weight:700; padding:2px 9px; border-radius:99px; background:var(--panel-2); color:var(--dim); margin-inline-start:6px; }
   .pkg-chip.live{ background:var(--gold); color:#1E1E36; }
   .pkg-time{ font-size:11px; color:var(--dim); margin-top:3px; line-height:1.7; }
   .pkg-rows-title{ font-size:13px; font-weight:700; color:var(--cream); margin:6px 0 10px; }
+  #pkgRows .product-row{ cursor:pointer; }
+
+  /* time wheel */
+  .wheel-wrap{ position:relative; height:150px; border-radius:14px; background:var(--panel); overflow:hidden; }
+  .wheel{ height:100%; overflow-y:auto; scroll-snap-type:y mandatory; padding:55px 0; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .wheel::-webkit-scrollbar{ display:none; }
+  .wheel-item{ height:40px; line-height:40px; text-align:center; scroll-snap-align:center; font-size:15px; color:var(--dim); transition:color .15s, font-size .15s; }
+  .wheel-item.on{ color:var(--cream); font-weight:700; font-size:17px; }
+  .wheel-band{ position:absolute; left:12px; right:12px; top:55px; height:40px; border-top:1px solid var(--gold); border-bottom:1px solid var(--gold); pointer-events:none; border-radius:2px; }
+  .wheel-wrap::before,.wheel-wrap::after{ content:""; position:absolute; left:0; right:0; height:48px; z-index:2; pointer-events:none; }
+  .wheel-wrap::before{ top:0; background:linear-gradient(var(--panel),transparent); }
+  .wheel-wrap::after{ bottom:0; background:linear-gradient(transparent,var(--panel)); }
+
+  /* items */
+  .pk-row{ display:flex; align-items:center; gap:10px; background:var(--panel); border-radius:12px; padding:8px 10px; margin-bottom:8px; }
+  .pk-row img,.pk-tile{ width:48px; height:48px; border-radius:10px; object-fit:contain; background:var(--panel-2); flex-shrink:0; }
+  .pk-tile{ display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; color:var(--gold); }
+  .pk-row-title{ flex:1; min-width:0; font-size:13px; color:var(--cream); line-height:1.6; }
+  .pk-row .pi-qty{ width:90px; flex:none; direction:ltr; text-align:center; padding:9px 6px; }
+  .pk-unit-s{ font-size:11px; color:var(--dim); white-space:nowrap; }
+  .pkg-kinds{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .pkg-kind{ background:var(--panel); border:1px dashed var(--gold); color:var(--cream); font-family:'Vazirmatn'; font-size:13px; font-weight:700; padding:12px 4px; border-radius:12px; cursor:pointer; }
+  .pkg-kind:active{ background:var(--panel-2); }
+
+  /* modals (picker + crop) */
+  .pk-modal{ position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.62); display:flex; align-items:flex-end; justify-content:center; }
+  .pk-modal[hidden]{ display:none; }
+  .pk-sheet{ width:100%; max-width:520px; max-height:88vh; overflow-y:auto; background:#1b1b34; border-radius:22px 22px 0 0; padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:12px; }
+  .pk-sheet-head{ display:flex; align-items:center; justify-content:space-between; color:var(--cream); font-size:15px; font-weight:700; }
+  .pk-x{ background:var(--panel); border:0; color:var(--cream); width:34px; height:34px; border-radius:50%; font-size:18px; cursor:pointer; }
+  .pk-pgrid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .pk-card{ position:relative; background:var(--panel); border:2px solid transparent; border-radius:14px; padding:8px; color:var(--cream); font-family:'Vazirmatn'; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .pk-card img,.pk-card .pk-tile{ width:100%; height:90px; object-fit:contain; border-radius:10px; background:var(--panel-2); }
+  .pk-card span{ font-size:12.5px; font-weight:700; }
+  .pk-card small{ font-size:11px; color:var(--dim); }
+  .pk-card.on{ border-color:var(--gold); }
+  .pk-card .pk-check{ position:absolute; top:6px; left:6px; width:22px; height:22px; border-radius:50%; background:var(--gold); color:#1E1E36; font-size:13px; font-weight:800; display:none; align-items:center; justify-content:center; }
+  .pk-card.on .pk-check{ display:flex; }
+  .crop-stage{ align-self:center; border-radius:12px; overflow:hidden; background:#0F1120; touch-action:none; }
+  .crop-stage canvas{ display:block; cursor:grab; }
+  #cropZoom{ width:100%; accent-color: var(--gold); }
 </style>
 </head>
 <body>
@@ -348,31 +387,38 @@
         <div class="pkg-form-title" id="pkFormTitle">پکیج جدید</div>
         <input type="text" id="pkTitle" placeholder="اسم پکیج">
         <input type="text" id="pkDesc" placeholder="توضیح کوتاه">
-        <input type="text" id="pkPrice" inputmode="numeric" placeholder="قیمت (تومان)">
+        <div class="pkg-unit"><input type="text" id="pkPrice" inputmode="numeric" autocomplete="off" placeholder="قیمت"><span class="pkg-unit-tag">تومان</span></div>
         <input type="text" id="pkBadge" list="pkBadges" placeholder="برچسب (اختیاری): جدید، محدود، پرفروش...">
         <datalist id="pkBadges"><option value="جدید"><option value="محدود"><option value="پرفروش"><option value="ویژه"></datalist>
         <label class="pkg-check"><input type="checkbox" id="pkFeatured"><span>برجسته (اول لیست، با درخشش طلایی)</span></label>
         <label class="pkg-check"><input type="checkbox" id="pkActive" checked><span>فعال (در فروشگاه نمایش داده بشه)</span></label>
-        <div class="pkg-grid">
-          <label>شروع نمایش<input type="datetime-local" id="pkStart"></label>
-          <label>پایان نمایش<input type="datetime-local" id="pkEnd"></label>
-        </div>
-        <div class="pkg-hint">خالی بذاری یعنی بدون محدودیت. ساعت‌ها بر اساس ساعت گوشی خودته. پکیج بعد از پایان زمان خودکار از فروشگاه حذف می‌شه.</div>
+
+        <div class="pkg-sub">مدت نمایش در فروشگاه</div>
+        <div class="wheel-wrap"><div class="wheel" id="pkWheel"></div><div class="wheel-band"></div></div>
+        <div class="pkg-hint" id="pkWheelHint"></div>
+
         <div class="pkg-grid">
           <label>تعداد کل (اختیاری)<input type="text" inputmode="numeric" id="pkStock" placeholder="مثلا 10"></label>
           <label>فروخته‌شده<input type="text" inputmode="numeric" id="pkSold" placeholder="0"></label>
         </div>
+
+        <div class="pkg-sub">عکس کاور</div>
         <label class="product-image-picker" id="pkImagePicker">
           <img id="pkImagePreview" style="display:none;">
-          <span id="pkImageText">انتخاب عکس کاور پکیج (نسبت ۱۶ به ۹ بهتره)</span>
+          <span id="pkImageText">انتخاب عکس کاور</span>
           <input type="file" id="pkImageFile" accept="image/*" style="display:none;">
         </label>
+        <div class="pkg-hint">بعد از انتخاب، عکس رو دقیقا به اندازه‌ی کادر پکیج برش می‌زنی.<br>اندازه‌ی پیشنهادی برای گرافیست: <b>۱۲۸۰ × ۷۲۰ پیکسل</b> (نسبت ۱۶ به ۹)</div>
+
         <div class="pkg-sub">داخل پکیج چی هست؟</div>
         <div id="pkItems"></div>
-        <div class="pkg-grid">
-          <button type="button" class="pkg-add" id="pkAddProduct">+ از محصولات (ماشین / اسکین)</button>
-          <button type="button" class="pkg-add" id="pkAddCustom">+ آیتم دلخواه (پول، سکه...)</button>
+        <div class="pkg-kinds">
+          <button type="button" class="pkg-kind" data-kind="skin">+ اسکین</button>
+          <button type="button" class="pkg-kind" data-kind="car">+ ماشین</button>
+          <button type="button" class="pkg-kind" data-kind="money">+ پول</button>
+          <button type="button" class="pkg-kind" data-kind="donate">+ دونیت</button>
         </div>
+
         <button class="product-form-save" id="pkSaveBtn">افزودن پکیج</button>
         <button class="pkg-cancel" id="pkCancelBtn" style="display:none">انصراف از ویرایش</button>
       </div>
@@ -1118,77 +1164,195 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
   const pkEl = id => document.getElementById(id);
   const faD = s => String(s == null ? "" : s).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
   const pkNum = s => Math.max(0, Math.floor(Number(faD(s).replace(/[^\d.]/g, "")) || 0));
-  let allPackages = [], editingPkgId = null, pkImageDataUrl = "", pkItems = [];
+  const faN = n => Number(n).toLocaleString("fa-IR");
+  const PK_H = 36e5, MONEY_NAME = "پول داخل بازی", DONATE_NAME = "سکه";
+  let allPackages = [], editingPkgId = null, pkImageDataUrl = "", pkItems = [], pkKeep = null;
+  const pkFmt = ms => new Date(ms).toLocaleString("fa-IR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+  // modals (added to <body> so nothing can clip them)
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="pk-modal" id="pkPicker" hidden><div class="pk-sheet">
+      <div class="pk-sheet-head"><span id="pkPickTitle"></span><button type="button" class="pk-x" id="pkPickX">×</button></div>
+      <div class="pkg-hint">روی هر مورد بزن تا انتخاب بشه. می‌تونی چندتا انتخاب کنی.</div>
+      <div class="pk-pgrid" id="pkPickGrid"></div>
+      <button type="button" class="product-form-save" id="pkPickOk">تایید</button>
+    </div></div>
+    <div class="pk-modal" id="pkCrop" hidden><div class="pk-sheet">
+      <div class="pk-sheet-head"><span>برش عکس کاور</span><button type="button" class="pk-x" id="pkCropX">×</button></div>
+      <div class="pkg-hint">عکس رو با انگشت جابه‌جا کن و با اسلایدر بزرگ یا کوچیک کن. کادر، همون چیزیه که توی فروشگاه دیده می‌شه.</div>
+      <div class="crop-stage" id="cropStage"><canvas id="cropCanvas"></canvas></div>
+      <input type="range" id="cropZoom" min="100" max="300" value="100">
+      <div class="pkg-hint">اندازه‌ی نهایی عکس: ۱۲۸۰ × ۷۲۰ پیکسل</div>
+      <button type="button" class="product-form-save" id="cropOk">ثبت عکس</button>
+    </div></div>`);
 
   pkEl("openPackagesBtn").addEventListener("click", async () => {
     showHub("packages");
+    pkBuildWheel(!!(pkKeep && pkKeep.end));
     await loadProducts().catch(() => {});
     pkRenderItems();
     loadPackages();
   });
 
-  const pkToLocalInput = ms => {
-    if (!ms) return "";
-    const d = new Date(ms), p = n => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-  };
-  const pkFromLocalInput = v => v ? (new Date(v).getTime() || 0) : 0;
-  const pkFmt = ms => new Date(ms).toLocaleString("fa-IR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  // ---------- price with commas ----------
+  pkEl("pkPrice").addEventListener("input", e => {
+    const n = faD(e.target.value).replace(/[^\d]/g, "");
+    e.target.value = n ? Number(n).toLocaleString("en-US") : "";
+  });
 
-  // cover image
+  // ---------- time wheel (6 hours ... 1 month) ----------
+  let pkOpts = [];
+  function pkBuildWheel(keepEnd) {
+    pkOpts = [];
+    if (keepEnd) pkOpts.push({ l: "حفظ زمان فعلی", keep: true });
+    pkOpts.push({ l: "بدون محدودیت", ms: 0 }, { l: "۶ ساعت", ms: 6 * PK_H }, { l: "۱۲ ساعت", ms: 12 * PK_H }, { l: "۱۸ ساعت", ms: 18 * PK_H });
+    for (let d = 1; d <= 30; d++) {
+      pkOpts.push({ l: faN(d) + " روز" + (d === 7 ? " (۱ هفته)" : d === 14 ? " (۲ هفته)" : d === 30 ? " (۱ ماه)" : ""), ms: d * 24 * PK_H });
+    }
+    const w = pkEl("pkWheel");
+    w.innerHTML = pkOpts.map(o => `<div class="wheel-item">${o.l}</div>`).join("");
+    w.scrollTop = 0;
+    pkWheelSync();
+  }
+  const pkWheelIdx = () => Math.max(0, Math.min(pkOpts.length - 1, Math.round(pkEl("pkWheel").scrollTop / 40)));
+  function pkWheelSync() {
+    const i = pkWheelIdx();
+    [...pkEl("pkWheel").children].forEach((el, k) => el.classList.toggle("on", k === i));
+    const o = pkOpts[i]; let t = "";
+    if (!o) return;
+    if (o.keep) t = pkKeep && pkKeep.end ? "زمان فعلی تغییر نمی‌کنه (پایان: " + pkFmt(pkKeep.end) + ")." : "";
+    else if (!o.ms) t = "بدون محدودیت: تا وقتی خودت خاموشش نکنی نمایش داده می‌شه.";
+    else t = "از لحظه‌ی ذخیره تا " + pkFmt(Date.now() + o.ms) + " نمایش داده می‌شه و بعدش خودکار از فروشگاه حذف می‌شه.";
+    pkEl("pkWheelHint").textContent = t;
+  }
+  pkEl("pkWheel").addEventListener("scroll", () => requestAnimationFrame(pkWheelSync));
+
+  // ---------- items ----------
+  const pkProd = id => allProducts.find(p => p.id === id);
+  const pkProdTitle = p => { const [g, n] = String(p.name || "").split("|"); return p.type === "car" ? "#" + g + " - " + (n || "") : "#" + g; };
+  function pkRenderItems() {
+    const el = pkEl("pkItems");
+    if (!pkItems.length) { el.innerHTML = '<div class="pkg-hint">هنوز چیزی اضافه نشده. از دکمه‌های پایین انتخاب کن.</div>'; return; }
+    el.innerHTML = pkItems.map((it, i) => {
+      let thumb, title, qty = "";
+      if (it.kind === "skin" || it.kind === "car") {
+        const p = pkProd(it.productId);
+        thumb = p && p.image ? `<img src="${escapeHTML(p.image)}" alt="">` : `<span class="pk-tile">${it.kind === "car" ? "CAR" : "SKIN"}</span>`;
+        title = (it.kind === "car" ? "ماشین " : "اسکین ") + (p ? escapeHTML(pkProdTitle(p)) : "(حذف‌شده از محصولات)");
+      } else if (it.kind === "money" || it.kind === "donate") {
+        thumb = `<span class="pk-tile">${it.kind === "money" ? "$" : "★"}</span>`;
+        title = it.kind === "money" ? "پول" : "دونیت";
+        qty = `<input type="text" inputmode="numeric" class="pi-qty" placeholder="0" value="${escapeHTML(it.qty)}"><span class="pk-unit-s">${it.kind === "money" ? "میلیون دلار" : "سکه"}</span>`;
+      } else {
+        thumb = `<span class="pk-tile">•</span>`;
+        title = escapeHTML(it.name) + (it.qty ? " — " + escapeHTML(it.qty) : "");
+      }
+      return `<div class="pk-row" data-i="${i}">${thumb}<div class="pk-row-title">${title}</div>${qty}<button type="button" class="icon-btn pi-del" aria-label="حذف">×</button></div>`;
+    }).join("");
+  }
+  pkEl("pkItems").addEventListener("input", e => {
+    if (!e.target.classList.contains("pi-qty")) return;
+    const it = pkItems[+e.target.closest(".pk-row").dataset.i];
+    e.target.value = it.qty = faD(e.target.value).replace(/[^\d]/g, "");
+  });
+  pkEl("pkItems").addEventListener("click", e => {
+    const b = e.target.closest(".pi-del"); if (!b) return;
+    pkItems.splice(+b.closest(".pk-row").dataset.i, 1); pkRenderItems();
+  });
+  document.querySelectorAll(".pkg-kind").forEach(btn => btn.addEventListener("click", async () => {
+    const kind = btn.dataset.kind;
+    if (kind === "money" || kind === "donate") {
+      if (!pkItems.some(i => i.kind === kind)) { pkItems.push({ kind, qty: "" }); pkRenderItems(); }
+      const idx = pkItems.findIndex(i => i.kind === kind);
+      const inp = pkEl("pkItems").querySelector(`.pk-row[data-i="${idx}"] .pi-qty`); if (inp) inp.focus();
+      return;
+    }
+    await loadProducts().catch(() => {});
+    pkOpenPicker(kind);
+  }));
+
+  // ---------- picker (photos of skins / cars) ----------
+  let pickKind = null, pickSel = [];
+  function pkOpenPicker(kind) {
+    pickKind = kind;
+    pickSel = pkItems.filter(i => i.kind === kind).map(i => i.productId);
+    pkEl("pkPickTitle").textContent = kind === "car" ? "انتخاب ماشین" : "انتخاب اسکین";
+    const list = allProducts.filter(p => p.type === kind);
+    pkEl("pkPickGrid").innerHTML = list.length ? list.map(p => `
+      <button type="button" class="pk-card${pickSel.includes(p.id) ? " on" : ""}" data-id="${escapeHTML(p.id)}">
+        ${p.image ? `<img src="${escapeHTML(p.image)}" alt="">` : `<span class="pk-tile">${kind === "car" ? "CAR" : "SKIN"}</span>`}
+        <span>${escapeHTML(pkProdTitle(p))}</span><small>${Number(p.price || 0).toLocaleString("en-US")} تومان</small><i class="pk-check">✓</i>
+      </button>`).join("") : `<div class="list-empty" style="grid-column:1/-1">هنوز ${kind === "car" ? "ماشینی" : "اسکینی"} توی محصولات ساخته نشده.</div>`;
+    pkEl("pkPicker").hidden = false;
+  }
+  pkEl("pkPickGrid").addEventListener("click", e => {
+    const c = e.target.closest(".pk-card"); if (!c) return;
+    const id = c.dataset.id, i = pickSel.indexOf(id);
+    if (i >= 0) pickSel.splice(i, 1); else pickSel.push(id);
+    c.classList.toggle("on", i < 0);
+  });
+  pkEl("pkPickX").addEventListener("click", () => { pkEl("pkPicker").hidden = true; });
+  pkEl("pkPickOk").addEventListener("click", () => {
+    pkItems = pkItems.filter(i => i.kind !== pickKind).concat(pickSel.map(id => ({ kind: pickKind, productId: id })));
+    pkEl("pkPicker").hidden = true; pkRenderItems();
+  });
+
+  // ---------- cover image: pick, then crop to the card frame (16:9) ----------
+  let cImg = null, cZoom = 1, cOx = 0, cOy = 0, cW = 0, cH = 0, cBase = 1, cDpr = 1, cDrag = null;
   pkEl("pkImageFile").addEventListener("change", () => {
-    const f = pkEl("pkImageFile").files[0];
-    if (!f) return;
-    if (f.size > 800 * 1024) { alert("عکس بیشتر از ۸۰۰ کیلوبایته — یه فایل کوچیک‌تر انتخاب کن که سرور کند نشه."); pkEl("pkImageFile").value = ""; return; }
+    const f = pkEl("pkImageFile").files[0]; if (!f) return;
+    if (f.size > 12 * 1024 * 1024) { alert("حجم عکس خیلی زیاده (بیشتر از ۱۲ مگابایت)."); pkEl("pkImageFile").value = ""; return; }
     const r = new FileReader();
-    r.onload = () => { pkImageDataUrl = r.result; pkSetPreview(pkImageDataUrl); };
+    r.onload = () => { const img = new Image(); img.onload = () => cropOpen(img); img.onerror = () => alert("این فایل عکس نیست."); img.src = r.result; };
     r.readAsDataURL(f);
   });
   function pkSetPreview(src) {
     const img = pkEl("pkImagePreview");
     img.src = src || ""; img.style.display = src ? "block" : "none";
-    pkEl("pkImageText").textContent = src ? "برای تغییر عکس دوباره بزن" : "انتخاب عکس کاور پکیج (نسبت ۱۶ به ۹ بهتره)";
+    pkEl("pkImageText").textContent = src ? "برای تغییر عکس دوباره بزن" : "انتخاب عکس کاور";
   }
+  function cropOpen(img) {
+    cImg = img; pkEl("pkCrop").hidden = false;
+    cW = Math.min(window.innerWidth - 60, 440); cH = Math.round(cW * 9 / 16);
+    cDpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cv = pkEl("cropCanvas");
+    cv.style.width = cW + "px"; cv.style.height = cH + "px"; cv.width = Math.round(cW * cDpr); cv.height = Math.round(cH * cDpr);
+    cBase = Math.max(cW / img.width, cH / img.height); cZoom = 1; pkEl("cropZoom").value = 100;
+    cOx = (cW - img.width * cBase) / 2; cOy = (cH - img.height * cBase) / 2;
+    cropDraw();
+  }
+  function cropClamp() {
+    const w = cImg.width * cBase * cZoom, h = cImg.height * cBase * cZoom;
+    cOx = Math.min(0, Math.max(cW - w, cOx)); cOy = Math.min(0, Math.max(cH - h, cOy));
+  }
+  function cropDraw() {
+    cropClamp();
+    const cv = pkEl("cropCanvas"), ctx = cv.getContext("2d"), s = cBase * cZoom;
+    ctx.setTransform(cDpr, 0, 0, cDpr, 0, 0);
+    ctx.fillStyle = "#1b1b34"; ctx.fillRect(0, 0, cW, cH);
+    ctx.drawImage(cImg, cOx, cOy, cImg.width * s, cImg.height * s);
+  }
+  pkEl("cropZoom").addEventListener("input", e => {
+    const old = cBase * cZoom; cZoom = e.target.value / 100; const s = cBase * cZoom;
+    const ix = (cW / 2 - cOx) / old, iy = (cH / 2 - cOy) / old;
+    cOx = cW / 2 - ix * s; cOy = cH / 2 - iy * s; cropDraw();
+  });
+  const cv0 = pkEl("cropCanvas");
+  cv0.addEventListener("pointerdown", e => { cDrag = { x: e.clientX, y: e.clientY, ox: cOx, oy: cOy }; cv0.setPointerCapture(e.pointerId); });
+  cv0.addEventListener("pointermove", e => { if (!cDrag) return; cOx = cDrag.ox + (e.clientX - cDrag.x); cOy = cDrag.oy + (e.clientY - cDrag.y); cropDraw(); });
+  const cEnd = () => { cDrag = null; };
+  cv0.addEventListener("pointerup", cEnd); cv0.addEventListener("pointercancel", cEnd);
+  pkEl("pkCropX").addEventListener("click", () => { pkEl("pkCrop").hidden = true; pkEl("pkImageFile").value = ""; });
+  pkEl("cropOk").addEventListener("click", () => {
+    const out = document.createElement("canvas"); out.width = 1280; out.height = 720;
+    const ctx = out.getContext("2d"), k = 1280 / cW, s = cBase * cZoom * k;
+    ctx.fillStyle = "#1b1b34"; ctx.fillRect(0, 0, 1280, 720);
+    ctx.drawImage(cImg, cOx * k, cOy * k, cImg.width * s, cImg.height * s);
+    pkImageDataUrl = out.toDataURL("image/jpeg", 0.88);
+    pkSetPreview(pkImageDataUrl); pkEl("pkCrop").hidden = true; pkEl("pkImageFile").value = "";
+  });
 
-  // items editor
-  function pkProductOptions() {
-    const opt = type => allProducts.filter(p => p.type === type).map(p => {
-      const [id, nm] = String(p.name || "").split("|");
-      return `<option value="${escapeHTML(p.id)}">${type === "car" ? "#" + escapeHTML(id) + " - " + escapeHTML(nm || "") : "#" + escapeHTML(id)}</option>`;
-    }).join("");
-    return `<option value="">انتخاب کن...</option><optgroup label="اسکین">${opt("skin")}</optgroup><optgroup label="ماشین">${opt("car")}</optgroup>`;
-  }
-  function pkRenderItems() {
-    const el = pkEl("pkItems");
-    if (!pkItems.length) { el.innerHTML = '<div class="pkg-hint">هنوز چیزی اضافه نشده.</div>'; return; }
-    const opts = pkProductOptions();
-    el.innerHTML = pkItems.map((it, i) => `
-      <div class="pkg-item" data-i="${i}">
-        ${it.mode === "product"
-          ? `<select class="pi-prod">${opts.replace(`value="${escapeHTML(it.productId)}"`, `value="${escapeHTML(it.productId)}" selected`)}</select>`
-          : `<input type="text" class="pi-name" placeholder="اسم آیتم (مثلا پول داخل بازی)" value="${escapeHTML(it.name)}">`}
-        <input type="text" class="pi-qty" placeholder="مقدار" value="${escapeHTML(it.qty)}">
-        <button type="button" class="icon-btn pi-del" aria-label="حذف">×</button>
-      </div>`).join("");
-  }
-  pkEl("pkItems").addEventListener("input", e => {
-    const row = e.target.closest(".pkg-item"); if (!row) return;
-    const it = pkItems[+row.dataset.i]; if (!it) return;
-    if (e.target.classList.contains("pi-name")) it.name = e.target.value;
-    if (e.target.classList.contains("pi-qty")) it.qty = e.target.value;
-  });
-  pkEl("pkItems").addEventListener("change", e => {
-    const row = e.target.closest(".pkg-item"); if (!row) return;
-    if (e.target.classList.contains("pi-prod")) pkItems[+row.dataset.i].productId = e.target.value;
-  });
-  pkEl("pkItems").addEventListener("click", e => {
-    const b = e.target.closest(".pi-del"); if (!b) return;
-    pkItems.splice(+b.closest(".pkg-item").dataset.i, 1); pkRenderItems();
-  });
-  pkEl("pkAddProduct").addEventListener("click", () => { pkItems.push({ mode: "product", productId: "", name: "", qty: "" }); pkRenderItems(); });
-  pkEl("pkAddCustom").addEventListener("click", () => { pkItems.push({ mode: "custom", productId: "", name: "", qty: "" }); pkRenderItems(); });
-
-  // list
+  // ---------- list ----------
   async function loadPackages() {
     const box = pkEl("pkgRows");
     try {
@@ -1224,12 +1388,13 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
         </div>
         <div class="blog-row-actions">
           <button class="icon-btn pk-toggle" title="روشن/خاموش">${p.active ? "⏸" : "▶"}</button>
-          <button class="icon-btn pk-edit" title="ویرایش">✎</button>
           <button class="icon-btn pk-del" title="حذف">×</button>
         </div>
       </div>`;
     }).join("");
   }
+  const pkItemsForSave = items => (items || []).map(it => it.productId ? { productId: it.productId, name: "", qty: "" } : { productId: "", name: it.name || "", qty: it.qty || "" });
+
   pkEl("pkgRows").addEventListener("click", async e => {
     const row = e.target.closest(".product-row"); if (!row) return;
     const p = allPackages.find(x => x.id === row.dataset.id); if (!p) return;
@@ -1239,31 +1404,37 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
       if (editingPkgId === p.id) pkReset();
       loadPackages();
     } else if (e.target.closest(".pk-toggle")) {
-      await pkSend(Object.assign({}, p, { active: p.active ? 0 : 1 }), p.id);
+      await pkSend(Object.assign({}, p, { active: p.active ? 0 : 1, items: pkItemsForSave(p.items) }), p.id);
       loadPackages();
-    } else if (e.target.closest(".pk-edit")) {
+    } else {
+      // tapping anywhere on the row opens it for editing
+      await loadProducts().catch(() => {});
       editingPkgId = p.id;
+      pkKeep = { start: p.start || 0, end: p.end || 0 };
       pkEl("pkFormTitle").textContent = "ویرایش پکیج";
       pkEl("pkTitle").value = p.title; pkEl("pkDesc").value = p.description || "";
-      pkEl("pkPrice").value = p.price || ""; pkEl("pkBadge").value = p.badge || "";
+      pkEl("pkPrice").value = p.price ? Number(p.price).toLocaleString("en-US") : ""; pkEl("pkBadge").value = p.badge || "";
       pkEl("pkFeatured").checked = !!p.featured; pkEl("pkActive").checked = !!p.active;
-      pkEl("pkStart").value = pkToLocalInput(p.start); pkEl("pkEnd").value = pkToLocalInput(p.end);
       pkEl("pkStock").value = p.stock || ""; pkEl("pkSold").value = p.sold || "";
       pkImageDataUrl = p.image || ""; pkSetPreview(pkImageDataUrl);
-      pkItems = (p.items || []).map(it => it.productId
-        ? { mode: "product", productId: it.productId, name: "", qty: it.qty || "" }
-        : { mode: "custom", productId: "", name: it.name || "", qty: it.qty || "" });
+      pkItems = (p.items || []).map(it => {
+        if (it.productId) { const pr = pkProd(it.productId); return pr ? { kind: pr.type, productId: it.productId } : { kind: "custom", name: "محصول حذف‌شده", qty: "" }; }
+        if (it.name === MONEY_NAME) return { kind: "money", qty: (/\d+/.exec(faD(it.qty)) || [""])[0] };
+        if (it.name === DONATE_NAME) return { kind: "donate", qty: (/\d+/.exec(faD(it.qty)) || [""])[0] };
+        return { kind: "custom", name: it.name || "", qty: it.qty || "" };
+      });
       pkRenderItems();
+      pkBuildWheel(!!pkKeep.end);
       pkEl("pkSaveBtn").textContent = "ذخیرهٔ تغییرات"; pkEl("pkCancelBtn").style.display = "block";
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
 
   function pkReset() {
-    editingPkgId = null; pkImageDataUrl = ""; pkItems = [];
-    ["pkTitle", "pkDesc", "pkPrice", "pkBadge", "pkStart", "pkEnd", "pkStock", "pkSold"].forEach(id => pkEl(id).value = "");
+    editingPkgId = null; pkKeep = null; pkImageDataUrl = ""; pkItems = [];
+    ["pkTitle", "pkDesc", "pkPrice", "pkBadge", "pkStock", "pkSold"].forEach(id => pkEl(id).value = "");
     pkEl("pkFeatured").checked = false; pkEl("pkActive").checked = true; pkEl("pkImageFile").value = "";
-    pkSetPreview(""); pkRenderItems();
+    pkSetPreview(""); pkRenderItems(); pkBuildWheel(false);
     pkEl("pkFormTitle").textContent = "پکیج جدید"; pkEl("pkSaveBtn").textContent = "افزودن پکیج"; pkEl("pkCancelBtn").style.display = "none";
   }
   pkEl("pkCancelBtn").addEventListener("click", pkReset);
@@ -1279,14 +1450,21 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     if (!title) { alert("اسم پکیج رو خالی نذار."); return; }
     const price = pkNum(pkEl("pkPrice").value);
     if (!price) { alert("قیمت رو درست وارد کن."); return; }
-    const start = pkFromLocalInput(pkEl("pkStart").value), end = pkFromLocalInput(pkEl("pkEnd").value);
-    if (start && end && end <= start) { alert("زمان پایان باید بعد از زمان شروع باشه."); return; }
-    if (end && end <= Date.now() && !confirm("زمان پایان گذشته؛ این پکیج نمایش داده نمی‌شه. ادامه می‌دی؟")) return;
     const stock = pkNum(pkEl("pkStock").value), sold = pkNum(pkEl("pkSold").value);
     if (stock && sold > stock) { alert("تعداد فروخته‌شده نمی‌تونه از تعداد کل بیشتر باشه."); return; }
-    const items = pkItems
-      .filter(it => it.mode === "product" ? it.productId : it.name.trim())
-      .map(it => it.mode === "product" ? { productId: it.productId, name: "", qty: it.qty.trim() } : { productId: "", name: it.name.trim(), qty: it.qty.trim() });
+    for (const it of pkItems) {
+      if ((it.kind === "money" || it.kind === "donate") && !pkNum(it.qty)) { alert((it.kind === "money" ? "مقدار پول" : "تعداد سکه") + " رو بنویس."); return; }
+    }
+    const o = pkOpts[pkWheelIdx()] || { ms: 0 };
+    let start = 0, end = 0;
+    if (o.keep) { start = (pkKeep && pkKeep.start) || 0; end = (pkKeep && pkKeep.end) || 0; }
+    else if (o.ms) end = Date.now() + o.ms;
+    const items = pkItems.map(it => {
+      if (it.kind === "skin" || it.kind === "car") return it.productId ? { productId: it.productId, name: "", qty: "" } : null;
+      if (it.kind === "money") return { productId: "", name: MONEY_NAME, qty: pkNum(it.qty) + " میلیون دلار" };
+      if (it.kind === "donate") return { productId: "", name: DONATE_NAME, qty: String(pkNum(it.qty)) };
+      return { productId: "", name: it.name || "", qty: it.qty || "" };
+    }).filter(Boolean);
     const body = {
       title, description: pkEl("pkDesc").value.trim(), price, badge: pkEl("pkBadge").value.trim(),
       featured: pkEl("pkFeatured").checked ? 1 : 0, active: pkEl("pkActive").checked ? 1 : 0,
@@ -1299,6 +1477,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     if (ok) { pkReset(); loadPackages(); }
   });
   pkRenderItems();
+  pkBuildWheel(false);
 </script>
 
 </body>
