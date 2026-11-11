@@ -313,6 +313,20 @@
   .crop-stage{ align-self:center; border-radius:12px; overflow:hidden; background:#0F1120; touch-action:none; }
   .crop-stage canvas{ display:block; cursor:grab; }
   #cropZoom{ width:100%; accent-color: var(--gold); }
+
+  /* kind switch, themes, level fields */
+  .pkg-seg{ display:flex; background:var(--panel); border-radius:12px; padding:4px; gap:4px; }
+  .pkg-seg.locked{ pointer-events:none; opacity:.6; }
+  .pkg-seg button{ flex:1; border:0; background:none; color:var(--dim); font-family:'Vazirmatn'; font-size:13px; font-weight:700; padding:10px; border-radius:9px; cursor:pointer; }
+  .pkg-seg button.on{ background:var(--gold); color:#1E1E36; }
+  .pkg-field{ display:flex; flex-direction:column; gap:6px; font-size:11.5px; color:var(--dim); }
+  .pkg-field input{ width:100%; direction:ltr; }
+  .pk-themes{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .pk-theme{ display:flex; flex-direction:column; align-items:center; gap:5px; background:none; border:2px solid transparent; border-radius:12px; padding:6px 8px; color:var(--dim); font-family:'Vazirmatn'; font-size:11px; cursor:pointer; }
+  .pk-theme i{ width:30px; height:30px; border-radius:50%; display:block; }
+  .pk-theme.on{ border-color:var(--gold); color:var(--cream); }
+  #pkColor{ width:46px; height:36px; padding:0; border:0; background:none; }
+  .pkg-form textarea{ width:100%; background:var(--panel); border:1px solid var(--panel-line); color:var(--cream); font-family:'Vazirmatn'; font-size:13px; padding:12px; border-radius:10px; line-height:1.9; resize:vertical; }
 </style>
 </head>
 <body>
@@ -343,7 +357,7 @@
     <div class="hub-view show" id="mainView">
       <button class="hub-btn" id="openArticlesBtn" style="display:none">مقاله‌ها</button>
       <button class="hub-btn" id="openProductsBtn" style="display:none">محصولات</button>
-      <button class="hub-btn" id="openPackagesBtn" style="display:none">پکیج‌های ویژه</button>
+      <button class="hub-btn" id="openPackagesBtn" style="display:none">پکیج‌ها</button>
       <button class="hub-btn" id="openStatsBtn" style="display:none">آمار فروش</button>
     </div>
 
@@ -385,30 +399,57 @@
       <button class="back-link" data-back="main">‹ برگشت</button>
       <div class="product-form pkg-form">
         <div class="pkg-form-title" id="pkFormTitle">پکیج جدید</div>
+        <div class="pkg-seg" id="pkKindSeg">
+          <button type="button" class="on" data-kind="special">پکیج ویژه</button>
+          <button type="button" data-kind="level">پکیج سطحی</button>
+        </div>
+        <div class="pkg-hint" id="pkKindHint"></div>
+
         <input type="text" id="pkTitle" placeholder="اسم پکیج">
         <input type="text" id="pkDesc" placeholder="توضیح کوتاه">
         <div class="pkg-unit"><input type="text" id="pkPrice" inputmode="numeric" autocomplete="off" placeholder="قیمت"><span class="pkg-unit-tag">تومان</span></div>
-        <input type="text" id="pkBadge" list="pkBadges" placeholder="برچسب (اختیاری): جدید، محدود، پرفروش...">
+
+        <!-- special only -->
+        <input class="pk-sp" type="text" id="pkBadge" list="pkBadges" placeholder="برچسب (اختیاری): جدید، محدود، پرفروش...">
         <datalist id="pkBadges"><option value="جدید"><option value="محدود"><option value="پرفروش"><option value="ویژه"></datalist>
-        <label class="pkg-check"><input type="checkbox" id="pkFeatured"><span>برجسته (اول لیست، با درخشش طلایی)</span></label>
+        <label class="pkg-check pk-sp"><input type="checkbox" id="pkFeatured"><span>برجسته (اول لیست، با درخشش طلایی)</span></label>
+
+        <!-- level only -->
+        <label class="pkg-field pk-lv">شماره‌ی سطح (۱ = پایین‌ترین سطح)<input type="text" inputmode="numeric" id="pkLevel" placeholder="مثلا 1"></label>
+        <div class="pkg-sub pk-lv">رنگ و تم سطح</div>
+        <div class="pk-themes pk-lv" id="pkThemes">
+          <button type="button" class="pk-theme" data-theme="bronze"><i style="background:radial-gradient(circle at 30% 25%,#d08a52,#5e3a22)"></i>برنز</button>
+          <button type="button" class="pk-theme" data-theme="silver"><i style="background:radial-gradient(circle at 30% 25%,#d5dbe8,#69738a)"></i>نقره</button>
+          <button type="button" class="pk-theme on" data-theme="gold"><i style="background:radial-gradient(circle at 30% 25%,#ffd4a9,#a8742e)"></i>طلا</button>
+          <button type="button" class="pk-theme" data-theme="diamond"><i style="background:radial-gradient(circle at 30% 25%,#8fd8ff,#3a6fb0)"></i>الماس</button>
+          <button type="button" class="pk-theme" data-theme="custom"><i style="background:conic-gradient(#f66,#fc6,#6f9,#6cf,#c6f,#f66)"></i>دلخواه</button>
+          <input type="color" id="pkColor" value="#ff7a59" style="display:none">
+        </div>
+        <label class="pkg-check pk-lv"><input type="checkbox" id="pkPopular"><span>محبوب‌ترین (برچسب روی کارت و انتخاب پیش‌فرض)</span></label>
+        <label class="pkg-check pk-lv"><input type="checkbox" id="pkIncludesPrev"><span>شامل همه‌ی مزایای سطح قبلی</span></label>
+        <div class="pkg-sub pk-lv">مدت اعتبار هر خرید</div>
+        <div class="wheel-wrap pk-lv"><div class="wheel" id="pkLvWheel"></div><div class="wheel-band"></div></div>
+        <div class="pkg-hint pk-lv" id="pkLvHint"></div>
+        <div class="pkg-sub pk-lv">مزایای متنی (هر مزیت در یک خط، اختیاری)</div>
+        <textarea class="pk-lv" id="pkBenefits" rows="4" placeholder="مثلا:&#10;برچسب اختصاصی کنار اسم&#10;اولویت ورود به سرور"></textarea>
+
         <label class="pkg-check"><input type="checkbox" id="pkActive" checked><span>فعال (در فروشگاه نمایش داده بشه)</span></label>
 
-        <div class="pkg-sub">مدت نمایش در فروشگاه</div>
-        <div class="wheel-wrap"><div class="wheel" id="pkWheel"></div><div class="wheel-band"></div></div>
-        <div class="pkg-hint" id="pkWheelHint"></div>
-
-        <div class="pkg-grid">
+        <!-- special only -->
+        <div class="pkg-sub pk-sp">مدت نمایش در فروشگاه</div>
+        <div class="wheel-wrap pk-sp"><div class="wheel" id="pkWheel"></div><div class="wheel-band"></div></div>
+        <div class="pkg-hint pk-sp" id="pkWheelHint"></div>
+        <div class="pkg-grid pk-sp">
           <label>تعداد کل (اختیاری)<input type="text" inputmode="numeric" id="pkStock" placeholder="مثلا 10"></label>
           <label>فروخته‌شده<input type="text" inputmode="numeric" id="pkSold" placeholder="0"></label>
         </div>
-
-        <div class="pkg-sub">عکس کاور</div>
-        <label class="product-image-picker" id="pkImagePicker">
+        <div class="pkg-sub pk-sp">عکس کاور</div>
+        <label class="product-image-picker pk-sp" id="pkImagePicker">
           <img id="pkImagePreview" style="display:none;">
           <span id="pkImageText">انتخاب عکس کاور</span>
           <input type="file" id="pkImageFile" accept="image/*" style="display:none;">
         </label>
-        <div class="pkg-hint">بعد از انتخاب، عکس رو دقیقا به اندازه‌ی کادر پکیج برش می‌زنی.<br>اندازه‌ی پیشنهادی برای گرافیست: <b>۱۲۸۰ × ۷۲۰ پیکسل</b> (نسبت ۱۶ به ۹)</div>
+        <div class="pkg-hint pk-sp">بعد از انتخاب، عکس رو دقیقا به اندازه‌ی کادر پکیج برش می‌زنی.<br>اندازه‌ی پیشنهادی برای گرافیست: <b>۱۲۸۰ × ۷۲۰ پیکسل</b> (نسبت ۱۶ به ۹)</div>
 
         <div class="pkg-sub">داخل پکیج چی هست؟</div>
         <div id="pkItems"></div>
@@ -1166,7 +1207,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
   const pkNum = s => Math.max(0, Math.floor(Number(faD(s).replace(/[^\d.]/g, "")) || 0));
   const faN = n => Number(n).toLocaleString("fa-IR");
   const PK_H = 36e5, MONEY_NAME = "پول داخل بازی", DONATE_NAME = "سکه";
-  let allPackages = [], editingPkgId = null, pkImageDataUrl = "", pkItems = [], pkKeep = null;
+  let allPackages = [], editingPkgId = null, pkImageDataUrl = "", pkItems = [], pkKeep = null, pkKindVal = "special", pkTheme = "gold";
   const pkFmt = ms => new Date(ms).toLocaleString("fa-IR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
   // modals (added to <body> so nothing can clip them)
@@ -1188,7 +1229,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
 
   pkEl("openPackagesBtn").addEventListener("click", async () => {
     showHub("packages");
-    pkBuildWheel(!!(pkKeep && pkKeep.end));
+    pkApplyKind();
     await loadProducts().catch(() => {});
     pkRenderItems();
     loadPackages();
@@ -1200,32 +1241,71 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     e.target.value = n ? Number(n).toLocaleString("en-US") : "";
   });
 
-  // ---------- time wheel (6 hours ... 1 month) ----------
-  let pkOpts = [];
-  function pkBuildWheel(keepEnd) {
-    pkOpts = [];
-    if (keepEnd) pkOpts.push({ l: "حفظ زمان فعلی", keep: true });
-    pkOpts.push({ l: "بدون محدودیت", ms: 0 }, { l: "۶ ساعت", ms: 6 * PK_H }, { l: "۱۲ ساعت", ms: 12 * PK_H }, { l: "۱۸ ساعت", ms: 18 * PK_H });
+  // ---------- wheels (time pickers) ----------
+  const wheelState = {};
+  function wheelBuild(key, hintId, opts, sel) {
+    wheelState[key] = { opts, hintId };
+    const w = pkEl(key);
+    w.innerHTML = opts.map(o => `<div class="wheel-item">${o.l}</div>`).join("");
+    w.scrollTop = (sel || 0) * 40;
+    wheelSync(key);
+  }
+  const wheelIdx = key => Math.max(0, Math.min(wheelState[key].opts.length - 1, Math.round(pkEl(key).scrollTop / 40)));
+  function wheelSync(key) {
+    const st = wheelState[key]; if (!st) return;
+    const i = wheelIdx(key);
+    [...pkEl(key).children].forEach((el, k) => el.classList.toggle("on", k === i));
+    pkEl(st.hintId).textContent = st.opts[i] ? st.opts[i].hint() : "";
+  }
+  ["pkWheel", "pkLvWheel"].forEach(k => pkEl(k).addEventListener("scroll", () => requestAnimationFrame(() => wheelSync(k))));
+
+  // special packages: how long it stays in the store (6 hours ... 1 month)
+  function spOpts(keepEnd) {
+    const o = [];
+    if (keepEnd) o.push({ l: "حفظ زمان فعلی", keep: true, hint: () => pkKeep && pkKeep.end ? "زمان فعلی تغییر نمی‌کنه (پایان: " + pkFmt(pkKeep.end) + ")." : "" });
+    o.push({ l: "بدون محدودیت", ms: 0, hint: () => "بدون محدودیت: تا وقتی خودت خاموشش نکنی نمایش داده می‌شه." });
+    [[6, "۶ ساعت"], [12, "۱۲ ساعت"], [18, "۱۸ ساعت"]].forEach(([h, l]) => o.push({ l, ms: h * PK_H, hint: () => spHint(h * PK_H) }));
     for (let d = 1; d <= 30; d++) {
-      pkOpts.push({ l: faN(d) + " روز" + (d === 7 ? " (۱ هفته)" : d === 14 ? " (۲ هفته)" : d === 30 ? " (۱ ماه)" : ""), ms: d * 24 * PK_H });
+      o.push({ l: faN(d) + " روز" + (d === 7 ? " (۱ هفته)" : d === 14 ? " (۲ هفته)" : d === 30 ? " (۱ ماه)" : ""), ms: d * 24 * PK_H, hint: () => spHint(d * 24 * PK_H) });
     }
-    const w = pkEl("pkWheel");
-    w.innerHTML = pkOpts.map(o => `<div class="wheel-item">${o.l}</div>`).join("");
-    w.scrollTop = 0;
-    pkWheelSync();
+    return o;
   }
-  const pkWheelIdx = () => Math.max(0, Math.min(pkOpts.length - 1, Math.round(pkEl("pkWheel").scrollTop / 40)));
-  function pkWheelSync() {
-    const i = pkWheelIdx();
-    [...pkEl("pkWheel").children].forEach((el, k) => el.classList.toggle("on", k === i));
-    const o = pkOpts[i]; let t = "";
-    if (!o) return;
-    if (o.keep) t = pkKeep && pkKeep.end ? "زمان فعلی تغییر نمی‌کنه (پایان: " + pkFmt(pkKeep.end) + ")." : "";
-    else if (!o.ms) t = "بدون محدودیت: تا وقتی خودت خاموشش نکنی نمایش داده می‌شه.";
-    else t = "از لحظه‌ی ذخیره تا " + pkFmt(Date.now() + o.ms) + " نمایش داده می‌شه و بعدش خودکار از فروشگاه حذف می‌شه.";
-    pkEl("pkWheelHint").textContent = t;
+  const spHint = ms => "از لحظه‌ی ذخیره تا " + pkFmt(Date.now() + ms) + " نمایش داده می‌شه و بعدش خودکار از فروشگاه حذف می‌شه.";
+
+  // level packages: how long one purchase stays valid
+  function lvOpts(extraDays) {
+    const days = [[0, "دائمی"], [7, "۷ روز (۱ هفته)"], [10, "۱۰ روز"], [14, "۱۴ روز (۲ هفته)"], [20, "۲۰ روز"], [30, "۳۰ روز (۱ ماه)"], [45, "۴۵ روز"], [60, "۶۰ روز (۲ ماه)"], [90, "۹۰ روز (۳ ماه)"], [120, "۱۲۰ روز (۴ ماه)"], [180, "۱۸۰ روز (۶ ماه)"], [365, "۳۶۵ روز (۱ سال)"]];
+    if (extraDays && !days.some(x => x[0] === extraDays)) { days.push([extraDays, faN(extraDays) + " روز"]); days.sort((a, b) => a[0] - b[0]); }
+    return days.map(([d, l]) => ({ l, days: d, hint: () => d ? "هر بار خرید " + faN(d) + " روز اعتبار داره و بعدش باید تمدید بشه." : "دائمی: یک‌بار می‌خره و برای همیشه می‌مونه." }));
   }
-  pkEl("pkWheel").addEventListener("scroll", () => requestAnimationFrame(pkWheelSync));
+
+  // ---------- kind switch (special | level) ----------
+  function pkApplyKind(sel) {
+    sel = sel || {};
+    document.querySelectorAll("#packagesView .pk-sp").forEach(e => { e.style.display = pkKindVal === "special" ? "" : "none"; });
+    document.querySelectorAll("#packagesView .pk-lv").forEach(e => { e.style.display = pkKindVal === "level" ? "" : "none"; });
+    pkEl("pkKindSeg").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.kind === pkKindVal));
+    pkEl("pkKindSeg").classList.toggle("locked", !!editingPkgId);
+    pkEl("pkKindHint").textContent = pkKindVal === "special"
+      ? "پکیج ویژه: خرید یک‌باره با زمان محدود، مثل «پکیج آخر هفته». توی فروشگاه به‌صورت اسلایدر نمایش داده می‌شه."
+      : "پکیج سطحی: یک نردبون دائمی مثل برنز، نقره، طلا. توی فروشگاه کنار هم و قابل مقایسه نمایش داده می‌شه.";
+    pkEl("pkColor").style.display = pkTheme === "custom" ? "" : "none";
+    pkEl("pkThemes").querySelectorAll(".pk-theme").forEach(b => b.classList.toggle("on", b.dataset.theme === pkTheme));
+    if (pkKindVal === "special") wheelBuild("pkWheel", "pkWheelHint", spOpts(!!sel.keepEnd), 0);
+    else {
+      const o = lvOpts(sel.days);
+      const want = sel.days != null ? sel.days : 30;
+      wheelBuild("pkLvWheel", "pkLvHint", o, Math.max(0, o.findIndex(x => x.days === want)));
+    }
+  }
+  pkEl("pkKindSeg").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b || b.dataset.kind === pkKindVal) return;
+    pkKindVal = b.dataset.kind; pkApplyKind();
+  });
+  pkEl("pkThemes").addEventListener("click", e => {
+    const b = e.target.closest(".pk-theme"); if (!b) return;
+    pkTheme = b.dataset.theme; pkApplyKind({ days: (wheelState.pkLvWheel.opts[wheelIdx("pkLvWheel")] || {}).days });
+  });
 
   // ---------- items ----------
   const pkProd = id => allProducts.find(p => p.id === id);
@@ -1377,13 +1457,15 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     if (!allPackages.length) { box.innerHTML = '<div class="list-empty">هنوز پکیجی ساخته نشده.</div>'; return; }
     box.innerHTML = allPackages.map(p => {
       const [label, live] = pkStatus(p);
-      const t = [p.start ? "شروع: " + pkFmt(p.start) : "", p.end ? "پایان: " + pkFmt(p.end) : ""].filter(Boolean).join(" — ");
+      const t = p.kind === "level"
+        ? (((p.meta || {}).durationDays) ? "اعتبار هر خرید: " + faN(p.meta.durationDays) + " روز" : "اعتبار: دائمی")
+        : [p.start ? "شروع: " + pkFmt(p.start) : "", p.end ? "پایان: " + pkFmt(p.end) : ""].filter(Boolean).join(" — ");
       return `
       <div class="product-row" data-id="${escapeHTML(p.id)}">
-        <img src="${escapeHTML(p.image || "")}" alt="">
+        ${p.image ? `<img src="${escapeHTML(p.image)}" alt="">` : `<span class="pk-tile">${p.kind === "level" ? "LV " + escapeHTML(String((p.meta || {}).level || "")) : "PACK"}</span>`}
         <div class="product-row-body">
-          <div class="product-row-name">${escapeHTML(p.title)}${p.featured ? " ★" : ""}<span class="pkg-chip${live ? " live" : ""}">${label}</span></div>
-          <div class="product-row-price">${Number(p.price || 0).toLocaleString("en-US")} تومان${p.stock ? " — " + p.sold + " از " + p.stock : ""}</div>
+          <div class="product-row-name">${escapeHTML(p.title)}${p.featured ? " ★" : ""}<span class="pkg-chip${live ? " live" : ""}">${label}</span><span class="pkg-chip">${p.kind === "level" ? "سطحی" : "ویژه"}</span></div>
+          <div class="product-row-price">${Number(p.price || 0).toLocaleString("en-US")} تومان${p.kind !== "level" && p.stock ? " — " + p.sold + " از " + p.stock : ""}</div>
           ${t ? `<div class="pkg-time">${t}</div>` : ""}
         </div>
         <div class="blog-row-actions">
@@ -1410,6 +1492,10 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
       // tapping anywhere on the row opens it for editing
       await loadProducts().catch(() => {});
       editingPkgId = p.id;
+      pkKindVal = p.kind === "level" ? "level" : "special";
+      const meta = p.meta || {};
+      pkTheme = meta.theme || "gold";
+      if (meta.color) pkEl("pkColor").value = meta.color;
       pkKeep = { start: p.start || 0, end: p.end || 0 };
       pkEl("pkFormTitle").textContent = "ویرایش پکیج";
       pkEl("pkTitle").value = p.title; pkEl("pkDesc").value = p.description || "";
@@ -1424,17 +1510,21 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
         return { kind: "custom", name: it.name || "", qty: it.qty || "" };
       });
       pkRenderItems();
-      pkBuildWheel(!!pkKeep.end);
+      pkEl("pkLevel").value = meta.level || "";
+      pkEl("pkPopular").checked = !!meta.popular; pkEl("pkIncludesPrev").checked = !!meta.includesPrev;
+      pkEl("pkBenefits").value = (meta.benefits || []).join("\n");
+      pkApplyKind({ keepEnd: !!pkKeep.end, days: meta.durationDays || 0 });
       pkEl("pkSaveBtn").textContent = "ذخیرهٔ تغییرات"; pkEl("pkCancelBtn").style.display = "block";
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
 
   function pkReset() {
-    editingPkgId = null; pkKeep = null; pkImageDataUrl = ""; pkItems = [];
-    ["pkTitle", "pkDesc", "pkPrice", "pkBadge", "pkStock", "pkSold"].forEach(id => pkEl(id).value = "");
+    editingPkgId = null; pkKeep = null; pkImageDataUrl = ""; pkItems = []; pkKindVal = "special"; pkTheme = "gold";
+    ["pkTitle", "pkDesc", "pkPrice", "pkBadge", "pkStock", "pkSold", "pkLevel", "pkBenefits"].forEach(id => pkEl(id).value = "");
     pkEl("pkFeatured").checked = false; pkEl("pkActive").checked = true; pkEl("pkImageFile").value = "";
-    pkSetPreview(""); pkRenderItems(); pkBuildWheel(false);
+    pkEl("pkPopular").checked = false; pkEl("pkIncludesPrev").checked = false;
+    pkSetPreview(""); pkRenderItems(); pkApplyKind();
     pkEl("pkFormTitle").textContent = "پکیج جدید"; pkEl("pkSaveBtn").textContent = "افزودن پکیج"; pkEl("pkCancelBtn").style.display = "none";
   }
   pkEl("pkCancelBtn").addEventListener("click", pkReset);
@@ -1450,25 +1540,36 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     if (!title) { alert("اسم پکیج رو خالی نذار."); return; }
     const price = pkNum(pkEl("pkPrice").value);
     if (!price) { alert("قیمت رو درست وارد کن."); return; }
-    const stock = pkNum(pkEl("pkStock").value), sold = pkNum(pkEl("pkSold").value);
+    const isLevel = pkKindVal === "level";
+    const stock = isLevel ? 0 : pkNum(pkEl("pkStock").value), sold = isLevel ? 0 : pkNum(pkEl("pkSold").value);
     if (stock && sold > stock) { alert("تعداد فروخته‌شده نمی‌تونه از تعداد کل بیشتر باشه."); return; }
     for (const it of pkItems) {
       if ((it.kind === "money" || it.kind === "donate") && !pkNum(it.qty)) { alert((it.kind === "money" ? "مقدار پول" : "تعداد سکه") + " رو بنویس."); return; }
     }
-    const o = pkOpts[pkWheelIdx()] || { ms: 0 };
-    let start = 0, end = 0;
-    if (o.keep) { start = (pkKeep && pkKeep.start) || 0; end = (pkKeep && pkKeep.end) || 0; }
-    else if (o.ms) end = Date.now() + o.ms;
     const items = pkItems.map(it => {
       if (it.kind === "skin" || it.kind === "car") return it.productId ? { productId: it.productId, name: "", qty: "" } : null;
       if (it.kind === "money") return { productId: "", name: MONEY_NAME, qty: pkNum(it.qty) + " میلیون دلار" };
       if (it.kind === "donate") return { productId: "", name: DONATE_NAME, qty: String(pkNum(it.qty)) };
       return { productId: "", name: it.name || "", qty: it.qty || "" };
     }).filter(Boolean);
+    let start = 0, end = 0, meta = {};
+    if (isLevel) {
+      const level = pkNum(pkEl("pkLevel").value);
+      if (!level) { alert("شماره‌ی سطح رو بنویس (مثلا 1 برای پایین‌ترین سطح)."); return; }
+      const benefits = pkEl("pkBenefits").value.split("\n").map(x => x.trim()).filter(Boolean);
+      if (!benefits.length && !items.length) { alert("حداقل یک مزیت متنی یا یک آیتم برای این سطح اضافه کن."); return; }
+      const lo = wheelState.pkLvWheel.opts[wheelIdx("pkLvWheel")] || { days: 0 };
+      meta = { level, theme: pkTheme, color: pkTheme === "custom" ? pkEl("pkColor").value : "", durationDays: lo.days || 0,
+        includesPrev: pkEl("pkIncludesPrev").checked ? 1 : 0, popular: pkEl("pkPopular").checked ? 1 : 0, benefits };
+    } else {
+      const o = wheelState.pkWheel.opts[wheelIdx("pkWheel")] || { ms: 0 };
+      if (o.keep) { start = (pkKeep && pkKeep.start) || 0; end = (pkKeep && pkKeep.end) || 0; }
+      else if (o.ms) end = Date.now() + o.ms;
+    }
     const body = {
-      title, description: pkEl("pkDesc").value.trim(), price, badge: pkEl("pkBadge").value.trim(),
-      featured: pkEl("pkFeatured").checked ? 1 : 0, active: pkEl("pkActive").checked ? 1 : 0,
-      start, end, stock, sold, image: pkImageDataUrl, items,
+      kind: pkKindVal, meta, title, description: pkEl("pkDesc").value.trim(), price, badge: isLevel ? "" : pkEl("pkBadge").value.trim(),
+      featured: !isLevel && pkEl("pkFeatured").checked ? 1 : 0, active: pkEl("pkActive").checked ? 1 : 0,
+      start, end, stock, sold, image: isLevel ? "" : pkImageDataUrl, items,
       sortOrder: editingPkgId ? ((allPackages.find(x => x.id === editingPkgId) || {}).sortOrder || 0) : allPackages.length,
     };
     pkEl("pkSaveBtn").disabled = true;
@@ -1477,7 +1578,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     if (ok) { pkReset(); loadPackages(); }
   });
   pkRenderItems();
-  pkBuildWheel(false);
+  pkApplyKind();
 </script>
 
 </body>
