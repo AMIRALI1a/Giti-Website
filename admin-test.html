@@ -327,6 +327,16 @@
   .pk-theme.on{ border-color:var(--gold); color:var(--cream); }
   #pkColor{ width:46px; height:36px; padding:0; border:0; background:none; }
   .pkg-form textarea{ width:100%; background:var(--panel); border:1px solid var(--panel-line); color:var(--cream); font-family:'Vazirmatn'; font-size:13px; padding:12px; border-radius:10px; line-height:1.9; resize:vertical; }
+
+  /* tiers editor (admin) */
+  .tier-box{ border:1px solid var(--tc); border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:10px; margin-bottom:6px; background:rgba(255,255,255,.02); }
+  .tier-head{ display:flex; align-items:center; gap:10px; color:var(--cream); }
+  .tier-head i{ width:28px; height:28px; border-radius:50%; display:block; flex-shrink:0; }
+  .tier-head b{ letter-spacing:.08em; font-size:15px; }
+  .tier-head span{ font-size:12px; color:var(--dim); }
+  .pk-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .pk-chip{ background:var(--panel); border:1px solid var(--panel-line); color:var(--dim); font-family:'Vazirmatn'; font-size:12px; padding:8px 13px; border-radius:99px; cursor:pointer; }
+  .pk-chip.on{ background:var(--gold); color:#1E1E36; border-color:var(--gold); }
 </style>
 </head>
 <body>
@@ -405,37 +415,20 @@
         </div>
         <div class="pkg-hint" id="pkKindHint"></div>
 
-        <input type="text" id="pkTitle" placeholder="اسم پکیج">
-        <input type="text" id="pkDesc" placeholder="توضیح کوتاه">
-        <div class="pkg-unit"><input type="text" id="pkPrice" inputmode="numeric" autocomplete="off" placeholder="قیمت"><span class="pkg-unit-tag">تومان</span></div>
-
-        <!-- special only -->
+        <!-- special package -->
+        <input class="pk-sp" type="text" id="pkTitle" placeholder="اسم پکیج">
+        <input class="pk-sp" type="text" id="pkDesc" placeholder="توضیح کوتاه">
+        <div class="pkg-unit pk-sp"><input type="text" id="pkPrice" inputmode="numeric" autocomplete="off" placeholder="قیمت"><span class="pkg-unit-tag">تومان</span></div>
         <input class="pk-sp" type="text" id="pkBadge" list="pkBadges" placeholder="برچسب (اختیاری): جدید، محدود، پرفروش...">
         <datalist id="pkBadges"><option value="جدید"><option value="محدود"><option value="پرفروش"><option value="ویژه"></datalist>
         <label class="pkg-check pk-sp"><input type="checkbox" id="pkFeatured"><span>برجسته (اول لیست، با درخشش طلایی)</span></label>
 
-        <!-- level only -->
-        <label class="pkg-field pk-lv">شماره‌ی سطح (۱ = پایین‌ترین سطح)<input type="text" inputmode="numeric" id="pkLevel" placeholder="مثلا 1"></label>
-        <div class="pkg-sub pk-lv">رنگ و تم سطح</div>
-        <div class="pk-themes pk-lv" id="pkThemes">
-          <button type="button" class="pk-theme" data-theme="bronze"><i style="background:radial-gradient(circle at 30% 25%,#d08a52,#5e3a22)"></i>برنز</button>
-          <button type="button" class="pk-theme" data-theme="silver"><i style="background:radial-gradient(circle at 30% 25%,#d5dbe8,#69738a)"></i>نقره</button>
-          <button type="button" class="pk-theme on" data-theme="gold"><i style="background:radial-gradient(circle at 30% 25%,#ffd4a9,#a8742e)"></i>طلا</button>
-          <button type="button" class="pk-theme" data-theme="diamond"><i style="background:radial-gradient(circle at 30% 25%,#8fd8ff,#3a6fb0)"></i>الماس</button>
-          <button type="button" class="pk-theme" data-theme="custom"><i style="background:conic-gradient(#f66,#fc6,#6f9,#6cf,#c6f,#f66)"></i>دلخواه</button>
-          <input type="color" id="pkColor" value="#ff7a59" style="display:none">
-        </div>
-        <label class="pkg-check pk-lv"><input type="checkbox" id="pkPopular"><span>محبوب‌ترین (برچسب روی کارت و انتخاب پیش‌فرض)</span></label>
-        <label class="pkg-check pk-lv"><input type="checkbox" id="pkIncludesPrev"><span>شامل همه‌ی مزایای سطح قبلی</span></label>
-        <div class="pkg-sub pk-lv">مدت اعتبار هر خرید</div>
-        <div class="wheel-wrap pk-lv"><div class="wheel" id="pkLvWheel"></div><div class="wheel-band"></div></div>
-        <div class="pkg-hint pk-lv" id="pkLvHint"></div>
-        <div class="pkg-sub pk-lv">مزایای متنی (هر مزیت در یک خط، اختیاری)</div>
-        <textarea class="pk-lv" id="pkBenefits" rows="4" placeholder="مثلا:&#10;برچسب اختصاصی کنار اسم&#10;اولویت ورود به سرور"></textarea>
+        <!-- level package: the three tiers, all in one place -->
+        <div id="pkTiers" class="pk-lv"></div>
 
         <label class="pkg-check"><input type="checkbox" id="pkActive" checked><span>فعال (در فروشگاه نمایش داده بشه)</span></label>
 
-        <!-- special only -->
+        <!-- special package -->
         <div class="pkg-sub pk-sp">مدت نمایش در فروشگاه</div>
         <div class="wheel-wrap pk-sp"><div class="wheel" id="pkWheel"></div><div class="wheel-band"></div></div>
         <div class="pkg-hint pk-sp" id="pkWheelHint"></div>
@@ -450,10 +443,9 @@
           <input type="file" id="pkImageFile" accept="image/*" style="display:none;">
         </label>
         <div class="pkg-hint pk-sp">بعد از انتخاب، عکس رو دقیقا به اندازه‌ی کادر پکیج برش می‌زنی.<br>اندازه‌ی پیشنهادی برای گرافیست: <b>۱۲۸۰ × ۷۲۰ پیکسل</b> (نسبت ۱۶ به ۹)</div>
-
-        <div class="pkg-sub">داخل پکیج چی هست؟</div>
-        <div id="pkItems"></div>
-        <div class="pkg-kinds">
+        <div class="pkg-sub pk-sp">داخل پکیج چی هست؟</div>
+        <div id="pkItems" class="pk-sp"></div>
+        <div class="pkg-kinds pk-sp" id="pkKindsSp">
           <button type="button" class="pkg-kind" data-kind="skin">+ اسکین</button>
           <button type="button" class="pkg-kind" data-kind="car">+ ماشین</button>
           <button type="button" class="pkg-kind" data-kind="money">+ پول</button>
@@ -1201,13 +1193,20 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     }
   }
 
-  // ================= special packages =================
+  // ================= packages: special (one by one) + tiers (STANDARD / PREMIUM / ULTIMATE) =================
   const pkEl = id => document.getElementById(id);
   const faD = s => String(s == null ? "" : s).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
   const pkNum = s => Math.max(0, Math.floor(Number(faD(s).replace(/[^\d.]/g, "")) || 0));
   const faN = n => Number(n).toLocaleString("fa-IR");
   const PK_H = 36e5, MONEY_NAME = "پول داخل بازی", DONATE_NAME = "سکه";
-  let allPackages = [], editingPkgId = null, pkImageDataUrl = "", pkItems = [], pkKeep = null, pkKindVal = "special", pkTheme = "gold";
+  const TIERS = [
+    { name: "STANDARD", theme: "bronze", c: ["#d08a52", "#5e3a22"], lab: "برنزی" },
+    { name: "PREMIUM", theme: "gold", c: ["#ffd4a9", "#a8742e"], lab: "طلایی" },
+    { name: "ULTIMATE", theme: "diamond", c: ["#8fd8ff", "#3a6fb0"], lab: "الماسی" },
+  ];
+  const DUR = [[0, "دائمی"], [7, "۷ روز"], [15, "۱۵ روز"], [30, "۳۰ روز"], [60, "۶۰ روز"], [90, "۹۰ روز"], [365, "۱ سال"]];
+  let allPackages = [], editingPkgId = null, pkImageDataUrl = "", pkKeep = null, pkKindVal = "special";
+  let tierIds = [null, null, null], tierDays = [30, 30, 30], edSp = null, edTier = [];
   const pkFmt = ms => new Date(ms).toLocaleString("fa-IR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
   // modals (added to <body> so nothing can clip them)
@@ -1227,19 +1226,18 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
       <button type="button" class="product-form-save" id="cropOk">ثبت عکس</button>
     </div></div>`);
 
+
   pkEl("openPackagesBtn").addEventListener("click", async () => {
     showHub("packages");
     pkApplyKind();
     await loadProducts().catch(() => {});
-    pkRenderItems();
-    loadPackages();
+    edSp.render(); edTier.forEach(e => e.render());
+    await loadPackages();
   });
 
   // ---------- price with commas ----------
-  pkEl("pkPrice").addEventListener("input", e => {
-    const n = faD(e.target.value).replace(/[^\d]/g, "");
-    e.target.value = n ? Number(n).toLocaleString("en-US") : "";
-  });
+  const commaInput = el => { const n = faD(el.value).replace(/[^\d]/g, ""); el.value = n ? Number(n).toLocaleString("en-US") : ""; };
+  pkEl("pkPrice").addEventListener("input", e => commaInput(e.target));
 
   // ---------- wheels (time pickers) ----------
   const wheelState = {};
@@ -1257,7 +1255,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     [...pkEl(key).children].forEach((el, k) => el.classList.toggle("on", k === i));
     pkEl(st.hintId).textContent = st.opts[i] ? st.opts[i].hint() : "";
   }
-  ["pkWheel", "pkLvWheel"].forEach(k => pkEl(k).addEventListener("scroll", () => requestAnimationFrame(() => wheelSync(k))));
+  ["pkWheel"].forEach(k => pkEl(k).addEventListener("scroll", () => requestAnimationFrame(() => wheelSync(k))));
 
   // special packages: how long it stays in the store (6 hours ... 1 month)
   function spOpts(keepEnd) {
@@ -1272,12 +1270,6 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
   }
   const spHint = ms => "از لحظه‌ی ذخیره تا " + pkFmt(Date.now() + ms) + " نمایش داده می‌شه و بعدش خودکار از فروشگاه حذف می‌شه.";
 
-  // level packages: how long one purchase stays valid
-  function lvOpts(extraDays) {
-    const days = [[0, "دائمی"], [7, "۷ روز (۱ هفته)"], [10, "۱۰ روز"], [14, "۱۴ روز (۲ هفته)"], [20, "۲۰ روز"], [30, "۳۰ روز (۱ ماه)"], [45, "۴۵ روز"], [60, "۶۰ روز (۲ ماه)"], [90, "۹۰ روز (۳ ماه)"], [120, "۱۲۰ روز (۴ ماه)"], [180, "۱۸۰ روز (۶ ماه)"], [365, "۳۶۵ روز (۱ سال)"]];
-    if (extraDays && !days.some(x => x[0] === extraDays)) { days.push([extraDays, faN(extraDays) + " روز"]); days.sort((a, b) => a[0] - b[0]); }
-    return days.map(([d, l]) => ({ l, days: d, hint: () => d ? "هر بار خرید " + faN(d) + " روز اعتبار داره و بعدش باید تمدید بشه." : "دائمی: یک‌بار می‌خره و برای همیشه می‌مونه." }));
-  }
 
   // ---------- kind switch (special | level) ----------
   function pkApplyKind(sel) {
@@ -1287,75 +1279,87 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     pkEl("pkKindSeg").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.kind === pkKindVal));
     pkEl("pkKindSeg").classList.toggle("locked", !!editingPkgId);
     pkEl("pkKindHint").textContent = pkKindVal === "special"
-      ? "پکیج ویژه: خرید یک‌باره با زمان محدود، مثل «پکیج آخر هفته». توی فروشگاه به‌صورت اسلایدر نمایش داده می‌شه."
-      : "پکیج سطحی: یک نردبون دائمی مثل برنز، نقره، طلا. توی فروشگاه کنار هم و قابل مقایسه نمایش داده می‌شه.";
-    pkEl("pkColor").style.display = pkTheme === "custom" ? "" : "none";
-    pkEl("pkThemes").querySelectorAll(".pk-theme").forEach(b => b.classList.toggle("on", b.dataset.theme === pkTheme));
+      ? "پکیج ویژه: خرید یک‌باره با زمان محدود. توی فروشگاه به‌صورت کارت جدا نمایش داده می‌شه."
+      : "پکیج سطحی: هر سه مرحله‌ی STANDARD، PREMIUM و ULTIMATE رو همین‌جا تنظیم می‌کنی. توی فروشگاه یک صفحه‌ی واحد با سه کارت باز می‌شه.";
     if (pkKindVal === "special") wheelBuild("pkWheel", "pkWheelHint", spOpts(!!sel.keepEnd), 0);
-    else {
-      const o = lvOpts(sel.days);
-      const want = sel.days != null ? sel.days : 30;
-      wheelBuild("pkLvWheel", "pkLvHint", o, Math.max(0, o.findIndex(x => x.days === want)));
-    }
   }
   pkEl("pkKindSeg").addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b || b.dataset.kind === pkKindVal) return;
     pkKindVal = b.dataset.kind; pkApplyKind();
-  });
-  pkEl("pkThemes").addEventListener("click", e => {
-    const b = e.target.closest(".pk-theme"); if (!b) return;
-    pkTheme = b.dataset.theme; pkApplyKind({ days: (wheelState.pkLvWheel.opts[wheelIdx("pkLvWheel")] || {}).days });
+    if (pkKindVal === "level") pkLoadTiers();
   });
 
-  // ---------- items ----------
+  // ---------- items editor (one instance for the special form + one for each tier) ----------
   const pkProd = id => allProducts.find(p => p.id === id);
   const pkProdTitle = p => { const [g, n] = String(p.name || "").split("|"); return p.type === "car" ? "#" + g + " - " + (n || "") : "#" + g; };
-  function pkRenderItems() {
-    const el = pkEl("pkItems");
-    if (!pkItems.length) { el.innerHTML = '<div class="pkg-hint">هنوز چیزی اضافه نشده. از دکمه‌های پایین انتخاب کن.</div>'; return; }
-    el.innerHTML = pkItems.map((it, i) => {
-      let thumb, title, qty = "";
-      if (it.kind === "skin" || it.kind === "car") {
-        const p = pkProd(it.productId);
-        thumb = p && p.image ? `<img src="${escapeHTML(p.image)}" alt="">` : `<span class="pk-tile">${it.kind === "car" ? "CAR" : "SKIN"}</span>`;
-        title = (it.kind === "car" ? "ماشین " : "اسکین ") + (p ? escapeHTML(pkProdTitle(p)) : "(حذف‌شده از محصولات)");
-      } else if (it.kind === "money" || it.kind === "donate") {
-        thumb = `<span class="pk-tile">${it.kind === "money" ? "$" : "★"}</span>`;
-        title = it.kind === "money" ? "پول" : "دونیت";
-        qty = `<input type="text" inputmode="numeric" class="pi-qty" placeholder="0" value="${escapeHTML(it.qty)}"><span class="pk-unit-s">${it.kind === "money" ? "میلیون دلار" : "سکه"}</span>`;
-      } else {
-        thumb = `<span class="pk-tile">•</span>`;
-        title = escapeHTML(it.name) + (it.qty ? " — " + escapeHTML(it.qty) : "");
-      }
-      return `<div class="pk-row" data-i="${i}">${thumb}<div class="pk-row-title">${title}</div>${qty}<button type="button" class="icon-btn pi-del" aria-label="حذف">×</button></div>`;
-    }).join("");
-  }
-  pkEl("pkItems").addEventListener("input", e => {
-    if (!e.target.classList.contains("pi-qty")) return;
-    const it = pkItems[+e.target.closest(".pk-row").dataset.i];
-    e.target.value = it.qty = faD(e.target.value).replace(/[^\d]/g, "");
-  });
-  pkEl("pkItems").addEventListener("click", e => {
-    const b = e.target.closest(".pi-del"); if (!b) return;
-    pkItems.splice(+b.closest(".pk-row").dataset.i, 1); pkRenderItems();
-  });
-  document.querySelectorAll(".pkg-kind").forEach(btn => btn.addEventListener("click", async () => {
-    const kind = btn.dataset.kind;
-    if (kind === "money" || kind === "donate") {
-      if (!pkItems.some(i => i.kind === kind)) { pkItems.push({ kind, qty: "" }); pkRenderItems(); }
-      const idx = pkItems.findIndex(i => i.kind === kind);
-      const inp = pkEl("pkItems").querySelector(`.pk-row[data-i="${idx}"] .pi-qty`); if (inp) inp.focus();
-      return;
+  function ItemEditor(listEl, kindsEl) {
+    const ed = { items: [], render };
+    function render() {
+      if (!ed.items.length) { listEl.innerHTML = '<div class="pkg-hint">هنوز چیزی اضافه نشده. از دکمه‌های پایین انتخاب کن.</div>'; return; }
+      listEl.innerHTML = ed.items.map((it, i) => {
+        let thumb, title, qty = "";
+        if (it.kind === "skin" || it.kind === "car") {
+          const p = pkProd(it.productId);
+          thumb = p && p.image ? `<img src="${escapeHTML(p.image)}" alt="">` : `<span class="pk-tile">${it.kind === "car" ? "CAR" : "SKIN"}</span>`;
+          title = (it.kind === "car" ? "ماشین " : "اسکین ") + (p ? escapeHTML(pkProdTitle(p)) : "(حذف‌شده از محصولات)");
+        } else if (it.kind === "money" || it.kind === "donate") {
+          thumb = `<span class="pk-tile">${it.kind === "money" ? "$" : "★"}</span>`;
+          title = it.kind === "money" ? "پول" : "دونیت";
+          qty = `<input type="text" inputmode="numeric" class="pi-qty" placeholder="0" value="${escapeHTML(it.qty)}"><span class="pk-unit-s">${it.kind === "money" ? "میلیون دلار" : "سکه"}</span>`;
+        } else {
+          thumb = `<span class="pk-tile">•</span>`;
+          title = escapeHTML(it.name) + (it.qty ? " — " + escapeHTML(it.qty) : "");
+        }
+        return `<div class="pk-row" data-i="${i}">${thumb}<div class="pk-row-title">${title}</div>${qty}<button type="button" class="icon-btn pi-del" aria-label="حذف">×</button></div>`;
+      }).join("");
     }
-    await loadProducts().catch(() => {});
-    pkOpenPicker(kind);
-  }));
+    listEl.addEventListener("input", e => {
+      if (!e.target.classList.contains("pi-qty")) return;
+      const it = ed.items[+e.target.closest(".pk-row").dataset.i];
+      e.target.value = it.qty = faD(e.target.value).replace(/[^\d]/g, "");
+    });
+    listEl.addEventListener("click", e => {
+      const b = e.target.closest(".pi-del"); if (!b) return;
+      ed.items.splice(+b.closest(".pk-row").dataset.i, 1); render();
+    });
+    kindsEl.querySelectorAll(".pkg-kind").forEach(btn => btn.addEventListener("click", async () => {
+      const kind = btn.dataset.kind;
+      if (kind === "money" || kind === "donate") {
+        if (!ed.items.some(i => i.kind === kind)) { ed.items.push({ kind, qty: "" }); render(); }
+        const idx = ed.items.findIndex(i => i.kind === kind);
+        const inp = listEl.querySelector(`.pk-row[data-i="${idx}"] .pi-qty`); if (inp) inp.focus();
+        return;
+      }
+      await loadProducts().catch(() => {});
+      pkOpenPicker(kind, ed);
+    }));
+    render();
+    return ed;
+  }
+  const itemsFromServer = list => (list || []).map(it => {
+    if (it.productId) { const pr = pkProd(it.productId); return pr ? { kind: pr.type, productId: it.productId } : { kind: "custom", name: "محصول حذف‌شده", qty: "" }; }
+    if (it.name === MONEY_NAME) return { kind: "money", qty: (/\d+/.exec(faD(it.qty)) || [""])[0] };
+    if (it.name === DONATE_NAME) return { kind: "donate", qty: (/\d+/.exec(faD(it.qty)) || [""])[0] };
+    return { kind: "custom", name: it.name || "", qty: it.qty || "" };
+  });
+  // returns the list to send, or null (after an alert) when something is missing
+  function itemsForSave(ed) {
+    for (const it of ed.items) {
+      if ((it.kind === "money" || it.kind === "donate") && !pkNum(it.qty)) { alert((it.kind === "money" ? "مقدار پول" : "تعداد سکه") + " رو بنویس."); return null; }
+    }
+    return ed.items.map(it => {
+      if (it.kind === "skin" || it.kind === "car") return it.productId ? { productId: it.productId, name: "", qty: "" } : null;
+      if (it.kind === "money") return { productId: "", name: MONEY_NAME, qty: pkNum(it.qty) + " میلیون دلار" };
+      if (it.kind === "donate") return { productId: "", name: DONATE_NAME, qty: String(pkNum(it.qty)) };
+      return { productId: "", name: it.name || "", qty: it.qty || "" };
+    }).filter(Boolean);
+  }
 
   // ---------- picker (photos of skins / cars) ----------
-  let pickKind = null, pickSel = [];
-  function pkOpenPicker(kind) {
-    pickKind = kind;
-    pickSel = pkItems.filter(i => i.kind === kind).map(i => i.productId);
+  let pickKind = null, pickSel = [], pickEd = null;
+  function pkOpenPicker(kind, ed) {
+    pickKind = kind; pickEd = ed;
+    pickSel = ed.items.filter(i => i.kind === kind).map(i => i.productId);
     pkEl("pkPickTitle").textContent = kind === "car" ? "انتخاب ماشین" : "انتخاب اسکین";
     const list = allProducts.filter(p => p.type === kind);
     pkEl("pkPickGrid").innerHTML = list.length ? list.map(p => `
@@ -1373,9 +1377,57 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
   });
   pkEl("pkPickX").addEventListener("click", () => { pkEl("pkPicker").hidden = true; });
   pkEl("pkPickOk").addEventListener("click", () => {
-    pkItems = pkItems.filter(i => i.kind !== pickKind).concat(pickSel.map(id => ({ kind: pickKind, productId: id })));
-    pkEl("pkPicker").hidden = true; pkRenderItems();
+    pickEd.items = pickEd.items.filter(i => i.kind !== pickKind).concat(pickSel.map(id => ({ kind: pickKind, productId: id })));
+    pkEl("pkPicker").hidden = true; pickEd.render();
   });
+
+  // ---------- the three tiers form ----------
+  const kindsBtns = '<button type="button" class="pkg-kind" data-kind="skin">+ اسکین</button><button type="button" class="pkg-kind" data-kind="car">+ ماشین</button><button type="button" class="pkg-kind" data-kind="money">+ پول</button><button type="button" class="pkg-kind" data-kind="donate">+ دونیت</button>';
+  pkEl("pkTiers").innerHTML = TIERS.map((t, i) => `
+    <div class="tier-box" data-i="${i}" style="--tc:${t.c[0]}">
+      <div class="tier-head"><i style="background:radial-gradient(circle at 30% 25%,${t.c[0]},${t.c[1]})"></i><b>${t.name}</b><span>${t.lab}</span></div>
+      <input type="text" id="trDesc${i}" placeholder="توضیح کوتاه (اختیاری)">
+      <div class="pkg-unit"><input type="text" id="trPrice${i}" inputmode="numeric" autocomplete="off" placeholder="قیمت"><span class="pkg-unit-tag">تومان</span></div>
+      <div class="pkg-sub">مدت اعتبار هر خرید</div>
+      <div class="pk-chips" id="trDur${i}">${DUR.map(([d, l]) => `<button type="button" class="pk-chip" data-d="${d}">${l}</button>`).join("")}</div>
+      ${i > 0 ? `<label class="pkg-check"><input type="checkbox" id="trIncl${i}" checked><span>شامل همه‌ی مزایای ${TIERS[i - 1].name}</span></label>` : ""}
+      <div class="pkg-sub">مزایای متنی (هر مزیت یک خط، اختیاری)</div>
+      <textarea id="trBen${i}" rows="3" placeholder="مثلا:&#10;برچسب اختصاصی کنار اسم&#10;اولویت ورود به سرور"></textarea>
+      <div class="pkg-sub">آیتم‌های این مرحله</div>
+      <div id="trItems${i}"></div>
+      <div class="pkg-kinds" id="trKinds${i}">${kindsBtns}</div>
+    </div>`).join("");
+  edSp = ItemEditor(pkEl("pkItems"), pkEl("pkKindsSp"));
+  edTier = TIERS.map((_, i) => ItemEditor(pkEl("trItems" + i), pkEl("trKinds" + i)));
+  const pkMarkDur = i => pkEl("trDur" + i).querySelectorAll(".pk-chip").forEach(b => b.classList.toggle("on", +b.dataset.d === tierDays[i]));
+  pkEl("pkTiers").addEventListener("click", e => {
+    const b = e.target.closest(".pk-chip"); if (!b) return;
+    const i = +b.closest(".tier-box").dataset.i; tierDays[i] = +b.dataset.d; pkMarkDur(i);
+  });
+  pkEl("pkTiers").addEventListener("input", e => { if (/^trPrice\d$/.test(e.target.id)) commaInput(e.target); });
+  function pkResetTiers() {
+    tierIds = [null, null, null]; tierDays = [30, 30, 30];
+    TIERS.forEach((_, i) => {
+      pkEl("trDesc" + i).value = ""; pkEl("trPrice" + i).value = ""; pkEl("trBen" + i).value = "";
+      if (i > 0) pkEl("trIncl" + i).checked = true;
+      edTier[i].items = []; edTier[i].render(); pkMarkDur(i);
+    });
+  }
+  function pkLoadTiers() {
+    pkResetTiers();
+    const lv = allPackages.filter(p => p.kind === "level");
+    TIERS.forEach((_, i) => {
+      const p = lv.find(x => ((x.meta || {}).level) === i + 1); if (!p) return;
+      const m = p.meta || {};
+      tierIds[i] = p.id; tierDays[i] = m.durationDays == null ? 30 : m.durationDays;
+      pkEl("trDesc" + i).value = p.description || "";
+      pkEl("trPrice" + i).value = p.price ? Number(p.price).toLocaleString("en-US") : "";
+      pkEl("trBen" + i).value = (m.benefits || []).join("\n");
+      if (i > 0) pkEl("trIncl" + i).checked = !!m.includesPrev;
+      edTier[i].items = itemsFromServer(p.items); edTier[i].render(); pkMarkDur(i);
+    });
+    if (lv.length) pkEl("pkActive").checked = lv.some(p => p.active);
+  }
 
   // ---------- cover image: pick, then crop to the card frame (16:9) ----------
   let cImg = null, cZoom = 1, cOx = 0, cOy = 0, cW = 0, cH = 0, cBase = 1, cDpr = 1, cDrag = null;
@@ -1437,11 +1489,13 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     const box = pkEl("pkgRows");
     try {
       const res = await apiFetch("/api/packages?all=1");
+      if (res.status === 401) { pkSessionExpired(); return; }
       if (!res.ok) throw new Error(String(res.status));
       allPackages = (await res.json()).packages || [];
       pkRenderRows();
+      if (pkKindVal === "level") pkLoadTiers();
     } catch (e) {
-      box.innerHTML = '<div class="list-empty">سرور پکیج‌ها هنوز آماده نیست. (کد ورکر کلودفلر باید آپدیت بشه.)</div>';
+      box.innerHTML = '<div class="list-empty">لیست پکیج‌ها گرفته نشد (' + escapeHTML(e.message) + '). اینترنت رو چک کن و دوباره امتحان کن.</div>';
     }
   }
   function pkStatus(p) {
@@ -1452,133 +1506,153 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     if (p.stock && p.sold >= p.stock) return ["تمام شد", false];
     return ["در حال نمایش", true];
   }
-  function pkRenderRows() {
-    const box = pkEl("pkgRows");
-    if (!allPackages.length) { box.innerHTML = '<div class="list-empty">هنوز پکیجی ساخته نشده.</div>'; return; }
-    box.innerHTML = allPackages.map(p => {
-      const [label, live] = pkStatus(p);
-      const t = p.kind === "level"
-        ? (((p.meta || {}).durationDays) ? "اعتبار هر خرید: " + faN(p.meta.durationDays) + " روز" : "اعتبار: دائمی")
-        : [p.start ? "شروع: " + pkFmt(p.start) : "", p.end ? "پایان: " + pkFmt(p.end) : ""].filter(Boolean).join(" — ");
-      return `
-      <div class="product-row" data-id="${escapeHTML(p.id)}">
-        ${p.image ? `<img src="${escapeHTML(p.image)}" alt="">` : `<span class="pk-tile">${p.kind === "level" ? "LV " + escapeHTML(String((p.meta || {}).level || "")) : "PACK"}</span>`}
+  const rowHTML = (id, thumb, name, chips, price, time) => `
+      <div class="product-row" data-id="${escapeHTML(id)}">
+        ${thumb}
         <div class="product-row-body">
-          <div class="product-row-name">${escapeHTML(p.title)}${p.featured ? " ★" : ""}<span class="pkg-chip${live ? " live" : ""}">${label}</span><span class="pkg-chip">${p.kind === "level" ? "سطحی" : "ویژه"}</span></div>
-          <div class="product-row-price">${Number(p.price || 0).toLocaleString("en-US")} تومان${p.kind !== "level" && p.stock ? " — " + p.sold + " از " + p.stock : ""}</div>
-          ${t ? `<div class="pkg-time">${t}</div>` : ""}
+          <div class="product-row-name">${name}${chips}</div>
+          <div class="product-row-price">${price}</div>
+          ${time ? `<div class="pkg-time">${time}</div>` : ""}
         </div>
         <div class="blog-row-actions">
-          <button class="icon-btn pk-toggle" title="روشن/خاموش">${p.active ? "⏸" : "▶"}</button>
+          <button class="icon-btn pk-toggle" title="روشن/خاموش">${chips.includes("live") ? "⏸" : "▶"}</button>
           <button class="icon-btn pk-del" title="حذف">×</button>
         </div>
       </div>`;
+  function pkRenderRows() {
+    const box = pkEl("pkgRows");
+    const sp = allPackages.filter(p => p.kind !== "level");
+    const lv = allPackages.filter(p => p.kind === "level").sort((a, b) => ((a.meta || {}).level || 0) - ((b.meta || {}).level || 0));
+    if (!sp.length && !lv.length) { box.innerHTML = '<div class="list-empty">هنوز پکیجی ساخته نشده.</div>'; return; }
+    let html = "";
+    if (lv.length) {
+      const on = lv.some(p => p.active), min = Math.min(...lv.map(p => p.price || 0));
+      html += rowHTML("__tiers", `<span class="pk-tile">${lv.length} / 3</span>`, escapeHTML(lv.map(p => p.title).join(" › ")),
+        `<span class="pkg-chip${on ? " live" : ""}">${on ? "در حال نمایش" : "خاموش"}</span><span class="pkg-chip">سطحی</span>`,
+        "از " + Number(min).toLocaleString("en-US") + " تومان", "");
+    }
+    html += sp.map(p => {
+      const [label, live] = pkStatus(p);
+      const t = [p.start ? "شروع: " + pkFmt(p.start) : "", p.end ? "پایان: " + pkFmt(p.end) : ""].filter(Boolean).join(" — ");
+      return rowHTML(p.id, p.image ? `<img src="${escapeHTML(p.image)}" alt="">` : `<span class="pk-tile">PACK</span>`,
+        escapeHTML(p.title) + (p.featured ? " ★" : ""),
+        `<span class="pkg-chip${live ? " live" : ""}">${label}</span><span class="pkg-chip">ویژه</span>`,
+        Number(p.price || 0).toLocaleString("en-US") + " تومان" + (p.stock ? " — " + p.sold + " از " + p.stock : ""), t);
     }).join("");
+    box.innerHTML = html;
   }
   const pkItemsForSave = items => (items || []).map(it => it.productId ? { productId: it.productId, name: "", qty: "" } : { productId: "", name: it.name || "", qty: it.qty || "" });
 
   pkEl("pkgRows").addEventListener("click", async e => {
     const row = e.target.closest(".product-row"); if (!row) return;
-    const p = allPackages.find(x => x.id === row.dataset.id); if (!p) return;
+    const isTiers = row.dataset.id === "__tiers";
+    const lv = allPackages.filter(p => p.kind === "level");
+    const p = isTiers ? null : allPackages.find(x => x.id === row.dataset.id);
+    if (!isTiers && !p) return;
     if (e.target.closest(".pk-del")) {
-      if (!confirm("مطمئنی می‌خوای این پکیج رو حذف کنی؟")) return;
-      await apiFetch("/api/packages/" + p.id, { method: "DELETE" });
-      if (editingPkgId === p.id) pkReset();
+      if (!confirm(isTiers ? "مطمئنی؟ هر سه مرحله‌ی پکیج سطحی حذف می‌شه." : "مطمئنی می‌خوای این پکیج رو حذف کنی؟")) return;
+      for (const q of (isTiers ? lv : [p])) await apiFetch("/api/packages/" + q.id, { method: "DELETE" });
+      if (editingPkgId) pkReset();
       loadPackages();
     } else if (e.target.closest(".pk-toggle")) {
-      await pkSend(Object.assign({}, p, { active: p.active ? 0 : 1, items: pkItemsForSave(p.items) }), p.id);
+      const list = isTiers ? lv : [p], to = list.some(q => q.active) ? 0 : 1;
+      for (const q of list) await pkSend(Object.assign({}, q, { active: to, items: pkItemsForSave(q.items) }), q.id);
       loadPackages();
     } else {
       // tapping anywhere on the row opens it for editing
       await loadProducts().catch(() => {});
-      editingPkgId = p.id;
-      pkKindVal = p.kind === "level" ? "level" : "special";
-      const meta = p.meta || {};
-      pkTheme = meta.theme || "gold";
-      if (meta.color) pkEl("pkColor").value = meta.color;
-      pkKeep = { start: p.start || 0, end: p.end || 0 };
-      pkEl("pkFormTitle").textContent = "ویرایش پکیج";
-      pkEl("pkTitle").value = p.title; pkEl("pkDesc").value = p.description || "";
-      pkEl("pkPrice").value = p.price ? Number(p.price).toLocaleString("en-US") : ""; pkEl("pkBadge").value = p.badge || "";
-      pkEl("pkFeatured").checked = !!p.featured; pkEl("pkActive").checked = !!p.active;
-      pkEl("pkStock").value = p.stock || ""; pkEl("pkSold").value = p.sold || "";
-      pkImageDataUrl = p.image || ""; pkSetPreview(pkImageDataUrl);
-      pkItems = (p.items || []).map(it => {
-        if (it.productId) { const pr = pkProd(it.productId); return pr ? { kind: pr.type, productId: it.productId } : { kind: "custom", name: "محصول حذف‌شده", qty: "" }; }
-        if (it.name === MONEY_NAME) return { kind: "money", qty: (/\d+/.exec(faD(it.qty)) || [""])[0] };
-        if (it.name === DONATE_NAME) return { kind: "donate", qty: (/\d+/.exec(faD(it.qty)) || [""])[0] };
-        return { kind: "custom", name: it.name || "", qty: it.qty || "" };
-      });
-      pkRenderItems();
-      pkEl("pkLevel").value = meta.level || "";
-      pkEl("pkPopular").checked = !!meta.popular; pkEl("pkIncludesPrev").checked = !!meta.includesPrev;
-      pkEl("pkBenefits").value = (meta.benefits || []).join("\n");
-      pkApplyKind({ keepEnd: !!pkKeep.end, days: meta.durationDays || 0 });
+      if (isTiers) {
+        editingPkgId = "__tiers"; pkKindVal = "level"; pkApplyKind(); pkLoadTiers();
+        pkEl("pkFormTitle").textContent = "ویرایش پکیج سطحی";
+      } else {
+        editingPkgId = p.id; pkKindVal = "special";
+        pkKeep = { start: p.start || 0, end: p.end || 0 };
+        pkEl("pkFormTitle").textContent = "ویرایش پکیج";
+        pkEl("pkTitle").value = p.title; pkEl("pkDesc").value = p.description || "";
+        pkEl("pkPrice").value = p.price ? Number(p.price).toLocaleString("en-US") : ""; pkEl("pkBadge").value = p.badge || "";
+        pkEl("pkFeatured").checked = !!p.featured; pkEl("pkActive").checked = !!p.active;
+        pkEl("pkStock").value = p.stock || ""; pkEl("pkSold").value = p.sold || "";
+        pkImageDataUrl = p.image || ""; pkSetPreview(pkImageDataUrl);
+        edSp.items = itemsFromServer(p.items); edSp.render();
+        pkApplyKind({ keepEnd: !!pkKeep.end });
+      }
       pkEl("pkSaveBtn").textContent = "ذخیرهٔ تغییرات"; pkEl("pkCancelBtn").style.display = "block";
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
 
   function pkReset() {
-    editingPkgId = null; pkKeep = null; pkImageDataUrl = ""; pkItems = []; pkKindVal = "special"; pkTheme = "gold";
-    ["pkTitle", "pkDesc", "pkPrice", "pkBadge", "pkStock", "pkSold", "pkLevel", "pkBenefits"].forEach(id => pkEl(id).value = "");
+    editingPkgId = null; pkKeep = null; pkImageDataUrl = ""; pkKindVal = "special";
+    ["pkTitle", "pkDesc", "pkPrice", "pkBadge", "pkStock", "pkSold"].forEach(id => pkEl(id).value = "");
     pkEl("pkFeatured").checked = false; pkEl("pkActive").checked = true; pkEl("pkImageFile").value = "";
-    pkEl("pkPopular").checked = false; pkEl("pkIncludesPrev").checked = false;
-    pkSetPreview(""); pkRenderItems(); pkApplyKind();
+    pkSetPreview(""); edSp.items = []; edSp.render(); pkResetTiers(); pkApplyKind();
     pkEl("pkFormTitle").textContent = "پکیج جدید"; pkEl("pkSaveBtn").textContent = "افزودن پکیج"; pkEl("pkCancelBtn").style.display = "none";
   }
   pkEl("pkCancelBtn").addEventListener("click", pkReset);
 
+  function pkSessionExpired() {
+    pkEl("pkgRows").innerHTML = '<div class="list-empty">نشست ورودت تموم شده. دوباره وارد شو.</div>';
+    alert("نشست ورودت تموم شده (هر ورود ۱۲ ساعت اعتبار داره). دوباره با رمز و کد دو مرحله‌ای وارد شو.");
+    document.getElementById("logoutBtn").click();
+  }
+  // returns the server answer on success, false on failure
   async function pkSend(body, id) {
     const res = await apiFetch(id ? "/api/packages/" + id : "/api/packages", { method: id ? "PUT" : "POST", body: JSON.stringify(body) });
+    if (res.status === 401) { pkSessionExpired(); return false; }
     let data = {}; try { data = await res.json(); } catch (e) {}
     if (!res.ok) { alert(data.error || "ذخیره نشد. دوباره امتحان کن."); return false; }
-    return true;
+    return data;
   }
+
   pkEl("pkSaveBtn").addEventListener("click", async () => {
+    if (pkKindVal === "level") {
+      // validate all three first, then save them together
+      const bodies = [];
+      for (let i = 0; i < 3; i++) {
+        const t = TIERS[i], price = pkNum(pkEl("trPrice" + i).value);
+        if (!price) { alert("قیمت " + t.name + " رو بنویس."); return; }
+        const benefits = pkEl("trBen" + i).value.split("\n").map(x => x.trim()).filter(Boolean);
+        const items = itemsForSave(edTier[i]); if (!items) return;
+        if (!benefits.length && !items.length) { alert("برای " + t.name + " حداقل یک مزیت متنی یا یک آیتم اضافه کن."); return; }
+        bodies.push({
+          kind: "level", title: t.name, description: pkEl("trDesc" + i).value.trim(), price, badge: "", featured: 0,
+          active: pkEl("pkActive").checked ? 1 : 0, start: 0, end: 0, stock: 0, sold: 0, image: "", items, sortOrder: i,
+          meta: { level: i + 1, theme: t.theme, color: "", durationDays: tierDays[i], includesPrev: i > 0 && pkEl("trIncl" + i).checked ? 1 : 0, popular: 0, benefits },
+        });
+      }
+      pkEl("pkSaveBtn").disabled = true;
+      let ok = true;
+      for (let i = 0; i < 3 && ok; i++) {
+        const r = await pkSend(bodies[i], tierIds[i]);
+        if (!r) ok = false; else if (r.id) tierIds[i] = r.id;
+      }
+      pkEl("pkSaveBtn").disabled = false;
+      if (ok) { pkReset(); loadPackages(); alert("هر سه مرحله ذخیره شد."); } else { await loadPackages(); }
+      return;
+    }
     const title = pkEl("pkTitle").value.trim();
     if (!title) { alert("اسم پکیج رو خالی نذار."); return; }
     const price = pkNum(pkEl("pkPrice").value);
     if (!price) { alert("قیمت رو درست وارد کن."); return; }
-    const isLevel = pkKindVal === "level";
-    const stock = isLevel ? 0 : pkNum(pkEl("pkStock").value), sold = isLevel ? 0 : pkNum(pkEl("pkSold").value);
+    const stock = pkNum(pkEl("pkStock").value), sold = pkNum(pkEl("pkSold").value);
     if (stock && sold > stock) { alert("تعداد فروخته‌شده نمی‌تونه از تعداد کل بیشتر باشه."); return; }
-    for (const it of pkItems) {
-      if ((it.kind === "money" || it.kind === "donate") && !pkNum(it.qty)) { alert((it.kind === "money" ? "مقدار پول" : "تعداد سکه") + " رو بنویس."); return; }
-    }
-    const items = pkItems.map(it => {
-      if (it.kind === "skin" || it.kind === "car") return it.productId ? { productId: it.productId, name: "", qty: "" } : null;
-      if (it.kind === "money") return { productId: "", name: MONEY_NAME, qty: pkNum(it.qty) + " میلیون دلار" };
-      if (it.kind === "donate") return { productId: "", name: DONATE_NAME, qty: String(pkNum(it.qty)) };
-      return { productId: "", name: it.name || "", qty: it.qty || "" };
-    }).filter(Boolean);
-    let start = 0, end = 0, meta = {};
-    if (isLevel) {
-      const level = pkNum(pkEl("pkLevel").value);
-      if (!level) { alert("شماره‌ی سطح رو بنویس (مثلا 1 برای پایین‌ترین سطح)."); return; }
-      const benefits = pkEl("pkBenefits").value.split("\n").map(x => x.trim()).filter(Boolean);
-      if (!benefits.length && !items.length) { alert("حداقل یک مزیت متنی یا یک آیتم برای این سطح اضافه کن."); return; }
-      const lo = wheelState.pkLvWheel.opts[wheelIdx("pkLvWheel")] || { days: 0 };
-      meta = { level, theme: pkTheme, color: pkTheme === "custom" ? pkEl("pkColor").value : "", durationDays: lo.days || 0,
-        includesPrev: pkEl("pkIncludesPrev").checked ? 1 : 0, popular: pkEl("pkPopular").checked ? 1 : 0, benefits };
-    } else {
-      const o = wheelState.pkWheel.opts[wheelIdx("pkWheel")] || { ms: 0 };
-      if (o.keep) { start = (pkKeep && pkKeep.start) || 0; end = (pkKeep && pkKeep.end) || 0; }
-      else if (o.ms) end = Date.now() + o.ms;
-    }
+    const items = itemsForSave(edSp); if (!items) return;
+    const o = wheelState.pkWheel.opts[wheelIdx("pkWheel")] || { ms: 0 };
+    let start = 0, end = 0;
+    if (o.keep) { start = (pkKeep && pkKeep.start) || 0; end = (pkKeep && pkKeep.end) || 0; }
+    else if (o.ms) end = Date.now() + o.ms;
     const body = {
-      kind: pkKindVal, meta, title, description: pkEl("pkDesc").value.trim(), price, badge: isLevel ? "" : pkEl("pkBadge").value.trim(),
-      featured: !isLevel && pkEl("pkFeatured").checked ? 1 : 0, active: pkEl("pkActive").checked ? 1 : 0,
-      start, end, stock, sold, image: isLevel ? "" : pkImageDataUrl, items,
+      kind: "special", meta: {}, title, description: pkEl("pkDesc").value.trim(), price, badge: pkEl("pkBadge").value.trim(),
+      featured: pkEl("pkFeatured").checked ? 1 : 0, active: pkEl("pkActive").checked ? 1 : 0,
+      start, end, stock, sold, image: pkImageDataUrl, items,
       sortOrder: editingPkgId ? ((allPackages.find(x => x.id === editingPkgId) || {}).sortOrder || 0) : allPackages.length,
     };
     pkEl("pkSaveBtn").disabled = true;
-    const ok = await pkSend(body, editingPkgId);
+    const r = await pkSend(body, editingPkgId);
     pkEl("pkSaveBtn").disabled = false;
-    if (ok) { pkReset(); loadPackages(); }
+    if (r) { pkReset(); loadPackages(); }
   });
-  pkRenderItems();
-  pkApplyKind();
+  pkApplyKind(); pkResetTiers();
 </script>
 
 </body>
