@@ -290,7 +290,7 @@
   .pk-row img,.pk-tile{ width:48px; height:48px; border-radius:10px; object-fit:contain; background:var(--panel-2); flex-shrink:0; }
   .pk-tile{ display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; color:var(--gold); }
   .pk-row-title{ flex:1; min-width:0; font-size:13px; color:var(--cream); line-height:1.6; }
-  .pk-row .pi-qty{ width:90px; flex:none; direction:ltr; text-align:center; padding:9px 6px; }
+  .pk-row .pi-qty{ width:120px; flex:none; direction:ltr; text-align:center; padding:9px 6px; }
   .pk-unit-s{ font-size:11px; color:var(--dim); white-space:nowrap; }
   .pkg-kinds{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
   .pkg-kind{ background:var(--panel); border:1px dashed var(--gold); color:var(--cream); font-family:'Vazirmatn'; font-size:13px; font-weight:700; padding:12px 4px; border-radius:12px; cursor:pointer; }
@@ -337,6 +337,9 @@
   .pk-chips{ display:flex; flex-wrap:wrap; gap:6px; }
   .pk-chip{ background:var(--panel); border:1px solid var(--panel-line); color:var(--dim); font-family:'Vazirmatn'; font-size:12px; padding:8px 13px; border-radius:99px; cursor:pointer; }
   .pk-chip.on{ background:var(--gold); color:#1E1E36; border-color:var(--gold); }
+
+  .pk-new{ display:flex; flex-direction:column; gap:10px; background:var(--panel); border-radius:14px; padding:12px; }
+  .pk-new input[type=text]{ width:100%; background:#1b1b34; border:1px solid var(--panel-line); color:var(--cream); font-family:'Vazirmatn'; font-size:13px; padding:11px 12px; border-radius:10px; }
 </style>
 </head>
 <body>
@@ -416,8 +419,15 @@
         <div class="pkg-hint" id="pkKindHint"></div>
 
         <!-- special package -->
-        <input class="pk-sp" type="text" id="pkTitle" placeholder="اسم پکیج">
-        <input class="pk-sp" type="text" id="pkDesc" placeholder="توضیح کوتاه">
+        <input type="text" id="pkTitle" placeholder="اسم پکیج">
+        <input type="text" id="pkDesc" placeholder="توضیح کوتاه">
+        <div class="pkg-sub">عکس کاور</div>
+        <label class="product-image-picker" id="pkImagePicker">
+          <img id="pkImagePreview" style="display:none;">
+          <span id="pkImageText">انتخاب عکس کاور</span>
+          <input type="file" id="pkImageFile" accept="image/*" style="display:none;">
+        </label>
+        <div class="pkg-hint">بعد از انتخاب، عکس رو دقیقا به اندازه‌ی کادر پکیج برش می‌زنی (عکس پوستر همیشه JPEG می‌شه).<br>اندازه‌ی پیشنهادی برای گرافیست: <b>۱۲۸۰ × ۷۲۰ پیکسل</b> (نسبت ۱۶ به ۹)</div>
         <div class="pkg-unit pk-sp"><input type="text" id="pkPrice" inputmode="numeric" autocomplete="off" placeholder="قیمت"><span class="pkg-unit-tag">تومان</span></div>
         <input class="pk-sp" type="text" id="pkBadge" list="pkBadges" placeholder="برچسب (اختیاری): جدید، محدود، پرفروش...">
         <datalist id="pkBadges"><option value="جدید"><option value="محدود"><option value="پرفروش"><option value="ویژه"></datalist>
@@ -436,13 +446,6 @@
           <label>تعداد کل (اختیاری)<input type="text" inputmode="numeric" id="pkStock" placeholder="مثلا 10"></label>
           <label>فروخته‌شده<input type="text" inputmode="numeric" id="pkSold" placeholder="0"></label>
         </div>
-        <div class="pkg-sub pk-sp">عکس کاور</div>
-        <label class="product-image-picker pk-sp" id="pkImagePicker">
-          <img id="pkImagePreview" style="display:none;">
-          <span id="pkImageText">انتخاب عکس کاور</span>
-          <input type="file" id="pkImageFile" accept="image/*" style="display:none;">
-        </label>
-        <div class="pkg-hint pk-sp">بعد از انتخاب، عکس رو دقیقا به اندازه‌ی کادر پکیج برش می‌زنی.<br>اندازه‌ی پیشنهادی برای گرافیست: <b>۱۲۸۰ × ۷۲۰ پیکسل</b> (نسبت ۱۶ به ۹)</div>
         <div class="pkg-sub pk-sp">داخل پکیج چی هست؟</div>
         <div id="pkItems" class="pk-sp"></div>
         <div class="pkg-kinds pk-sp" id="pkKindsSp">
@@ -1198,22 +1201,32 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
   const faD = s => String(s == null ? "" : s).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
   const pkNum = s => Math.max(0, Math.floor(Number(faD(s).replace(/[^\d.]/g, "")) || 0));
   const faN = n => Number(n).toLocaleString("fa-IR");
-  const PK_H = 36e5, MONEY_NAME = "پول داخل بازی", DONATE_NAME = "سکه";
+  const PK_H = 36e5, MONEY_NAME = "پول داخل بازی", DONATE_NAME = "دونیت";
+  const moneyFmt = n => (n === "" || n == null || Number(n) === 0) ? "" : Number(n).toLocaleString("en-US");
+  const digitsOf = q => faD(q).replace(/[^\d]/g, "");
   const TIERS = [
-    { name: "STANDARD", theme: "bronze", c: ["#d08a52", "#5e3a22"], lab: "برنزی" },
+    { name: "STANDARD", theme: "silver", c: ["#d5dbe8", "#69738a"], lab: "نقره‌ای" },
     { name: "PREMIUM", theme: "gold", c: ["#ffd4a9", "#a8742e"], lab: "طلایی" },
     { name: "ULTIMATE", theme: "diamond", c: ["#8fd8ff", "#3a6fb0"], lab: "الماسی" },
   ];
   const DUR = [[0, "دائمی"], [7, "۷ روز"], [15, "۱۵ روز"], [30, "۳۰ روز"], [60, "۶۰ روز"], [90, "۹۰ روز"], [365, "۱ سال"]];
   let allPackages = [], editingPkgId = null, pkImageDataUrl = "", pkKeep = null, pkKindVal = "special";
-  let tierIds = [null, null, null], tierDays = [30, 30, 30], edSp = null, edTier = [];
+  let tierIds = [null, null, null], tierDays = [30, 30, 30], edSp = null, edTier = [], tierHeaderId = null;
+  const kindStash = { special: { t: "", d: "", img: "" }, level: { t: "", d: "", img: "" } };
   const pkFmt = ms => new Date(ms).toLocaleString("fa-IR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
   // modals (added to <body> so nothing can clip them)
   document.body.insertAdjacentHTML("beforeend", `
     <div class="pk-modal" id="pkPicker" hidden><div class="pk-sheet">
       <div class="pk-sheet-head"><span id="pkPickTitle"></span><button type="button" class="pk-x" id="pkPickX">×</button></div>
-      <div class="pkg-hint">روی هر مورد بزن تا انتخاب بشه. می‌تونی چندتا انتخاب کنی.</div>
+      <div class="pk-new">
+        <div class="pkg-sub" id="pkNewTitle"></div>
+        <input type="text" id="pkNewId" placeholder="شماره (مثلا 12)">
+        <input type="text" id="pkNewName" placeholder="اسم ماشین (مثلا Infernus)">
+        <label class="product-image-picker" id="pkNewPicker"><img id="pkNewPreview" style="display:none;"><span id="pkNewText">انتخاب عکس (PNG بدون پس‌زمینه هم قبوله)</span><input type="file" id="pkNewFile" accept="image/*" style="display:none;"></label>
+        <button type="button" class="pkg-kind" id="pkNewAdd">افزودن به پکیج</button>
+      </div>
+      <div class="pkg-sub">یا از محصولات فروشگاه انتخاب کن (چندتا می‌تونی انتخاب کنی):</div>
       <div class="pk-pgrid" id="pkPickGrid"></div>
       <button type="button" class="product-form-save" id="pkPickOk">تایید</button>
     </div></div>
@@ -1280,13 +1293,22 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     pkEl("pkKindSeg").classList.toggle("locked", !!editingPkgId);
     pkEl("pkKindHint").textContent = pkKindVal === "special"
       ? "پکیج ویژه: خرید یک‌باره با زمان محدود. توی فروشگاه به‌صورت کارت جدا نمایش داده می‌شه."
-      : "پکیج سطحی: هر سه مرحله‌ی STANDARD، PREMIUM و ULTIMATE رو همین‌جا تنظیم می‌کنی. توی فروشگاه یک صفحه‌ی واحد با سه کارت باز می‌شه.";
+      : "پکیج سطحی: اسم، توضیح و عکس کل پکیج رو بالا می‌نویسی و هر سه مرحله‌ی STANDARD، PREMIUM و ULTIMATE رو همین‌جا تنظیم می‌کنی. توی فروشگاه یک کارت با همین اسم و توضیح و عکس میاد که یک صفحه‌ی واحد با سه کارت باز می‌کنه.";
+    pkEl("pkTitle").placeholder = pkKindVal === "special" ? "اسم پکیج" : "اسم پکیج سطحی (روی کارت نمایش داده می‌شه)";
+    pkEl("pkDesc").placeholder = pkKindVal === "special" ? "توضیح کوتاه" : "توضیح کل پکیج سطحی (روی کارت نمایش داده می‌شه)";
     if (pkKindVal === "special") wheelBuild("pkWheel", "pkWheelHint", spOpts(!!sel.keepEnd), 0);
+  }
+  function pkSwitchKind(nk) {
+    kindStash[pkKindVal] = { t: pkEl("pkTitle").value, d: pkEl("pkDesc").value, img: pkImageDataUrl };
+    pkKindVal = nk;
+    const k = kindStash[nk];
+    pkEl("pkTitle").value = k.t; pkEl("pkDesc").value = k.d; pkImageDataUrl = k.img; pkSetPreview(k.img);
+    pkApplyKind();
+    if (nk === "level") pkLoadTiers();
   }
   pkEl("pkKindSeg").addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b || b.dataset.kind === pkKindVal) return;
-    pkKindVal = b.dataset.kind; pkApplyKind();
-    if (pkKindVal === "level") pkLoadTiers();
+    pkSwitchKind(b.dataset.kind);
   });
 
   // ---------- items editor (one instance for the special form + one for each tier) ----------
@@ -1297,17 +1319,18 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     function render() {
       if (!ed.items.length) { listEl.innerHTML = '<div class="pkg-hint">هنوز چیزی اضافه نشده. از دکمه‌های پایین انتخاب کن.</div>'; return; }
       listEl.innerHTML = ed.items.map((it, i) => {
-        let thumb, title, qty = "";
+        let thumb = "", title, qty = "";
         if (it.kind === "skin" || it.kind === "car") {
-          const p = pkProd(it.productId);
-          thumb = p && p.image ? `<img src="${escapeHTML(p.image)}" alt="">` : `<span class="pk-tile">${it.kind === "car" ? "CAR" : "SKIN"}</span>`;
-          title = (it.kind === "car" ? "ماشین " : "اسکین ") + (p ? escapeHTML(pkProdTitle(p)) : "(حذف‌شده از محصولات)");
+          const p = it.custom ? null : pkProd(it.productId);
+          const img = it.custom ? it.image : (p && p.image);
+          thumb = img ? `<img src="${escapeHTML(img)}" alt="">` : `<span class="pk-tile">${it.kind === "car" ? "CAR" : "SKIN"}</span>`;
+          title = (it.kind === "car" ? "ماشین " : "اسکین ") + (it.custom
+            ? escapeHTML((it.kind === "car" && it.name ? it.name + " " : "") + (it.qty ? "#" + it.qty : ""))
+            : (p ? escapeHTML(pkProdTitle(p)) : "(حذف‌شده از محصولات)"));
         } else if (it.kind === "money" || it.kind === "donate") {
-          thumb = `<span class="pk-tile">${it.kind === "money" ? "$" : "★"}</span>`;
           title = it.kind === "money" ? "پول" : "دونیت";
-          qty = `<input type="text" inputmode="numeric" class="pi-qty" placeholder="0" value="${escapeHTML(it.qty)}"><span class="pk-unit-s">${it.kind === "money" ? "میلیون دلار" : "سکه"}</span>`;
+          qty = (it.kind === "money" ? '<span class="pk-unit-s">$</span>' : "") + `<input type="text" inputmode="numeric" class="pi-qty" placeholder="0" value="${escapeHTML(moneyFmt(it.qty))}">` + (it.kind === "donate" ? '<span class="pk-unit-s">دونیت</span>' : "");
         } else {
-          thumb = `<span class="pk-tile">•</span>`;
           title = escapeHTML(it.name) + (it.qty ? " — " + escapeHTML(it.qty) : "");
         }
         return `<div class="pk-row" data-i="${i}">${thumb}<div class="pk-row-title">${title}</div>${qty}<button type="button" class="icon-btn pi-del" aria-label="حذف">×</button></div>`;
@@ -1316,7 +1339,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     listEl.addEventListener("input", e => {
       if (!e.target.classList.contains("pi-qty")) return;
       const it = ed.items[+e.target.closest(".pk-row").dataset.i];
-      e.target.value = it.qty = faD(e.target.value).replace(/[^\d]/g, "");
+      it.qty = digitsOf(e.target.value); e.target.value = moneyFmt(it.qty);
     });
     listEl.addEventListener("click", e => {
       const b = e.target.closest(".pi-del"); if (!b) return;
@@ -1337,30 +1360,86 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     return ed;
   }
   const itemsFromServer = list => (list || []).map(it => {
-    if (it.productId) { const pr = pkProd(it.productId); return pr ? { kind: pr.type, productId: it.productId } : { kind: "custom", name: "محصول حذف‌شده", qty: "" }; }
-    if (it.name === MONEY_NAME) return { kind: "money", qty: (/\d+/.exec(faD(it.qty)) || [""])[0] };
-    if (it.name === DONATE_NAME) return { kind: "donate", qty: (/\d+/.exec(faD(it.qty)) || [""])[0] };
+    if (it.productId) {
+      const pr = pkProd(it.productId);
+      if (pr) return { kind: pr.type, productId: it.productId };
+      if (!it.image) return { kind: "custom", name: "محصول حذف‌شده", qty: "" };
+    }
+    if (it.kind === "skin" || it.kind === "car") return { kind: it.kind, custom: true, name: it.name === "اسکین" ? "" : (it.name || ""), qty: String(it.qty || "").replace(/^#/, ""), image: it.image || "" };
+    if (it.kind === "money" || it.name === MONEY_NAME) { const d = Number(digitsOf(it.qty)) * (/میلیون/.test(it.qty) ? 1e6 : 1); return { kind: "money", qty: d ? String(d) : "" }; }
+    if (it.kind === "donate" || it.name === DONATE_NAME || it.name === "سکه") return { kind: "donate", qty: digitsOf(it.qty) };
     return { kind: "custom", name: it.name || "", qty: it.qty || "" };
   });
   // returns the list to send, or null (after an alert) when something is missing
   function itemsForSave(ed) {
     for (const it of ed.items) {
-      if ((it.kind === "money" || it.kind === "donate") && !pkNum(it.qty)) { alert((it.kind === "money" ? "مقدار پول" : "تعداد سکه") + " رو بنویس."); return null; }
+      if ((it.kind === "money" || it.kind === "donate") && !pkNum(it.qty)) { alert((it.kind === "money" ? "مقدار پول" : "تعداد دونیت") + " رو بنویس."); return null; }
     }
     return ed.items.map(it => {
-      if (it.kind === "skin" || it.kind === "car") return it.productId ? { productId: it.productId, name: "", qty: "" } : null;
-      if (it.kind === "money") return { productId: "", name: MONEY_NAME, qty: pkNum(it.qty) + " میلیون دلار" };
-      if (it.kind === "donate") return { productId: "", name: DONATE_NAME, qty: String(pkNum(it.qty)) };
+      if (it.kind === "skin" || it.kind === "car") {
+        if (it.custom) return { productId: "", kind: it.kind, name: it.kind === "car" ? (it.name || "ماشین") : "اسکین", qty: it.qty ? "#" + it.qty : "", image: it.image || "" };
+        return it.productId ? { productId: it.productId, name: "", qty: "", kind: it.kind } : null;
+      }
+      if (it.kind === "money") return { productId: "", kind: "money", name: MONEY_NAME, qty: "$" + moneyFmt(pkNum(it.qty)) };
+      if (it.kind === "donate") return { productId: "", kind: "donate", name: DONATE_NAME, qty: moneyFmt(pkNum(it.qty)) };
       return { productId: "", name: it.name || "", qty: it.qty || "" };
     }).filter(Boolean);
   }
 
   // ---------- picker (photos of skins / cars) ----------
-  let pickKind = null, pickSel = [], pickEd = null;
+  let pickKind = null, pickSel = [], pickEd = null, pkNewImg = "";
+  // photo of a skin / car / item: PNG keeps its transparent background (no fill), others are flattened to JPEG; always shrunk
+  function pkProcessImage(file) {
+    return new Promise((resolve, reject) => {
+      if (file.size > 12 * 1024 * 1024) { reject(new Error("big")); return; }
+      const r = new FileReader();
+      r.onerror = () => reject(new Error("read"));
+      r.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("bad"));
+        img.onload = () => {
+          const png = /png|webp|gif/.test(file.type);
+          let out = "";
+          for (const side of [520, 420, 340, 260]) {
+            const k = Math.min(1, side / Math.max(img.width, img.height));
+            const w = Math.max(1, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+            const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+            const ctx = cv.getContext("2d");
+            if (!png) { ctx.fillStyle = "#1b1b34"; ctx.fillRect(0, 0, w, h); }
+            ctx.drawImage(img, 0, 0, w, h);
+            out = cv.toDataURL(png ? "image/png" : "image/jpeg", 0.85);
+            if (out.length <= 330000) break;
+          }
+          resolve(out);
+        };
+        img.src = r.result;
+      };
+      r.readAsDataURL(file);
+    });
+  }
+  pkEl("pkNewFile").addEventListener("change", async () => {
+    const f = pkEl("pkNewFile").files[0]; if (!f) return;
+    try {
+      pkNewImg = await pkProcessImage(f);
+      const im = pkEl("pkNewPreview"); im.src = pkNewImg; im.style.display = "block";
+      pkEl("pkNewText").textContent = "برای تغییر عکس دوباره بزن";
+    } catch (e) { alert("این فایل عکس نیست یا خیلی بزرگه."); pkEl("pkNewFile").value = ""; }
+  });
+  pkEl("pkNewAdd").addEventListener("click", () => {
+    const id = pkEl("pkNewId").value.trim().replace(/^#/, ""), name = pkEl("pkNewName").value.trim();
+    if (pickKind === "skin" && !id && !pkNewImg) { alert("شماره یا عکس اسکین رو وارد کن."); return; }
+    if (pickKind === "car" && !id && !name) { alert("اسم یا شماره‌ی ماشین رو بنویس."); return; }
+    pickEd.items.push({ kind: pickKind, custom: true, name: pickKind === "car" ? name : "", qty: id, image: pkNewImg });
+    pkEl("pkPicker").hidden = true; pickEd.render();
+  });
   function pkOpenPicker(kind, ed) {
     pickKind = kind; pickEd = ed;
-    pickSel = ed.items.filter(i => i.kind === kind).map(i => i.productId);
+    pickSel = ed.items.filter(i => i.kind === kind && !i.custom).map(i => i.productId);
     pkEl("pkPickTitle").textContent = kind === "car" ? "انتخاب ماشین" : "انتخاب اسکین";
+    pkEl("pkNewTitle").textContent = (kind === "car" ? "افزودن ماشین جدید" : "افزودن اسکین جدید") + " (لازم نیست توی فروشگاه باشه)";
+    pkEl("pkNewName").style.display = kind === "car" ? "" : "none";
+    pkEl("pkNewId").value = ""; pkEl("pkNewName").value = ""; pkNewImg = ""; pkEl("pkNewFile").value = "";
+    pkEl("pkNewPreview").style.display = "none"; pkEl("pkNewText").textContent = "انتخاب عکس (PNG بدون پس‌زمینه هم قبوله)";
     const list = allProducts.filter(p => p.type === kind);
     pkEl("pkPickGrid").innerHTML = list.length ? list.map(p => `
       <button type="button" class="pk-card${pickSel.includes(p.id) ? " on" : ""}" data-id="${escapeHTML(p.id)}">
@@ -1377,7 +1456,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
   });
   pkEl("pkPickX").addEventListener("click", () => { pkEl("pkPicker").hidden = true; });
   pkEl("pkPickOk").addEventListener("click", () => {
-    pickEd.items = pickEd.items.filter(i => i.kind !== pickKind).concat(pickSel.map(id => ({ kind: pickKind, productId: id })));
+    pickEd.items = pickEd.items.filter(i => !(i.kind === pickKind && !i.custom)).concat(pickSel.map(id => ({ kind: pickKind, productId: id })));
     pkEl("pkPicker").hidden = true; pickEd.render();
   });
 
@@ -1415,6 +1494,9 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
   }
   function pkLoadTiers() {
     pkResetTiers();
+    const hdr = allPackages.find(p => p.kind === "tiers");
+    tierHeaderId = hdr ? hdr.id : null;
+    if (hdr) { pkEl("pkTitle").value = hdr.title || ""; pkEl("pkDesc").value = hdr.description || ""; pkImageDataUrl = hdr.image || ""; pkSetPreview(pkImageDataUrl); }
     const lv = allPackages.filter(p => p.kind === "level");
     TIERS.forEach((_, i) => {
       const p = lv.find(x => ((x.meta || {}).level) === i + 1); if (!p) return;
@@ -1521,15 +1603,16 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
       </div>`;
   function pkRenderRows() {
     const box = pkEl("pkgRows");
-    const sp = allPackages.filter(p => p.kind !== "level");
+    const sp = allPackages.filter(p => p.kind !== "level" && p.kind !== "tiers");
+    const hdr = allPackages.find(p => p.kind === "tiers");
     const lv = allPackages.filter(p => p.kind === "level").sort((a, b) => ((a.meta || {}).level || 0) - ((b.meta || {}).level || 0));
-    if (!sp.length && !lv.length) { box.innerHTML = '<div class="list-empty">هنوز پکیجی ساخته نشده.</div>'; return; }
+    if (!sp.length && !lv.length && !hdr) { box.innerHTML = '<div class="list-empty">هنوز پکیجی ساخته نشده.</div>'; return; }
     let html = "";
-    if (lv.length) {
-      const on = lv.some(p => p.active), min = Math.min(...lv.map(p => p.price || 0));
-      html += rowHTML("__tiers", `<span class="pk-tile">${lv.length} / 3</span>`, escapeHTML(lv.map(p => p.title).join(" › ")),
+    if (lv.length || hdr) {
+      const on = lv.some(p => p.active), min = lv.length ? Math.min(...lv.map(p => p.price || 0)) : 0;
+      html += rowHTML("__tiers", hdr && hdr.image ? `<img src="${escapeHTML(hdr.image)}" alt="">` : `<span class="pk-tile">${lv.length} / 3</span>`, escapeHTML(hdr && hdr.title ? hdr.title : lv.map(p => p.title).join(" › ")),
         `<span class="pkg-chip${on ? " live" : ""}">${on ? "در حال نمایش" : "خاموش"}</span><span class="pkg-chip">سطحی</span>`,
-        "از " + Number(min).toLocaleString("en-US") + " تومان", "");
+        (lv.length ? "از " + Number(min).toLocaleString("en-US") + " تومان" : "—"), "");
     }
     html += sp.map(p => {
       const [label, live] = pkStatus(p);
@@ -1541,12 +1624,12 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     }).join("");
     box.innerHTML = html;
   }
-  const pkItemsForSave = items => (items || []).map(it => it.productId ? { productId: it.productId, name: "", qty: "" } : { productId: "", name: it.name || "", qty: it.qty || "" });
+  const pkItemsForSave = items => (items || []).map(it => it.productId ? { productId: it.productId, name: "", qty: "", kind: it.kind || "" } : { productId: "", name: it.name || "", qty: it.qty || "", kind: it.kind || "", image: it.image || "" });
 
   pkEl("pkgRows").addEventListener("click", async e => {
     const row = e.target.closest(".product-row"); if (!row) return;
     const isTiers = row.dataset.id === "__tiers";
-    const lv = allPackages.filter(p => p.kind === "level");
+    const lv = allPackages.filter(p => p.kind === "level" || p.kind === "tiers");
     const p = isTiers ? null : allPackages.find(x => x.id === row.dataset.id);
     if (!isTiers && !p) return;
     if (e.target.closest(".pk-del")) {
@@ -1562,7 +1645,9 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
       // tapping anywhere on the row opens it for editing
       await loadProducts().catch(() => {});
       if (isTiers) {
-        editingPkgId = "__tiers"; pkKindVal = "level"; pkApplyKind(); pkLoadTiers();
+        editingPkgId = "__tiers"; pkKindVal = "level";
+        pkEl("pkTitle").value = ""; pkEl("pkDesc").value = ""; pkImageDataUrl = ""; pkSetPreview("");
+        pkApplyKind(); pkLoadTiers();
         pkEl("pkFormTitle").textContent = "ویرایش پکیج سطحی";
       } else {
         editingPkgId = p.id; pkKindVal = "special";
@@ -1585,6 +1670,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     editingPkgId = null; pkKeep = null; pkImageDataUrl = ""; pkKindVal = "special";
     ["pkTitle", "pkDesc", "pkPrice", "pkBadge", "pkStock", "pkSold"].forEach(id => pkEl(id).value = "");
     pkEl("pkFeatured").checked = false; pkEl("pkActive").checked = true; pkEl("pkImageFile").value = "";
+    kindStash.special = { t: "", d: "", img: "" }; kindStash.level = { t: "", d: "", img: "" };
     pkSetPreview(""); edSp.items = []; edSp.render(); pkResetTiers(); pkApplyKind();
     pkEl("pkFormTitle").textContent = "پکیج جدید"; pkEl("pkSaveBtn").textContent = "افزودن پکیج"; pkEl("pkCancelBtn").style.display = "none";
   }
@@ -1607,6 +1693,9 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
   pkEl("pkSaveBtn").addEventListener("click", async () => {
     if (pkKindVal === "level") {
       // validate all three first, then save them together
+      const hTitle = pkEl("pkTitle").value.trim();
+      if (!hTitle) { alert("اسم پکیج سطحی رو بنویس (روی کارت نمایش داده می‌شه)."); return; }
+      const hdrBody = { kind: "tiers", title: hTitle, description: pkEl("pkDesc").value.trim(), price: 0, badge: "", featured: 0, active: pkEl("pkActive").checked ? 1 : 0, start: 0, end: 0, stock: 0, sold: 0, image: pkImageDataUrl, items: [], meta: {}, sortOrder: 0 };
       const bodies = [];
       for (let i = 0; i < 3; i++) {
         const t = TIERS[i], price = pkNum(pkEl("trPrice" + i).value);
@@ -1626,6 +1715,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
         const r = await pkSend(bodies[i], tierIds[i]);
         if (!r) ok = false; else if (r.id) tierIds[i] = r.id;
       }
+      if (ok) { const rh = await pkSend(hdrBody, tierHeaderId); if (!rh) ok = false; else if (rh.id) tierHeaderId = rh.id; }
       pkEl("pkSaveBtn").disabled = false;
       if (ok) { pkReset(); loadPackages(); alert("هر سه مرحله ذخیره شد."); } else { await loadPackages(); }
       return;
