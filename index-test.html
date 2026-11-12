@@ -2058,6 +2058,32 @@
   .android-overlay .agd-app-dl-btn{ background:var(--gold); color:#1E1E36; border-radius:999px; padding:8px 18px; font-size:12.5px; font-weight:600; }
   .android-overlay .agd-app-name{ font-size:13px; font-weight:600; color:#0F1120; }
   .android-overlay a:focus-visible, .android-overlay button:focus-visible{ outline-color:var(--gold); }
+
+  /* ===== packages on the home page (same cards as the store) ===== */
+  .pk-section{ margin-top:44px; }
+  .pk-track{ display:flex; align-items:stretch; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; margin:0 -16px; padding:14px 16px 18px; scroll-padding:0 16px; }
+  .pk-track::-webkit-scrollbar{ display:none; }
+  .pk{ position:relative; flex:0 0 72%; max-width:290px; scroll-snap-align:center; border-radius:24px; overflow:hidden; cursor:pointer; display:flex; flex-direction:column; text-align:right; color:#fff; text-decoration:none; background:rgba(255,255,255,.085); box-shadow:0 8px 28px rgba(0,0,0,.35); transition:transform .2s; }
+  .pk:active{ transform:scale(.98); }
+  .pk.featured{ box-shadow:0 8px 28px rgba(0,0,0,.35),0 0 0 1px rgba(255,212,169,.4),0 0 26px rgba(255,212,169,.18); }
+  .pk-img{ position:relative; aspect-ratio:16/9; background:linear-gradient(135deg,#34345c,#1b1b34); overflow:hidden; flex-shrink:0; }
+  .pk-img img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pk-tiers{ display:flex; align-items:center; justify-content:center; gap:14px; direction:ltr; }
+  .pk-medal{ width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; color:rgba(0,0,0,.55); background:radial-gradient(circle at 30% 25%,var(--c1),var(--c2)); box-shadow:inset 0 2px 4px rgba(255,255,255,.35),0 4px 10px rgba(0,0,0,.35); }
+  .pk-badge{ position:absolute; top:10px; right:10px; z-index:2; background:var(--gold); color:#1E1E36; font-size:11px; font-weight:800; padding:3px 11px; border-radius:99px; }
+  .pk-timer{ position:absolute; top:10px; left:10px; z-index:2; font-size:10.5px; font-weight:600; padding:3px 10px; border-radius:99px; background:rgba(15,17,32,.62); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+  .pk-body{ padding:13px 15px 15px; display:flex; flex-direction:column; flex:1; }
+  .pk-title{ font-size:16px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pk-desc{ font-size:12px; color:var(--dim); line-height:1.8; margin-top:3px; min-height:43px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .pk-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:10px; }
+  .pk-price{ display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:15px; direction:ltr; }
+  .pk-price img{ width:15px; height:15px; } .pk-price small{ font-size:11px; color:var(--dim); } .pk-from{ font-size:11px; color:var(--dim); margin-inline-end:4px; }
+  .pk-pill{ background:var(--gold); color:#1E1E36; border-radius:99px; font-weight:700; font-size:12.5px; padding:7px 18px; }
+  .pk.sold .pk-img{ filter:grayscale(.7) brightness(.7); } .pk.sold .pk-pill{ background:rgba(255,255,255,.12); color:var(--dim); }
+  .pk-dots{ display:flex; justify-content:center; gap:7px; margin-top:-6px; }
+  .pk-dot{ width:6px; height:6px; border-radius:99px; background:rgba(255,255,255,.25); border:0; padding:0; transition:width .25s,background .25s; }
+  .pk-dot.on{ width:20px; background:#fff; }
+  .pk-all{ display:block; width:max-content; margin:14px auto 0; font-size:12.5px; font-weight:600; color:var(--gold); text-decoration:none; }
 </style>
 </head>
 <body>
@@ -2310,6 +2336,13 @@
     </div>
   </div>
 
+  <div class="pk-section" id="pkSection" hidden>
+    <div class="news-head"><h2>پکیج‌های ویژه</h2><p>پیشنهادهای محدود گیتی؛ بعضی‌ها فقط تا پایان زمان‌شون.</p></div>
+    <div class="pk-track" id="pkTrack"></div>
+    <div class="pk-dots" id="pkDots"></div>
+    <a class="pk-all" href="https://store.gitirp.ir">مشاهده همه در فروشگاه <span>‹</span></a>
+  </div>
+
   <div class="news-section" id="newsSection">
     <div class="news-head">
       <h2>اخبار و آپدیت‌ها</h2>
@@ -2317,7 +2350,8 @@
     </div>
 
     <div class="tab-switch" id="mainTabSwitch">
-      <button class="tab-btn active" data-type="news">اخبار</button>
+      <button class="tab-btn active" data-type="all">همه</button>
+      <button class="tab-btn" data-type="news">اخبار</button>
       <button class="tab-btn" data-type="update">آپدیت‌ها</button>
     </div>
 
@@ -2400,7 +2434,8 @@
     <button class="menu-back" data-back="main"><span class="chev-back">›</span> برگشت</button>
     <div class="menu-body">
       <div class="tab-switch" id="savedTabSwitch">
-        <button class="tab-btn active" data-savetype="news">اخبار</button>
+        <button class="tab-btn active" data-savetype="all">همه</button>
+        <button class="tab-btn" data-savetype="news">اخبار</button>
         <button class="tab-btn" data-savetype="update">آپدیت‌ها</button>
       </div>
       <div id="savedList" class="saved-list"></div>
@@ -3479,19 +3514,20 @@
     });
   }
 
-  let currentType = "news";
+  let currentType = "all";
   let currentCat = "all";
 
   const articleList = document.getElementById("articleList");
 
   function renderArticles(){
     const filtered = articles.filter(a =>
-      a.type === currentType && (currentCat === "all" || a.cat === currentCat)
+      (currentType === "all" || a.type === currentType) && (currentCat === "all" || a.cat === currentCat)
     );
     if (filtered.length === 0){
       articleList.innerHTML = '<div class="empty-articles">موردی برای نمایش وجود ندارد.</div>';
       return;
     }
+    if (currentType === "all") filtered.sort((x, y) => (new Date(y.createdAt).getTime() || +y.createdAt || 0) - (new Date(x.createdAt).getTime() || +x.createdAt || 0));
     articleList.innerHTML = filtered.map(a => articleCardHTML(a)).join("");
     bindCardOpen(articleList);
   }
@@ -3668,12 +3704,12 @@
   setInterval(loadArticles, 30000);
 
   // --- saved-articles view (inside hamburger menu) ---
-  let savedType = "news";
+  let savedType = "all";
   const savedList = document.getElementById("savedList");
 
   function renderSaved(){
     const ids = getSavedIds();
-    const items = articles.filter(a => ids.includes(a.id) && a.type === savedType);
+    const items = articles.filter(a => ids.includes(a.id) && (savedType === "all" || a.type === savedType));
     if (items.length === 0){
       savedList.innerHTML = '<div class="empty-articles">چیزی ذخیره نکردی.</div>';
       return;
@@ -4407,6 +4443,43 @@ window.addEventListener('scroll',f,{passive:true});f();})();
   var mo=new MutationObserver(upd);
   [alt,nw,vt,sg,ig].forEach(function(e){mo.observe(e,{attributes:true,attributeFilter:['class']});});
   upd();
+})();
+</script>
+
+<script>
+(function(){
+  var API="https://api.gitirp.ir/api/packages",STORE="https://store.gitirp.ir/",H=36e5,D=864e5,packs=[],last=-1;
+  var $=function(i){return document.getElementById(i)},now=Date.now;
+  var esc=function(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+  var img=function(v){if(!v)return"";if(/^data:image\/(png|jpe?g|webp|gif)[;,]/i.test(v))return v;try{var u=new URL(v,location.origin);return u.protocol==="https:"?u.href:""}catch(e){return""}};
+  var fa=function(n){return Number(n).toLocaleString("fa-IR")};
+  var TH={silver:["#d5dbe8","#69738a"],gold:["#ffd4a9","#a8742e"],diamond:["#8fd8ff","#3a6fb0"]};
+  var t=function(v){return v?(Number(v)||new Date(v).getTime()||0):0};
+  function norm(p){var m=(p.meta&&typeof p.meta==="object")?p.meta:{};return{id:String(p.id),kind:p.kind==="level"?"level":p.kind==="tiers"?"tiers":"special",meta:m,title:p.title||"",desc:p.desc||p.description||"",image:img(p.image),price:Number(p.price)||0,badge:p.badge||"",featured:!!+p.featured,start:t(p.start),end:t(p.end),stock:+p.stock||0,sold:+p.sold||0,order:+p.sortOrder||0}}
+  var live=function(p){return(!p.start||p.start<=now())&&(!p.end||p.end>now())};
+  var price=function(v){return'<span class="pk-price"><img src="'+STORE+'toman.png" alt="" onerror="this.outerHTML=\'<small>تومان</small>\'"><span>'+Number(v).toLocaleString("en-US")+'</span></span>'};
+  function left(e){var ms=e-now();if(ms<=0)return"";var d=Math.floor(ms/D),h=Math.floor(ms%D/H),m=Math.floor(ms%H/6e4),s=Math.floor(ms%6e4/1e3),z=function(n){return fa(String(n).padStart(2,"0"))};return d>0?fa(d)+" روز و "+fa(h)+" ساعت مانده":z(h)+":"+z(m)+":"+z(s)+" مانده"}
+  function card(p){var sold=p.stock>0&&p.sold>=p.stock,tm=p.end?left(p.end):"";
+    return'<a class="pk'+(p.featured?" featured":"")+(sold?" sold":"")+'" href="'+STORE+'#pack-'+encodeURIComponent(p.id)+'"><div class="pk-img">'+(p.image?'<img src="'+esc(p.image)+'" alt="" loading="lazy" decoding="async">':'')+(p.badge?'<span class="pk-badge">'+esc(p.badge)+'</span>':'')+(tm?'<span class="pk-timer" data-end="'+p.end+'">'+tm+'</span>':'')+'</div><div class="pk-body"><div class="pk-title">'+esc(p.title)+'</div><div class="pk-desc">'+esc(p.desc)+'</div><div class="pk-foot">'+price(p.price)+'<span class="pk-pill">'+(sold?"تمام شد":"مشاهده")+'</span></div></div></a>'}
+  function tiersCard(lv,h){var min=Math.min.apply(null,lv.map(function(p){return p.price})),c=!!(h&&h.title);
+    var medals=lv.map(function(p,i){var k=TH[p.meta.theme==="bronze"?"silver":p.meta.theme]||TH.gold;return'<span class="pk-medal" style="--c1:'+k[0]+';--c2:'+k[1]+'">'+(i+1)+'</span>'}).join("");
+    return'<a class="pk" href="'+STORE+'#tiers"><div class="pk-img'+(h&&h.image?'':' pk-tiers')+'">'+(h&&h.image?'<img src="'+esc(h.image)+'" alt="" loading="lazy" decoding="async">':medals)+'</div><div class="pk-body"><div class="pk-title">'+(c?esc(h.title):lv.map(function(p){return esc(p.title)}).join(" › "))+'</div><div class="pk-desc">'+esc((h&&h.desc)||"سه انتخاب با امکانات بیشتر در هر مرحله.")+'</div><div class="pk-foot"><span><span class="pk-from">از</span>'+price(min)+'</span><span class="pk-pill">مشاهده</span></div></div></a>'}
+  function render(){var L=packs.filter(live);last=L.length;
+    var sp=L.filter(function(p){return p.kind==="special"}).sort(function(a,b){return(b.featured-a.featured)||(a.order-b.order)});
+    var lv=L.filter(function(p){return p.kind==="level"}).sort(function(a,b){return(a.meta.level||0)-(b.meta.level||0)||(a.order-b.order)});
+    var h=L.filter(function(p){return p.kind==="tiers"})[0];
+    $("pkSection").hidden=!(sp.length||lv.length);
+    var tr=$("pkTrack");tr.innerHTML=(lv.length?tiersCard(lv,h):"")+sp.map(card).join("");
+    var cs=[].slice.call(tr.children);
+    $("pkDots").innerHTML=cs.length>1?cs.map(function(_,i){return'<button class="pk-dot'+(i?"":" on")+'" aria-label="پکیج '+(i+1)+'"></button>'}).join(""):"";
+    var ds=[].slice.call($("pkDots").children);
+    ds.forEach(function(d,i){d.onclick=function(){cs[i].scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"})}});
+    tr.onscroll=function(){var mid=tr.getBoundingClientRect().left+tr.clientWidth/2,b=0,bd=1e9;cs.forEach(function(c,i){var r=c.getBoundingClientRect(),d=Math.abs(r.left+r.width/2-mid);if(d<bd){bd=d;b=i}});ds.forEach(function(d,i){d.classList.toggle("on",i===b)})};
+  }
+  function load(){fetch(API).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){packs=(d.packages||[]).filter(function(p){return+p.active!==0}).map(norm);render()}).catch(function(){})}
+  setInterval(function(){var end=false;document.querySelectorAll("#pkTrack [data-end]").forEach(function(el){var e=+el.dataset.end;if(e<=now())end=true;else el.textContent=left(e)});if(end||packs.filter(live).length!==last)render()},1000);
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")load()});
+  load();
 })();
 </script>
 </body>
