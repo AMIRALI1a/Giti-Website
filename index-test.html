@@ -2085,6 +2085,14 @@
   .pk-dot.on{ width:20px; background:#fff; }
   .pk-all{ display:block; width:max-content; margin:14px auto 0; font-size:12.5px; font-weight:600; color:var(--gold); text-decoration:none; }
 </style>
+<style>
+  /* ads (تبلیغات): bottom of article + bottom of the menu */
+  .ad-slot{ display:block; width:100%; }
+  .ad-box{ position:relative; display:block; width:100%; max-width:320px; margin:24px auto; aspect-ratio:32/10; border-radius:12px; overflow:hidden; background:rgba(128,128,128,.14); text-decoration:none; }
+  .ad-slot[data-ad-slot="menu"] .ad-box{ max-width:280px; aspect-ratio:7/2; margin:30px auto 6px; }
+  .ad-box img{ display:block; width:100%; height:100%; object-fit:cover; }
+  .ad-tag{ position:absolute; top:6px; left:6px; font:600 10px/1 'Vazirmatn',sans-serif; color:#fff; background:rgba(0,0,0,.5); padding:3px 7px; border-radius:99px; }
+</style>
 </head>
 <body>
 <div class="reader-share-toast" id="shareToast">لینک کپی شد</div>
@@ -2428,6 +2436,7 @@
         <span>درباره ما</span>
       </a>
     </div>
+    <div class="ad-slot" data-ad-slot="menu" data-ad-repeat></div>
   </div>
 
   <div class="menu-view" data-view="saved" hidden>
@@ -2599,6 +2608,7 @@
       <span>فروشگاه</span>
     </a>
   </div>
+  <div class="ad-slot" data-ad-slot="menu" data-ad-repeat></div>
 </div>
 
 <script type="module">
@@ -3555,6 +3565,7 @@
       </div>
       <div class="reader-rule"></div>
       <div class="reader-content" id="readerContent">${a.bodyHTML != null ? a.bodyHTML : '<div class="reader-spinner" style="margin:40px auto"></div>'}</div>
+      <div class="ad-slot" data-ad-slot="article"></div>
       <div class="reader-save-row">
         <button class="reader-save-btn ${saved ? "saved" : ""}" id="readerSaveBtn" data-id="${a.id}">
           ${icons.bookmark} <span>${saved ? "ذخیره شد" : "ذخیره کن"}</span>
@@ -3564,6 +3575,7 @@
       </div>
     `;
     readerBody.scrollTop = 0;
+    if (window.gAdScan) window.gAdScan(readerBody);
     readerOverlay.classList.add("show");
     readerHeader.classList.add("show");
     readerHeader.classList.toggle("direct-entry", !!replaceHistory);
@@ -4480,6 +4492,51 @@ window.addEventListener('scroll',f,{passive:true});f();})();
   setInterval(function(){var end=false;document.querySelectorAll("#pkTrack [data-end]").forEach(function(el){var e=+el.dataset.end;if(e<=now())end=true;else el.textContent=left(e)});if(end||packs.filter(live).length!==last)render()},1000);
   document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")load()});
   load();
+})();
+</script>
+<script>
+/* ads: fetch the ON ads of a slot, show one at random, count a view when it is really on screen, count a click */
+(function () {
+  var API = "https://api.gitirp.ir", TTL = 60000, cache = {};
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function load(slot) {
+    var c = cache[slot];
+    if (c && Date.now() - c.t < TTL) return c.p;
+    var p = fetch(API + "/api/ads?slot=" + encodeURIComponent(slot)).then(function (r) { return r.ok ? r.json() : { ads: [] }; }).then(function (d) { return d.ads || []; }).catch(function () { return []; });
+    cache[slot] = { t: Date.now(), p: p };
+    return p;
+  }
+  function track(id, type) {
+    try { fetch(API + "/api/ads/track", { method: "POST", body: JSON.stringify({ id: id, type: type }), keepalive: true }).catch(function () {}); } catch (e) {}
+  }
+  function render(el, ad) {
+    var tag = ad.link ? 'a href="' + esc(ad.link) + '" target="_blank" rel="noopener noreferrer sponsored"' : "div";
+    el.innerHTML = "<" + tag + ' class="ad-box"><img src="' + esc(ad.image) + '" alt="تبلیغ" decoding="async"><span class="ad-tag">تبلیغ</span></' + (ad.link ? "a" : "div") + ">";
+    el._adId = ad.id;
+  }
+  function bind(el) {
+    el.setAttribute("data-ad-bound", "1");
+    var slot = el.getAttribute("data-ad-slot"), repeat = el.hasAttribute("data-ad-repeat"), shown = false;
+    var onClick = function (e) { if (el._adId && e.target.closest && e.target.closest("a.ad-box")) track(el._adId, "click"); };
+    el.addEventListener("click", onClick); el.addEventListener("auxclick", onClick);
+    if (!("IntersectionObserver" in window)) return;
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          if (shown) return; shown = true;
+          load(slot).then(function (list) {
+            if (!list.length) { el.innerHTML = ""; el._adId = null; return; }
+            var ad = list[Math.floor(Math.random() * list.length)];
+            render(el, ad); track(ad.id, "view");
+          });
+        } else if (repeat) { shown = false; }
+      });
+    }, { threshold: 0 }).observe(el);
+  }
+  window.gAdScan = function (root) {
+    (root || document).querySelectorAll(".ad-slot[data-ad-slot]:not([data-ad-bound])").forEach(bind);
+  };
+  window.gAdScan(document);
 })();
 </script>
 </body>

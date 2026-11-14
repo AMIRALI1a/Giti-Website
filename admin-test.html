@@ -340,6 +340,21 @@
 
   .pk-new{ display:flex; flex-direction:column; gap:10px; background:var(--panel); border-radius:14px; padding:12px; }
   .pk-new input[type=text]{ width:100%; background:#1b1b34; border:1px solid var(--panel-line); color:var(--cream); font-family:'Vazirmatn'; font-size:13px; padding:11px 12px; border-radius:10px; }
+
+  /* ===== ads ===== */
+  .ad-select, .pkg-form input[type=date]{ width:100%; min-width:0; background:var(--panel); border:1px solid var(--panel-line); color:var(--cream); font-family:'Vazirmatn'; font-size:13px; padding:11px 12px; border-radius:10px; direction:ltr; text-align:right; color-scheme:dark; }
+  .ad-thumb{ width:84px; height:30px; border-radius:6px; object-fit:cover; background:var(--panel-2); flex-shrink:0; }
+  #adRows .product-row{ cursor:pointer; }
+  #adRows .product-row img.ad-thumb{ width:84px; height:auto; aspect-ratio:3.2/1; object-fit:cover; }
+  .ad-sum{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .ad-sum div{ background:var(--panel); border-radius:12px; padding:12px 6px; text-align:center; }
+  .ad-sum b{ display:block; font-size:17px; color:var(--gold); }
+  .ad-sum span{ font-size:11px; color:var(--dim); }
+  .ad-line{ background:var(--panel); border-radius:12px; padding:10px 12px; margin-bottom:8px; font-size:12.5px; color:var(--cream); }
+  .ad-line .ad-l-top{ display:flex; justify-content:space-between; gap:8px; align-items:center; }
+  .ad-line .ad-l-nums{ color:var(--dim); font-size:11.5px; margin-top:4px; line-height:1.8; }
+  .ad-bar{ height:5px; border-radius:99px; background:var(--panel-2); margin-top:7px; overflow:hidden; }
+  .ad-bar i{ display:block; height:100%; background:var(--gold); border-radius:99px; }
 </style>
 </head>
 <body>
@@ -371,6 +386,7 @@
       <button class="hub-btn" id="openArticlesBtn" style="display:none">مقاله‌ها</button>
       <button class="hub-btn" id="openProductsBtn" style="display:none">محصولات</button>
       <button class="hub-btn" id="openPackagesBtn" style="display:none">پکیج‌ها</button>
+      <button class="hub-btn" id="openAdsBtn" style="display:none">تبلیغات</button>
       <button class="hub-btn" id="openStatsBtn" style="display:none">آمار فروش</button>
     </div>
 
@@ -460,6 +476,66 @@
       </div>
       <div class="pkg-rows-title">پکیج‌های ساخته‌شده</div>
       <div id="pkgRows"></div>
+    </div>
+
+    <div class="hub-view" id="adsView">
+      <button class="back-link" data-back="main">‹ برگشت</button>
+      <div class="pkg-seg" id="adTabs" style="margin-bottom:14px">
+        <button type="button" class="on" data-t="manage">مدیریت تبلیغ‌ها</button>
+        <button type="button" data-t="report">گزارش</button>
+      </div>
+
+      <div id="adManage">
+        <div class="product-form pkg-form">
+          <div class="pkg-form-title" id="adFormTitle">تبلیغ جدید</div>
+          <input type="text" id="adTitle" placeholder="اسم تبلیغ (فقط برای خودت، مثلا بنر پکیج ویژه)">
+          <div class="pkg-sub">جایگاه</div>
+          <div class="pkg-seg" id="adSlotSeg">
+            <button type="button" class="on" data-slot="article">ته مقاله‌ها</button>
+            <button type="button" data-slot="menu">ته منو</button>
+          </div>
+          <div class="pkg-hint" id="adSlotHint"></div>
+          <label class="product-image-picker" id="adImgPicker">
+            <img id="adImgPreview" style="display:none;">
+            <span id="adImgText">انتخاب عکس یا GIF</span>
+            <input type="file" id="adImgFile" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+          </label>
+          <div class="pkg-hint" id="adImgHint"></div>
+          <input type="text" id="adLink" dir="ltr" style="direction:ltr;text-align:left" placeholder="لینک تبلیغ (اختیاری) https://...">
+          <div class="pkg-sub">زمان نمایش</div>
+          <div class="pkg-grid">
+            <label>شروع (اگر خالی باشه همین الان)<input type="date" id="adStart"></label>
+            <label>مدت نمایش<select class="ad-select" id="adDur"></select></label>
+          </div>
+          <label class="pkg-check"><input type="checkbox" id="adActive" checked><span>فعال (در سایت نمایش داده بشه)</span></label>
+          <button class="product-form-save" id="adSaveBtn">افزودن تبلیغ</button>
+          <button class="pkg-cancel" id="adCancelBtn" style="display:none">انصراف از ویرایش</button>
+        </div>
+        <div class="pkg-rows-title">تبلیغ‌های ساخته‌شده</div>
+        <div id="adRows"></div>
+      </div>
+
+      <div id="adReport" hidden>
+        <div class="pk-chips" id="adRange">
+          <button type="button" class="pk-chip" data-d="1">امروز</button>
+          <button type="button" class="pk-chip" data-d="7">۷ روز</button>
+          <button type="button" class="pk-chip on" data-d="30">۳۰ روز</button>
+          <button type="button" class="pk-chip" data-d="90">۹۰ روز</button>
+          <button type="button" class="pk-chip" data-d="365">یک سال</button>
+        </div>
+        <div class="pkg-grid" style="margin:12px 0 8px">
+          <label>از تاریخ<input type="date" id="adFrom" class="ad-select"></label>
+          <label>تا تاریخ<input type="date" id="adTo" class="ad-select"></label>
+        </div>
+        <button class="pkg-cancel" id="adRangeGo" style="width:100%;margin-bottom:14px">نمایش گزارش این بازه</button>
+        <div class="ad-sum" id="adSummary"></div>
+        <div class="pkg-sub" style="margin:16px 0 8px">به تفکیک تبلیغ</div>
+        <div id="adTable"></div>
+        <div class="pkg-sub" style="margin:16px 0 8px">به تفکیک روز</div>
+        <div id="adDaily"></div>
+        <button class="product-form-save" id="adCsvBtn" style="width:100%;margin-top:10px">دانلود گزارش کامل (فایل اکسل)</button>
+        <div class="pkg-hint" style="margin-top:8px">«نمایش» یعنی بنر واقعا روی صفحهٔ کاربر دیده شده. روزها طبق تقویم تهران حساب می‌شن.</div>
+      </div>
     </div>
 
     <div class="hub-view" id="statsView">
@@ -583,6 +659,7 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     document.getElementById("openProductsBtn").style.display = session.permissions.includes("products") ? "block" : "none";
     document.getElementById("openStatsBtn").style.display = session.permissions.includes("stats") ? "block" : "none";
     document.getElementById("openPackagesBtn").style.display = session.permissions.includes("products") ? "block" : "none";
+    const adsBtn = document.getElementById("openAdsBtn"); if (adsBtn) adsBtn.style.display = session.permissions.includes("products") ? "block" : "none";
   }
 
   function showPanel(){
@@ -1743,6 +1820,256 @@ function escapeHTML(value) { return String(value ?? "").split("&").join("&amp;")
     if (r) { pkReset(); loadPackages(); }
   });
   pkApplyKind(); pkResetTiers();
+
+  // ================= ads: manage + report =================
+  (function () {
+    const $ = id => document.getElementById(id);
+    const SLOTS = {
+      article: { w: 320, h: 100, name: "ته مقاله‌ها" },
+      menu: { w: 280, h: 80, name: "ته منو" },
+    };
+    const TEH = 12600000, DAY = 864e5;
+    const dayOf = t => new Date(t + TEH).toISOString().slice(0, 10);
+    const dayStart = s => Date.parse(s + "T00:00:00+03:30");
+    const DURS = [["0", "بدون پایان"], ["1", "۱ روز"], ["3", "۳ روز"], ["7", "۷ روز"], ["14", "۱۴ روز"], ["30", "۳۰ روز"], ["60", "۶۰ روز"], ["90", "۹۰ روز"]];
+    let ads = [], editId = null, editAd = null, slot = "article", newImg = "", reportRows = [], reportFrom = "", reportTo = "";
+
+    // ----- permissions + opening -----
+    if (session && session.permissions && session.permissions.includes("products")) $("openAdsBtn").style.display = "block";
+    $("openAdsBtn").addEventListener("click", async () => { showHub("ads"); tab("manage"); fillDur(false); setSlot(slot); await load(); });
+
+    function tab(t) {
+      document.querySelectorAll("#adTabs button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+      $("adManage").hidden = t !== "manage"; $("adReport").hidden = t !== "report";
+      if (t === "report") setRange(30);
+    }
+    $("adTabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) tab(b.dataset.t); });
+
+    // ----- slot + size hints -----
+    function setSlot(s) {
+      slot = s;
+      document.querySelectorAll("#adSlotSeg button").forEach(b => b.classList.toggle("on", b.dataset.slot === s));
+      const z = SLOTS[s];
+      $("adSlotHint").innerHTML = "اندازه‌ی نمایش در سایت: <b>" + faN(z.w) + " × " + faN(z.h) + "</b> پیکسل";
+      $("adImgHint").innerHTML = "عکس ثابت رو بعد از انتخاب دقیقا برش می‌زنی (خروجی " + faN(z.w * 2) + " × " + faN(z.h * 2) + " پیکسل).<br>GIF برش نمی‌خوره؛ باید همین نسبت باشه، مثلا <b>" + faN(z.w * 2) + " × " + faN(z.h * 2) + "</b>، و حجمش حداکثر حدود ۶۰۰ کیلوبایت.";
+    }
+    $("adSlotSeg").addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b || b.dataset.slot === slot) return;
+      const had = newImg || (editAd && $("adImgPreview").style.display !== "none");
+      setSlot(b.dataset.slot);
+      if (had) { newImg = ""; if (editAd) editAd = Object.assign({}, editAd, { keepImage: false }); setPreview(""); alert("اندازه‌ی جایگاه عوض شد، عکس رو دوباره انتخاب کن."); }
+    });
+
+    function fillDur(editing) {
+      const opts = DURS.slice(); if (editing) opts.unshift(["keep", "نگه‌داشتن زمان فعلی"]);
+      $("adDur").innerHTML = opts.map(o => `<option value="${o[0]}">${o[1]}</option>`).join("");
+      $("adDur").value = editing ? "keep" : "0";
+    }
+    function setPreview(src) {
+      const im = $("adImgPreview"); im.src = src || ""; im.style.display = src ? "block" : "none";
+      im.style.maxWidth = "100%"; im.style.maxHeight = "none"; im.style.width = src ? "100%" : ""; im.style.aspectRatio = src ? SLOTS[slot].w + "/" + SLOTS[slot].h : "";
+      im.style.objectFit = "cover";
+      $("adImgText").textContent = src ? "برای تغییر دوباره بزن" : "انتخاب عکس یا GIF";
+    }
+
+    // ----- picking an image: GIF as-is (size-checked), others through the crop -----
+    document.body.insertAdjacentHTML("beforeend", `
+      <div class="pk-modal" id="adCrop" hidden><div class="pk-sheet">
+        <div class="pk-sheet-head"><span>برش عکس تبلیغ</span><button type="button" class="pk-x" id="adCropX">×</button></div>
+        <div class="pkg-hint">عکس رو با انگشت جابه‌جا کن و با اسلایدر بزرگ یا کوچیک کن. کادر، همون چیزیه که توی سایت دیده می‌شه.</div>
+        <div class="crop-stage"><canvas id="adCropCv"></canvas></div>
+        <input type="range" id="adCropZoom" min="100" max="300" value="100" style="width:100%;accent-color:var(--gold)">
+        <button type="button" class="product-form-save" id="adCropOk">ثبت عکس</button>
+      </div></div>`);
+    let cImg = null, cW = 0, cH = 0, cBase = 1, cZoom = 1, cOx = 0, cOy = 0, cDpr = 1, cDrag = null;
+    $("adImgFile").addEventListener("change", () => {
+      const f = $("adImgFile").files[0]; if (!f) return;
+      if (f.size > 12 * 1024 * 1024) { alert("حجم فایل خیلی زیاده (بیشتر از ۱۲ مگابایت)."); $("adImgFile").value = ""; return; }
+      const r = new FileReader();
+      r.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          if (f.type === "image/gif") {
+            const z = SLOTS[slot], want = z.w / z.h, have = img.naturalWidth / img.naturalHeight;
+            if (Math.abs(have - want) > want * 0.02 || img.naturalWidth < z.w) {
+              alert("این GIF اندازه‌ی درست رو نداره.\nنسبت باید " + faN(z.w) + " به " + faN(z.h) + " باشه، مثلا " + faN(z.w * 2) + " × " + faN(z.h * 2) + " پیکسل.");
+            } else if (r.result.length > 880000) {
+              alert("حجم این GIF زیاده. باید زیر حدود ۶۰۰ کیلوبایت باشه.");
+            } else { newImg = r.result; setPreview(newImg); }
+            $("adImgFile").value = "";
+          } else cropOpen(img);
+        };
+        img.onerror = () => { alert("این فایل عکس نیست."); $("adImgFile").value = ""; };
+        img.src = r.result;
+      };
+      r.readAsDataURL(f);
+    });
+    function cropOpen(img) {
+      cImg = img; $("adCrop").hidden = false; const z = SLOTS[slot];
+      cW = Math.min(window.innerWidth - 60, 440); cH = Math.round(cW * z.h / z.w); cDpr = Math.min(window.devicePixelRatio || 1, 2);
+      const cv = $("adCropCv"); cv.style.width = cW + "px"; cv.style.height = cH + "px"; cv.width = Math.round(cW * cDpr); cv.height = Math.round(cH * cDpr);
+      cBase = Math.max(cW / img.width, cH / img.height); cZoom = 1; $("adCropZoom").value = 100;
+      cOx = (cW - img.width * cBase) / 2; cOy = (cH - img.height * cBase) / 2; cropDraw();
+    }
+    function cropDraw() {
+      const w = cImg.width * cBase * cZoom, h = cImg.height * cBase * cZoom;
+      cOx = Math.min(0, Math.max(cW - w, cOx)); cOy = Math.min(0, Math.max(cH - h, cOy));
+      const ctx = $("adCropCv").getContext("2d"), s = cBase * cZoom;
+      ctx.setTransform(cDpr, 0, 0, cDpr, 0, 0); ctx.fillStyle = "#1b1b34"; ctx.fillRect(0, 0, cW, cH);
+      ctx.drawImage(cImg, cOx, cOy, cImg.width * s, cImg.height * s);
+    }
+    $("adCropZoom").addEventListener("input", e => {
+      const old = cBase * cZoom; cZoom = e.target.value / 100; const s = cBase * cZoom;
+      const ix = (cW / 2 - cOx) / old, iy = (cH / 2 - cOy) / old; cOx = cW / 2 - ix * s; cOy = cH / 2 - iy * s; cropDraw();
+    });
+    const cv = $("adCropCv");
+    cv.addEventListener("pointerdown", e => { cDrag = { x: e.clientX, y: e.clientY, ox: cOx, oy: cOy }; cv.setPointerCapture(e.pointerId); });
+    cv.addEventListener("pointermove", e => { if (!cDrag) return; cOx = cDrag.ox + (e.clientX - cDrag.x); cOy = cDrag.oy + (e.clientY - cDrag.y); cropDraw(); });
+    const cEnd = () => { cDrag = null; }; cv.addEventListener("pointerup", cEnd); cv.addEventListener("pointercancel", cEnd);
+    $("adCropX").addEventListener("click", () => { $("adCrop").hidden = true; $("adImgFile").value = ""; });
+    $("adCropOk").addEventListener("click", () => {
+      const z = SLOTS[slot], W = z.w * 2, H = z.h * 2, out = document.createElement("canvas"); out.width = W; out.height = H;
+      const ctx = out.getContext("2d"), k = W / cW, s = cBase * cZoom * k;
+      ctx.fillStyle = "#1b1b34"; ctx.fillRect(0, 0, W, H); ctx.drawImage(cImg, cOx * k, cOy * k, cImg.width * s, cImg.height * s);
+      let q = 0.9, data = out.toDataURL("image/jpeg", q);
+      while (data.length > 880000 && q > 0.5) { q -= 0.1; data = out.toDataURL("image/jpeg", q); }
+      if (data.length > 880000) { alert("حجم عکس زیاده، عکس ساده‌تری انتخاب کن."); return; }
+      newImg = data; setPreview(newImg); $("adCrop").hidden = true; $("adImgFile").value = "";
+    });
+
+    // ----- list -----
+    async function load() {
+      const box = $("adRows");
+      try {
+        const res = await apiFetch("/api/ads?all=1");
+        if (res.status === 401) { alert("نشستت تموم شده، دوباره وارد شو."); return; }
+        if (!res.ok) throw new Error(String(res.status));
+        ads = (await res.json()).ads || []; render();
+      } catch (e) { box.innerHTML = '<div class="list-empty">لیست تبلیغ‌ها گرفته نشد (' + escapeHTML(e.message) + '). اینترنت رو چک کن و دوباره امتحان کن.</div>'; }
+    }
+    function status(a) {
+      const n = Date.now();
+      if (!a.active) return ["خاموش", false];
+      if (a.start && a.start > n) return ["زمان‌بندی‌شده", false];
+      if (a.end && a.end <= n) return ["پایان‌یافته", false];
+      return ["در حال نمایش", true];
+    }
+    const fmt = ms => new Date(ms).toLocaleString("fa-IR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    function render() {
+      const box = $("adRows");
+      if (!ads.length) { box.innerHTML = '<div class="list-empty">هنوز تبلیغی ساخته نشده.</div>'; return; }
+      box.innerHTML = ads.map(a => {
+        const [label, live] = status(a);
+        const t = [a.start ? "شروع: " + fmt(a.start) : "", a.end ? "پایان: " + fmt(a.end) : ""].filter(Boolean).join(" — ");
+        return `<div class="product-row" data-id="${escapeHTML(a.id)}">
+          <img class="ad-thumb" src="${escapeHTML(a.image)}" alt="">
+          <div class="product-row-body">
+            <div class="product-row-name">${escapeHTML(a.title)}<span class="pkg-chip${live ? " live" : ""}">${label}</span><span class="pkg-chip">${escapeHTML((SLOTS[a.slot] || {}).name || a.slot)}</span></div>
+            ${t ? `<div class="pkg-time">${t}</div>` : ""}
+          </div>
+          <div class="blog-row-actions">
+            <button class="icon-btn ad-toggle" title="روشن/خاموش">${a.active ? "⏸" : "▶"}</button>
+            <button class="icon-btn ad-del" title="حذف">×</button>
+          </div></div>`;
+      }).join("");
+    }
+    const body = (a, over) => Object.assign({ title: a.title, slot: a.slot, image: "", link: a.link || "", active: a.active ? 1 : 0, start: a.start || 0, end: a.end || 0, sortOrder: a.sortOrder || 0 }, over || {});
+    $("adRows").addEventListener("click", async e => {
+      const row = e.target.closest(".product-row"); if (!row) return;
+      const a = ads.find(x => x.id === row.dataset.id); if (!a) return;
+      if (e.target.closest(".ad-del")) {
+        if (!confirm("مطمئنی حذفش کنی؟ آمار این تبلیغ هم پاک می‌شه.\nاگه می‌خوای آمارش بمونه، به‌جای حذف خاموشش کن.")) return;
+        const r = await apiFetch("/api/ads/" + a.id, { method: "DELETE" });
+        if (!r.ok) { alert("حذف نشد، دوباره امتحان کن."); return; }
+        if (editId === a.id) reset(); load();
+      } else if (e.target.closest(".ad-toggle")) {
+        const r = await apiFetch("/api/ads/" + a.id, { method: "PUT", body: JSON.stringify(body(a, { active: a.active ? 0 : 1 })) });
+        if (!r.ok) { alert("تغییر نکرد، دوباره امتحان کن."); return; }
+        load();
+      } else startEdit(a);
+    });
+
+    // ----- form -----
+    function reset() {
+      editId = null; editAd = null; newImg = ""; $("adTitle").value = ""; $("adLink").value = ""; $("adStart").value = ""; $("adActive").checked = true;
+      $("adFormTitle").textContent = "تبلیغ جدید"; $("adSaveBtn").textContent = "افزودن تبلیغ"; $("adCancelBtn").style.display = "none";
+      fillDur(false); setSlot("article"); setPreview("");
+    }
+    function startEdit(a) {
+      editId = a.id; editAd = Object.assign({ keepImage: true }, a); newImg = "";
+      $("adFormTitle").textContent = "ویرایش تبلیغ"; $("adSaveBtn").textContent = "ذخیره‌ی تغییرات"; $("adCancelBtn").style.display = "block";
+      $("adTitle").value = a.title; $("adLink").value = a.link || ""; $("adActive").checked = !!a.active; $("adStart").value = a.start ? dayOf(a.start) : "";
+      fillDur(true); setSlot(a.slot); setPreview(a.image);
+      $("adTitle").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    $("adCancelBtn").addEventListener("click", reset);
+    $("adSaveBtn").addEventListener("click", async () => {
+      const title = $("adTitle").value.trim(); if (!title) { alert("اسم تبلیغ رو خالی نذار."); return; }
+      const hasImg = newImg || (editAd && editAd.keepImage !== false);
+      if (!hasImg) { alert("عکس یا GIF تبلیغ رو انتخاب کن."); return; }
+      const link = $("adLink").value.trim(); if (link && !/^https:\/\/\S+$/i.test(link)) { alert("لینک باید با https:// شروع بشه."); return; }
+      const dv = $("adDur").value, sv = $("adStart").value;
+      let start = sv ? dayStart(sv) : (dv === "keep" && editAd ? editAd.start || 0 : 0), end = 0;
+      if (dv === "keep") end = (editAd && editAd.end) || 0; else if (dv !== "0") end = (start || Date.now()) + Number(dv) * DAY;
+      const payload = { title, slot, image: newImg, link, active: $("adActive").checked ? 1 : 0, start, end, sortOrder: editAd ? editAd.sortOrder || 0 : ads.length };
+      $("adSaveBtn").disabled = true;
+      try {
+        const r = await apiFetch(editId ? "/api/ads/" + editId : "/api/ads", { method: editId ? "PUT" : "POST", body: JSON.stringify(payload) });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) { alert(d.error || "ذخیره نشد، دوباره امتحان کن."); return; }
+        reset(); load();
+      } catch (e) { alert("خطا در اتصال به سرور."); } finally { $("adSaveBtn").disabled = false; }
+    });
+
+    // ----- report -----
+    function setRange(days) {
+      document.querySelectorAll("#adRange .pk-chip").forEach(c => c.classList.toggle("on", Number(c.dataset.d) === days));
+      $("adTo").value = dayOf(Date.now()); $("adFrom").value = dayOf(Date.now() - (days - 1) * DAY); loadReport();
+    }
+    $("adRange").addEventListener("click", e => { const c = e.target.closest(".pk-chip"); if (c) setRange(Number(c.dataset.d)); });
+    $("adRangeGo").addEventListener("click", () => { document.querySelectorAll("#adRange .pk-chip").forEach(c => c.classList.remove("on")); loadReport(); });
+    const pct = (c, v) => v ? (c / v * 100).toLocaleString("fa-IR", { maximumFractionDigits: 2 }) + "٪" : "—";
+    async function loadReport() {
+      const from = $("adFrom").value, to = $("adTo").value;
+      if (!from || !to || from > to) { alert("بازه‌ی تاریخ رو درست انتخاب کن."); return; }
+      $("adSummary").innerHTML = '<div style="grid-column:1/-1;color:var(--dim);font-size:12.5px">در حال بارگذاری...</div>';
+      try {
+        if (!ads.length) { const r0 = await apiFetch("/api/ads?all=1"); if (r0.ok) ads = (await r0.json()).ads || []; }
+        const res = await apiFetch("/api/ads/stats?from=" + from + "&to=" + to);
+        if (!res.ok) throw new Error(String(res.status));
+        const d = await res.json(); reportRows = d.rows || []; reportFrom = d.from; reportTo = d.to; renderReport();
+      } catch (e) { $("adSummary").innerHTML = '<div style="grid-column:1/-1;color:var(--dim);font-size:12.5px">گزارش گرفته نشد (' + escapeHTML(e.message) + ').</div>'; }
+    }
+    function renderReport() {
+      let V = 0, C = 0; const per = new Map(ads.map(a => [a.id, { a, v: 0, c: 0 }])), days = new Map();
+      for (const r of reportRows) {
+        V += r.views; C += r.clicks;
+        const p = per.get(r.adId); if (p) { p.v += r.views; p.c += r.clicks; }
+        const dd = days.get(r.day) || { v: 0, c: 0 }; dd.v += r.views; dd.c += r.clicks; days.set(r.day, dd);
+      }
+      $("adSummary").innerHTML = `<div><b>${faN(V)}</b><span>نمایش</span></div><div><b>${faN(C)}</b><span>کلیک</span></div><div><b>${pct(C, V)}</b><span>نرخ کلیک</span></div>`;
+      const list = [...per.values()].sort((x, y) => y.v - x.v), maxV = Math.max(1, ...list.map(p => p.v));
+      $("adTable").innerHTML = list.length ? list.map(p => `<div class="ad-line"><div class="ad-l-top"><span>${escapeHTML(p.a.title)}</span><span class="pkg-chip">${escapeHTML((SLOTS[p.a.slot] || {}).name || p.a.slot)}</span></div>
+        <div class="ad-l-nums">نمایش: ${faN(p.v)} — کلیک: ${faN(p.c)} — نرخ کلیک: ${pct(p.c, p.v)}</div><div class="ad-bar"><i style="width:${Math.round(p.v / maxV * 100)}%"></i></div></div>`).join("") : '<div class="list-empty">تبلیغی نیست.</div>';
+      const dl = [...days.entries()].sort((x, y) => y[0].localeCompare(x[0])), maxD = Math.max(1, ...dl.map(x => x[1].v));
+      $("adDaily").innerHTML = dl.length ? dl.slice(0, 90).map(([day, x]) => `<div class="ad-line"><div class="ad-l-top"><span>${new Date(dayStart(day)).toLocaleDateString("fa-IR", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}</span></div>
+        <div class="ad-l-nums">نمایش: ${faN(x.v)} — کلیک: ${faN(x.c)} — نرخ کلیک: ${pct(x.c, x.v)}</div><div class="ad-bar"><i style="width:${Math.round(x.v / maxD * 100)}%"></i></div></div>`).join("") : '<div class="list-empty">در این بازه هنوز آماری ثبت نشده.</div>';
+    }
+    $("adCsvBtn").addEventListener("click", () => {
+      if (!reportRows.length) { alert("در این بازه آماری برای دانلود نیست."); return; }
+      const q = s => '"' + String(s == null ? "" : s).replace(/"/g, '""') + '"', byId = new Map(ads.map(a => [a.id, a]));
+      const lines = [["تاریخ", "تبلیغ", "جایگاه", "نمایش", "کلیک", "نرخ کلیک (درصد)"].map(q).join(",")];
+      let V = 0, C = 0;
+      for (const r of [...reportRows].sort((x, y) => x.day.localeCompare(y.day) || String((byId.get(x.adId) || {}).title).localeCompare(String((byId.get(y.adId) || {}).title)))) {
+        const a = byId.get(r.adId) || { title: "(حذف‌شده)", slot: "" }; V += r.views; C += r.clicks;
+        lines.push([r.day, a.title, (SLOTS[a.slot] || {}).name || a.slot, r.views, r.clicks, r.views ? (r.clicks / r.views * 100).toFixed(2) : "0"].map(q).join(","));
+      }
+      lines.push(["جمع", "", "", V, C, V ? (C / V * 100).toFixed(2) : "0"].map(q).join(","));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" }));
+      a.download = "giti-ads-" + reportFrom + "_" + reportTo + ".csv"; document.body.appendChild(a); a.click(); a.remove();
+    });
+  })();
 </script>
 
 </body>
