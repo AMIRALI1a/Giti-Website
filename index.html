@@ -2081,6 +2081,13 @@
   .pk-price img{ width:15px; height:15px; } .pk-price small{ font-size:11px; color:var(--dim); } .pk-from{ font-size:11px; color:var(--dim); margin-inline-end:4px; }
   .pk-pill{ background:var(--gold); color:#1E1E36; border-radius:99px; font-weight:700; font-size:12.5px; padding:7px 18px; }
   .pk.sold .pk-img{ filter:grayscale(.7) brightness(.7); } .pk.sold .pk-pill{ background:rgba(255,255,255,.12); color:var(--dim); }
+  .pk.pk-tiers-card{ align-self:flex-start; }
+  .pk-tiers-card .pk-body{ padding:10px 14px 12px; }
+  .pk-tiers-card .pk-title{ font-size:15px; }
+  .pk-tiers-card .pk-desc{ -webkit-line-clamp:1; min-height:0; margin-top:2px; }
+  .pk-tiers-card .pk-foot{ margin-top:0; padding-top:8px; }
+  .pk-tiers-card .pk-pill{ padding:6px 16px; }
+  .pk-tiers-card .pk-medal{ width:36px; height:36px; font-size:14px; }
   .pk-dots{ display:flex; justify-content:center; gap:7px; margin-top:-6px; }
   .pk-dot{ width:6px; height:6px; border-radius:99px; background:rgba(255,255,255,.25); border:0; padding:0; transition:width .25s,background .25s; }
   .pk-dot.on{ width:20px; background:#fff; }
@@ -4511,7 +4518,7 @@ window.addEventListener('scroll',f,{passive:true});f();})();
     return'<a class="pk'+(p.featured?" featured":"")+(sold?" sold":"")+'" href="'+STORE+'#pack-'+encodeURIComponent(p.id)+'"><div class="pk-img">'+(p.image?'<img src="'+esc(p.image)+'" alt="" loading="lazy" decoding="async">':'')+(p.badge?'<span class="pk-badge">'+esc(p.badge)+'</span>':'')+(tm?'<span class="pk-timer" data-end="'+p.end+'">'+tm+'</span>':'')+'</div><div class="pk-body"><div class="pk-title">'+esc(p.title)+'</div><div class="pk-desc">'+esc(p.desc)+'</div><div class="pk-foot">'+price(p.price)+'<span class="pk-pill">'+(sold?"تمام شد":"مشاهده")+'</span></div></div></a>'}
   function tiersCard(lv,h){var min=Math.min.apply(null,lv.map(function(p){return p.price})),c=!!(h&&h.title);
     var medals=lv.map(function(p,i){var k=TH[p.meta.theme==="bronze"?"silver":p.meta.theme]||TH.gold;return'<span class="pk-medal" style="--c1:'+k[0]+';--c2:'+k[1]+'">'+(i+1)+'</span>'}).join("");
-    return'<a class="pk" href="'+STORE+'#tiers"><div class="pk-img'+(h&&h.image?'':' pk-tiers')+'">'+(h&&h.image?'<img src="'+esc(h.image)+'" alt="" loading="lazy" decoding="async">':medals)+'</div><div class="pk-body"><div class="pk-title">'+(c?esc(h.title):lv.map(function(p){return esc(p.title)}).join(" › "))+'</div><div class="pk-desc">'+esc((h&&h.desc)||"سه انتخاب با امکانات بیشتر در هر مرحله.")+'</div><div class="pk-foot"><span><span class="pk-from">از</span>'+price(min)+'</span><span class="pk-pill">مشاهده</span></div></div></a>'}
+    return'<a class="pk pk-tiers-card" href="'+STORE+'#tiers"><div class="pk-img'+(h&&h.image?'':' pk-tiers')+'">'+(h&&h.image?'<img src="'+esc(h.image)+'" alt="" loading="lazy" decoding="async">':medals)+'</div><div class="pk-body"><div class="pk-title">'+(c?esc(h.title):lv.map(function(p){return esc(p.title)}).join(" › "))+'</div><div class="pk-desc">'+esc((h&&h.desc)||"سه انتخاب با امکانات بیشتر در هر مرحله.")+'</div><div class="pk-foot"><span><span class="pk-from">از</span>'+price(min)+'</span><span class="pk-pill">مشاهده</span></div></div></a>'}
   function render(){var L=packs.filter(live);last=L.length;
     var sp=L.filter(function(p){return p.kind==="special"}).sort(function(a,b){return(b.featured-a.featured)||(a.order-b.order)});
     var lv=L.filter(function(p){return p.kind==="level"}).sort(function(a,b){return(a.meta.level||0)-(b.meta.level||0)||(a.order-b.order)});
