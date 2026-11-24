@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>GITI ROLE PLAY</title>
-<script>document.documentElement.classList.add("intro-pending","intro-lock");try{if("scrollRestoration" in history)history.scrollRestoration="manual";}catch(e){}</script>
 <script>
   // Runs immediately, before the page paints. If this visit is from a
   // shared article link (#article-XXXX), flag it right away so the CSS
@@ -2101,38 +2100,23 @@
   .ad-box img{ display:block; width:100%; height:100%; object-fit:cover; }
   .ad-tag{ position:absolute; top:6px; left:6px; font:600 10px/1 'Vazirmatn',sans-serif; color:#fff; background:rgba(0,0,0,.5); padding:3px 7px; border-radius:99px; }
 
-/* ===== LOGO INTRO (first screen) ===== */
-html.intro-lock, html.intro-lock body{ overflow:hidden !important; overscroll-behavior:none; touch-action:none; }
-.intro-stage{ position:absolute; top:0; left:0; width:100%; height:100vh; height:100svh; overflow:hidden; pointer-events:none; }
-.intro-black{ position:absolute; inset:0; background:#000; opacity:1; transition:opacity 1.7s cubic-bezier(.4,0,.2,1); }
-.intro-stage.done .intro-black{ opacity:0; }
-#introCanvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
-.intro-gate{ position:fixed; inset:0; z-index:500; background:#000; color:#fff; display:flex; align-items:center; justify-content:center;
-  text-align:center; cursor:pointer; outline:none; transition:opacity .6s ease; -webkit-tap-highlight-color:transparent; user-select:none; }
-.intro-gate.go{ opacity:0; pointer-events:none; }
-.gate-inner{ display:flex; flex-direction:column; align-items:center; gap:16px; padding:24px; }
-.gate-mark{ font-size:13px; letter-spacing:.42em; padding-left:.42em; color:rgba(255,255,255,.55); direction:ltr; font-weight:600; }
-.gate-line{ width:1px; height:46px; background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0)); animation:gateLine 2.2s ease-in-out infinite; }
-.gate-tap{ font-size:19px; font-weight:700; animation:gatePulse 2.2s ease-in-out infinite; }
-.gate-sub{ font-size:12.5px; color:rgba(255,255,255,.45); }
-@keyframes gatePulse{ 0%,100%{ opacity:.55; } 50%{ opacity:1; } }
-@keyframes gateLine{ 0%,100%{ transform:scaleY(.55); opacity:.5; } 50%{ transform:scaleY(1); opacity:1; } }
 html body .hero-screen{
   position:relative; display:flex; flex-direction:column;
   min-height:100vh; min-height:100svh; height:auto;
   padding-bottom:calc(14px + env(safe-area-inset-bottom));
 }
-html body .hero-spacer{ display:block; flex:1 1 auto; min-height:0; }
+html body .hero-spacer{ display:block; flex:1 1 auto; min-height:260px; position:relative; }
+/* hero images: fade + a very small slide */
+.hs{ position:absolute; inset:0; pointer-events:none; }
+.hs img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; transform:translateX(14px); will-change:opacity,transform; }
+.hs img.cur{ opacity:1; transform:translateX(0); transition:opacity 1.3s ease, transform 1.5s cubic-bezier(.22,.8,.2,1); }
+.hs img.out{ opacity:0; transform:translateX(-14px); transition:opacity 1.1s ease, transform 1.5s cubic-bezier(.22,.8,.2,1); }
+@media (prefers-reduced-motion: reduce){ .hs img, .hs img.cur, .hs img.out{ transform:none; transition:opacity .01s; } }
 .topbar, .ip-block, .cta-row, .scroll-cue{ transition:opacity 1.2s ease, transform 1.2s ease; }
 .topbar{ transition-delay:.25s; }
 .ip-block{ transition-delay:.55s; }
 .cta-row{ transition-delay:.8s; }
 .scroll-cue{ transition-delay:1.1s; }
-html.intro-pending .topbar,
-html.intro-pending .ip-block,
-html.intro-pending .cta-row,
-html.intro-pending .scroll-cue{ opacity:0 !important; pointer-events:none !important; }
-html.intro-pending .ip-block, html.intro-pending .cta-row{ transform:translateY(14px); }
 </style>
 </head>
 <body>
@@ -2140,18 +2124,6 @@ html.intro-pending .ip-block, html.intro-pending .cta-row{ transform:translateY(
 
 <div class="wrap">
 
-<div class="intro-stage" id="introStage" aria-hidden="true">
-  <div class="intro-black"></div>
-  <canvas id="introCanvas"></canvas>
-</div>
-
-<div class="intro-gate" id="introGate" role="button" tabindex="0" aria-label="ورود به سایت">
-  <div class="gate-inner">
-    <div class="gate-tap">برای ورود لمس کنید</div>
-    <div class="gate-sub">با صدا تجربه کنید</div>
-  </div>
-</div>
-<noscript><style>html.intro-pending .topbar,html.intro-pending .ip-block,html.intro-pending .cta-row,html.intro-pending .scroll-cue{opacity:1!important;pointer-events:auto!important}html.intro-lock,html.intro-lock body{overflow:auto!important;touch-action:auto!important}.intro-stage,.intro-gate{display:none!important}</style></noscript>
 
   <div class="hero-screen">
   <div class="topbar">
@@ -2161,7 +2133,7 @@ html.intro-pending .ip-block, html.intro-pending .cta-row{ transform:translateY(
     <a class="shop-btn" href="https://store.gitirp.ir" aria-label="فروشگاه گیتی"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l1 12H5z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg></a>
   </div>
 
-  <div class="hero-spacer" aria-hidden="true"></div>
+  <div class="hero-spacer" aria-hidden="true"><div class="hs" id="heroStack"></div></div>
 
   <div class="ip-block">
     <div class="ip-status">
@@ -4583,147 +4555,59 @@ window.addEventListener('scroll',f,{passive:true});f();})();
 })();
 </script>
 <script>
+/* ============ HERO IMAGES ============
+   hero1.webp, hero2.webp, hero3.webp sit next to index.html on GitHub and play in this order, then repeat.
+   To change a picture: upload a new file with the SAME name. Nothing else to edit. */
 (function(){
-  "use strict";
-  var root=document.documentElement;
-  var stage=document.getElementById("introStage"), cv=document.getElementById("introCanvas"), gate=document.getElementById("introGate");
-  function unlockNow(){ root.classList.remove("intro-pending","intro-lock"); if(gate&&gate.parentNode) gate.parentNode.removeChild(gate); if(stage) stage.classList.add("done"); }
-  if(!stage||!cv||!gate||!cv.getContext){ unlockNow(); return; }
-
-  /* ---------- logo geometry (exported from the real logo file) ---------- */
-  var LOGO={"bbox":[190,129,1122,1087],"comps":[{"o":[422,298,408,306,402,312,400,312,390,324,384,336,384,340,382,342,382,354,380,356,380,724,382,726,382,738,384,740,384,746,390,758,404,772,412,776,422,778,424,780,436,780,438,782,588,782,590,784,590,820,588,822,582,822,580,824,510,824,508,822,486,822,484,824,380,824,380,942,692,942,694,940,702,940,704,938,714,936,728,928,738,916,744,904,744,900,746,898,746,888,748,886,748,292,446,292,444,294,436,294,434,296],"h":[[546,416,588,416,590,418,590,654,588,656,560,656,558,658,556,656,542,656,538,650,538,424,540,420]],"so":[384,780,588,782,590,820,380,824,380,942,748,942,748,292,379,292],"sh":[[590,418,588,656,558,658,538,656,538,416]]},{"o":[1022,258,1022,292,1020,294,984,294,984,412,1020,412,1022,414,1022,824,1020,826,800,826,798,828,792,828,792,1330,898,1330,900,1332,936,1332,938,1330,948,1330,948,1128,952,1124,1008,1124,1012,1130,1012,1444,1014,1446,1014,1454,1018,1460,1018,1464,1022,1472,1026,1476,1026,1478,1038,1488,1050,1494,1060,1496,1062,1498,1068,1498,1070,1500,1088,1500,1090,1502,1244,1502,1246,1500,1256,1500,1258,1502,1580,1502,1582,1500,1586,1500,1586,1370,1422,1370,1420,1372,1410,1372,1408,1370,1176,1370,1174,1368,1174,1132,1172,1130,1172,1124,1170,1122,1170,1118,1166,1110,1150,1094,1148,1094,1138,1086,1138,1084,1142,1080,1150,1076,1166,1060,1170,1052,1170,1048,1172,1046,1172,1040,1174,1038,1174,780,1176,778,1210,778,1212,776,1244,776,1246,778,1312,778,1314,776,1336,776,1344,772,1350,772,1362,766,1372,758,1372,756,1376,752,1384,738,1384,734,1386,732,1386,724,1388,722,1388,480,1386,478,1232,478,1232,652,1228,656,1178,656,1176,654,1176,416,1180,412,1388,412,1388,294,1178,294,1176,292,1176,258],"h":[[954,934,1010,934,1012,936,1012,946,1014,948,1014,966,1012,968,1012,1028,1008,1032,958,1032,956,1030,950,1030,948,1028,948,940]],"so":[1020,294,984,294,984,412,1022,414,1022,824,792,828,792,1330,948,1330,948,1128,1008,1124,1013,1502,1586,1500,1586,1370,1174,1368,1174,780,1388,775,1388,480,1232,478,1232,652,1178,656,1176,416,1388,412,1388,294,1178,294,1176,258,1022,258],"sh":[[1012,936,1008,1032,948,1028,948,934]]},{"o":[796,292,796,776,800,778,940,778,942,776,948,776,948,292],"h":[],"so":[796,776,948,776,948,292,796,292],"sh":[]},{"o":[1436,292,1436,786,1572,786,1574,788,1590,786,1590,292],"h":[],"so":[1436,786,1590,786,1590,292,1436,292],"sh":[]},{"o":[1234,842,1220,856,1214,868,1212,880,1210,882,1210,1278,1212,1280,1212,1288,1214,1290,1216,1300,1220,1304,1222,1310,1228,1316,1246,1326,1262,1328,1264,1330,1530,1330,1532,1328,1542,1328,1544,1326,1550,1326,1552,1324,1556,1324,1568,1318,1584,1300,1588,1292,1588,1288,1590,1286,1590,1280,1592,1278,1592,880,1590,878,1590,872,1588,870,1586,860,1580,852,1580,850,1574,844,1572,844,1568,840,1554,832,1548,832,1546,830,1536,830,1534,828,1276,828,1274,830,1262,830,1260,832,1254,832],"h":[[1378,932,1424,932,1428,936,1428,1214,1424,1218,1378,1218,1374,1214,1374,936]],"so":[1210,1330,1592,1330,1592,828,1210,828],"sh":[[1428,936,1424,1218,1374,1214,1378,932]]},{"o":[1628,868,1626,870,1626,1500,2242,1500,2242,1388,2222,1388,2220,1386,1792,1386,1790,1384,1790,868],"h":[],"so":[1626,1500,2242,1500,2242,1388,1790,1384,1790,868,1628,868],"sh":[]},{"o":[1880,884,1864,902,1860,910,1860,914,1858,916,1858,924,1856,926,1856,1312,1858,1314,1858,1320,1860,1322,1860,1326,1864,1334,1870,1340,1870,1342,1880,1350,1892,1356,1898,1356,1900,1358,1910,1358,1912,1360,2188,1360,2190,1358,2200,1358,2202,1356,2206,1356,2208,1354,2212,1354,2220,1350,2226,1344,2228,1344,2228,1342,2234,1336,2240,1324,2240,1318,2242,1316,2242,1216,2078,1216,2078,1246,2076,1248,2076,1254,2074,1256,2022,1256,2018,1252,2018,1182,2022,1178,2242,1178,2242,918,2240,916,2238,906,2230,892,2216,880,2204,874,2188,872,2186,870,1918,870,1916,872,1900,874],"h":[[2022,980,2074,980,2076,982,2076,994,2078,996,2078,1036,2076,1038,2076,1070,2074,1072,2022,1072,2018,1068,2018,988]],"so":[1856,1360,2242,1360,2242,1216,2078,1216,2074,1256,2022,1256,2018,1182,2242,1178,2242,870,1856,870],"sh":[[2076,982,2074,1072,2018,1068,2022,980]]},{"o":[994,1546,982,1540,976,1540,974,1538,774,1538,772,1536,736,1536,734,1538,646,1538,646,2172,800,2172,800,2004,802,2002,958,2002,960,2000,972,2000,974,1998,980,1998,982,1996,990,1994,994,1990,996,1990,1012,1974,1018,1962,1018,1952,1020,1950,1020,1584,1018,1582,1018,1576,1016,1574,1016,1570,1012,1562],"h":[[804,1638,858,1638,862,1642,862,1886,854,1892,806,1892,800,1886,800,1642]],"so":[646,1538,646,2172,800,2172,802,2002,1020,2002,1020,1538],"sh":[[862,1642,862,1892,800,1892,804,1638]]},{"o":[1066,1538,1066,2170,1068,2172,1662,2172,1664,2170,1664,2048,1662,2046,1230,2046,1228,2044,1228,1538,1150,1538,1148,1536,1138,1536,1136,1538],"h":[],"so":[1066,2170,1662,2172,1662,2046,1228,2044,1228,1538,1066,1538],"sh":[]},{"o":[1308,1548,1296,1560,1292,1568,1292,1572,1288,1580,1288,1588,1286,1590,1286,1664,1288,1666,1288,1672,1446,1672,1448,1670,1446,1668,1446,1642,1450,1638,1454,1638,1456,1636,1474,1636,1476,1638,1498,1638,1500,1640,1500,1714,1496,1718,1338,1718,1336,1720,1330,1720,1328,1722,1324,1722,1316,1726,1300,1742,1292,1756,1290,1768,1288,1770,1288,1778,1286,1780,1286,1964,1288,1966,1288,1974,1290,1976,1290,1980,1298,1994,1310,2004,1318,2008,1324,2008,1326,2010,1336,2010,1338,2012,1662,2012,1664,2010,1664,1592,1662,1590,1660,1574,1658,1572,1658,1568,1654,1560,1646,1552,1644,1552,1634,1544,1626,1542,1624,1540,1620,1540,1618,1538,1536,1538,1534,1536,1522,1536,1520,1538,1486,1538,1484,1536,1470,1536,1468,1538,1374,1538,1372,1536,1358,1536,1356,1538,1330,1538,1328,1540,1322,1540],"h":[[1450,1808,1496,1808,1500,1812,1500,1900,1496,1904,1450,1904,1446,1898,1446,1812]],"so":[1288,1672,1446,1672,1450,1638,1498,1638,1500,1714,1286,1719,1286,2012,1662,2012,1664,1538,1285,1538],"sh":[[1500,1812,1496,1904,1446,1904,1450,1808]]},{"o":[1704,1538,1704,1958,1706,1960,1706,1968,1708,1970,1708,1974,1716,1988,1730,2002,1738,2006,1742,2006,1744,2008,1752,2008,1754,2010,1768,2010,1770,2012,1890,2012,1892,2010,1898,2010,1900,2012,1910,2012,1912,2014,1912,2042,1908,2046,1706,2046,1706,2054,1704,2056,1704,2108,1706,2110,1706,2128,1704,2130,1704,2164,1706,2168,1704,2170,1706,2172,2010,2172,2012,2170,2024,2170,2026,2168,2030,2168,2032,2166,2036,2166,2044,2162,2050,2156,2052,2156,2066,2140,2070,2132,2070,2128,2072,2126,2072,2116,2074,2114,2074,1538,2072,1536,2070,1538,2012,1538,2010,1536,1974,1536,1972,1538,1912,1538,1912,1892,1908,1896,1866,1896,1864,1894,1864,1538,1824,1538,1822,1536,1810,1536,1808,1538,1768,1538,1766,1536,1750,1536,1748,1538],"h":[],"so":[1708,2009,1912,2014,1908,2046,1706,2046,1704,2170,2074,2172,2074,1538,1912,1538,1908,1896,1864,1894,1864,1538,1704,1538],"sh":[]}]};
-  var ctx=cv.getContext("2d");
-  /* timeline locked to the music (seconds): quiet rise, then 5 accents, then ring-out */
-  var ACC=[3.67,4.30,4.92,5.54,6.16], EIG=[3.98,4.61,5.23,5.86], HIT=6.16, END=11.05;
-  var GR=[[0,1],[2,3],[4,5,6],[7,8],[9,10]], RG=[];
-  GR.forEach(function(g,gi){ g.forEach(function(r){ RG[r]=gi; }); });
-  function c01(x){return x<0?0:x>1?1:x;} function sm(x){x=c01(x);return x*x*(3-2*x);} function eo(x){x=c01(x);return 1-Math.pow(1-x,3);} function smr(x){x=c01(x);return x*x*x*(x*(6*x-15)+10);}
-  var BB=LOGO.bbox,BCX=(BB[0]+BB[2])/2,BCY=(BB[1]+BB[3])/2,BW=BB[2]-BB[0],BH=BB[3]-BB[1];
-  function ring(a){var r=[];for(var i=0;i<a.length;i+=2)r.push([a[i]/2,a[i+1]/2]);return r;}
-  function pth(rs){var p=new Path2D();rs.forEach(function(r){r.forEach(function(q,i){if(i)p.lineTo(q[0],q[1]);else p.moveTo(q[0],q[1]);});p.closePath();});return p;}
-  function lin(r){var p=new Path2D(),L=0;r.forEach(function(q,i){if(i){p.lineTo(q[0],q[1]);L+=Math.hypot(q[0]-r[i-1][0],q[1]-r[i-1][1]);}else p.moveTo(q[0],q[1]);});L+=Math.hypot(r[0][0]-r[r.length-1][0],r[0][1]-r[r.length-1][1]);p.closePath();return {p:p,L:L};}
-  var comps=LOGO.comps.map(function(c){var o=ring(c.o),x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;o.forEach(function(q){x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1]);});
-    return {fill:pth([o].concat(c.h.map(ring))),rings:[ring(c.so)].concat(c.sh.map(ring)).map(lin),x0:x0,cx:(x0+x1)/2,cy:(y0+y1)/2,row:y0<400?0:y0<750?1:2};});
-  comps.sort(function(p,q){return p.row-q.row||p.x0-q.x0;});     /* reading order */
-  var dpr=1,W=0,H=0,S=1,CX=0,CY=0,Ldev=1,top_=0,bot_=0,CYa=0,CYb=0;
-  function layout(){
-    var r=stage.getBoundingClientRect(),cw=Math.max(1,r.width),ch=Math.max(1,r.height);
-    dpr=Math.min(window.devicePixelRatio||1,2); cv.width=Math.round(cw*dpr); cv.height=Math.round(ch*dpr); W=cv.width; H=cv.height;
-    var Lh=Math.min(0.30*ch,0.58*cw/(BW/BH)),top=64,bottom=ch-24,ip=document.querySelector(".ip-block"),tb=document.querySelector(".topbar");
-    if(tb){var tr=tb.getBoundingClientRect(); if(tr.height>0) top=tr.bottom-r.top;}
-    if(ip){var ir=ip.getBoundingClientRect(),sh=root.classList.contains("intro-pending")?14:0; bottom=Math.min(bottom,ir.top-sh);}
-    Lh=Math.max(60,Math.min(Lh,(bottom-top)*0.92));
-    var cy=(top+bottom)/2;      /* exactly between the top bar and the server-ID block */
-    S=Lh*dpr/BH; Ldev=Lh*dpr; CX=W/2; CYa=ch/2*dpr; CYb=cy*dpr; CY=CYa; top_=top; bot_=bottom;
+  var NAMES=["hero1","hero2","hero3"], EXT=["webp","png","jpg","jpeg"], EVERY=5200;
+  var box=document.getElementById("heroStack"); if(!box) return;
+  var imgs=[], loaded=0, started=false, idx=0, still=false;
+  try{ still=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches); }catch(e){}
+  function opaqueWhite(im){ try{ var c=document.createElement("canvas"); c.width=c.height=16; var x=c.getContext("2d"); x.drawImage(im,0,0,16,16);
+      var d=x.getImageData(0,0,1,1).data,e=x.getImageData(15,15,1,1).data;
+      return d[3]>240&&e[3]>240&&d[0]>235&&d[1]>235&&d[2]>235&&e[0]>235&&e[1]>235&&e[2]>235; }catch(err){ return false; } }
+  var slots=[];
+  function add(n){ var im=new Image(),k=0; im.alt=""; im.decoding="async";
+    im.onload=function(){ if(!opaqueWhite(im)) slots[n]=im; done(); };
+    im.onerror=function(){ k++; if(k<EXT.length) im.src=NAMES[n]+"."+EXT[k]; else done(); };
+    im.src=NAMES[n]+"."+EXT[0]; }
+  function done(){ loaded++; if(loaded===NAMES.length) go(); }
+  function show(i){ var cur=box.querySelector(".cur"), nx=imgs[i];
+    if(cur&&cur!==nx){ cur.classList.remove("cur"); cur.classList.add("out"); setTimeout(function(){ cur.classList.remove("out"); },1600); }
+    nx.classList.remove("out"); void nx.offsetWidth; nx.classList.add("cur"); }
+  function go(){ if(started) return; slots.forEach(function(im){ if(im){ imgs.push(im); box.appendChild(im); } }); if(!imgs.length) return; started=true;
+    idx=Math.floor(Math.random()*imgs.length);          /* starts from a random one, then always in order */
+    show(idx);
+    if(imgs.length>1&&!still) setInterval(function(){ if(document.hidden) return; idx=(idx+1)%imgs.length; show(idx); },EVERY); }
+  NAMES.forEach(function(_,n){ add(n); });
+})();
+</script>
+<script>
+/* ============ MUSIC — once per browser visit ============
+   Tries to play by itself; if the browser blocks that, it starts on the first touch of the page.
+   Never plays when the page is opened from a direct article link (#article-...). */
+(function(){
+  var KEY="giti_music_done";
+  try{ if(sessionStorage.getItem(KEY)==="1") return; }catch(e){}
+  if(/^#article-/.test(location.hash)) return;
+  var a; try{ a=new Audio("giti-intro-music.mp3?v=2"); a.preload="auto"; a.volume=0.9; }catch(e){ return; }
+  var armed=true, playing=false, busy=false;
+  function mark(){ try{ sessionStorage.setItem(KEY,"1"); }catch(e){} }
+  function off(){ armed=false; ["pointerup","touchend","click","keydown"].forEach(function(t){ document.removeEventListener(t,onGesture,true); }); }
+  function tryPlay(fromGesture){
+    if(/^#article-/.test(location.hash)) { off(); return; }
+    if(busy) return; busy=true;
+    var p; try{ p=a.play(); }catch(e){ busy=false; return; }
+    if(p&&p.then) p.then(function(){ playing=true; mark(); off(); }).catch(function(){ busy=false; /* blocked: wait for the first touch */ });
+    else{ playing=true; mark(); off(); }
   }
-  function draw(t){
-    ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,W,H);
-    CY=CYa+(CYb-CYa)*smr((t-HIT-0.2)/2.2);   /* centre of the screen while it builds, then glides to its final place */
-    var i,j,rise=eo(t/3.67), hy=CY+Ldev*0.62, R=Ldev*0.70, pulse=0, fade=1-sm((t-HIT)/1.2);
-    ACC.forEach(function(a,gi){ if(t>=a) pulse=Math.max(pulse,(gi?0.7:1)*Math.exp(-(t-a)/0.35)); });
-    /* 1. sunset rising behind the logo (GTA sky) */
-    var sa=0.55*rise*(0.75+0.25*pulse)*fade;
-    if(sa>0.01){
-      var sy=hy+R*(1-1.2*rise), sg=ctx.createLinearGradient(0,sy-R,0,sy+R);
-      sg.addColorStop(0,"#ffb347"); sg.addColorStop(0.55,"#ff5e6c"); sg.addColorStop(1,"#c2255c");
-      ctx.save(); ctx.beginPath(); ctx.rect(0,0,W,hy); ctx.clip(); ctx.globalAlpha=sa; ctx.fillStyle=sg;
-      ctx.beginPath(); ctx.arc(CX,sy,R,0,6.2832); ctx.fill(); ctx.restore();
-      var rg=ctx.createRadialGradient(CX,sy,R*0.6,CX,sy,R*2.3); rg.addColorStop(0,"rgba(255,100,70,"+(0.30*sa)+")"); rg.addColorStop(1,"rgba(255,100,70,0)");
-      ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
-    }
-    /* 2. horizon line grows out of the centre during the rise */
-    var ww=W*eo((t-0.3)/2.4), la=(0.15+0.85*c01(t/3.6))*(1-sm((t-HIT)/2));
-    if(ww>1&&la>0.01){ var lg=ctx.createLinearGradient(CX-ww/2,0,CX+ww/2,0);
-      lg.addColorStop(0,"rgba(255,170,90,0)"); lg.addColorStop(0.5,"rgba(255,190,120,"+la+")"); lg.addColorStop(1,"rgba(255,170,90,0)");
-      ctx.fillStyle=lg; ctx.fillRect(CX-ww/2,hy-dpr,ww,2*dpr); }
-    /* 3. shockwave on every accent */
-    ACC.forEach(function(a,gi){ var q=t-a; if(q>=0&&q<0.8){ ctx.strokeStyle="rgba(255,190,120,"+((gi?0.28:0.5)*(1-q/0.8))+")"; ctx.lineWidth=2*dpr;
-      ctx.beginPath(); ctx.arc(CX,CY,Ldev*(0.25+1.3*eo(q/0.8)),0,6.2832); ctx.stroke(); } });
-    /* 4. camera: slow push in, a kick on every beat of the music */
-    var z=0.90+0.10*eo(t/6.5);
-    ACC.forEach(function(a,gi){ if(t>=a) z*=1+(gi?0.014:0.03)*Math.exp(-(t-a)/0.16); });
-    EIG.forEach(function(a){ if(t>=a) z*=1+0.005*Math.exp(-(t-a)/0.1); });
-    var k=S*z; ctx.setTransform(k,0,0,k,CX-BCX*k,CY-BCY*k); ctx.lineJoin="round"; ctx.lineCap="round";
-    /* 5. letters: traced line builds tension, then each group slams in on its accent */
-    var sw=(t-6.2)/2.6;
-    for(i=0;i<comps.length;i++){
-      var c=comps[i], a=ACC[RG[i]], s=0.4+0.1*i, p=eo((t-s)/(a-0.1-s)), q=t-a;
-      if(q<0){
-        if(p>0){ ctx.save(); ctx.globalAlpha=0.4+0.6*c01(t/3.6); ctx.strokeStyle="#ffe9d2"; ctx.lineWidth=2*dpr/k;
-          ctx.shadowColor="#ff9a3c"; ctx.shadowBlur=14*dpr;
-          for(j=0;j<c.rings.length;j++){ var Rg=c.rings[j]; ctx.setLineDash([Rg.L,Rg.L*2]); ctx.lineDashOffset=Rg.L*(1-p); ctx.stroke(Rg.p); }
-          ctx.restore(); }
-        continue;
-      }
-      var pop=1+0.08*Math.exp(-q/0.12), fl=Math.exp(-q/0.3);
-      ctx.save(); ctx.translate(c.cx,c.cy); ctx.scale(pop,pop); ctx.translate(-c.cx,-c.cy);
-      ctx.shadowColor="rgba(255,140,60,0.95)"; ctx.shadowBlur=34*fl*dpr; ctx.fillStyle="#fff"; ctx.fill(c.fill,"evenodd"); ctx.shadowBlur=0;
-      if(sw>0&&sw<1){ ctx.save(); ctx.clip(c.fill,"evenodd"); var bx=BB[0]-0.3*BW+1.6*BW*eo(sw), bg=ctx.createLinearGradient(bx-0.14*BW,0,bx+0.14*BW,0);
-        bg.addColorStop(0,"rgba(255,150,70,0)"); bg.addColorStop(0.5,"rgba(255,150,70,0.95)"); bg.addColorStop(1,"rgba(255,150,70,0)");
-        ctx.fillStyle=bg; ctx.fillRect(BB[0]-BW,BB[1]-BH,3*BW,3*BH); ctx.restore(); }
-      ctx.restore();
-    }
-    ctx.setTransform(1,0,0,1,0,0);
-  }
-  /* ---------- clock, audio, start ---------- */
-  var audio=null, base=0, running=false, started=false, revealed=false, finished=false;
-  try{ audio=new Audio(); audio.preload="auto"; audio.src="giti-intro-music.mp3"; }catch(e){ audio=null; }
-
-  function reveal(){
-    if(revealed) return; revealed=true;
-    stage.classList.add("done");                    /* black fades softly into the site theme */
-    root.classList.remove("intro-pending");         /* IP, play button and menu fade in */
-    setTimeout(function(){ root.classList.remove("intro-lock"); },1800);
-  }
-  function frame(){
-    if(!running) return;
-    var nowMs=performance.now();
-    if(audio && !audio.paused && audio.readyState>1){
-      var err=audio.currentTime*1000-(nowMs-base);
-      if(Math.abs(err)>150) base-=err; else base-=err*0.08;      /* keep picture locked to the sound */
-    }
-    var t=(nowMs-base)/1000;
-    if(t>=HIT) reveal();
-    draw(Math.min(t,END));
-    if(t>=END){ running=false; finished=true; draw(END); } else requestAnimationFrame(frame);
-  }
-  function begin(){
-    if(running||finished) return;
-    base=performance.now()-((audio&&!audio.paused)?audio.currentTime*1000:0);
-    running=true; requestAnimationFrame(frame);
-  }
-  function start(){
-    if(started) return; started=true;
-    gate.classList.add("go");
-    setTimeout(function(){ if(gate.parentNode) gate.parentNode.removeChild(gate); },700);
-    if(audio){
-      audio.addEventListener("playing",begin);
-      var p=audio.play(); if(p&&p.catch) p.catch(function(){ begin(); });     /* sound blocked: run silently */
-    }
-    setTimeout(begin,900);                                                    /* never wait for sound forever */
-  }
-
-  /* ---------- scroll lock until the logo is complete ---------- */
-  function locked(){ return root.classList.contains("intro-lock"); }
-  function stopEv(e){ if(locked()) e.preventDefault(); }
-  window.addEventListener("wheel",stopEv,{passive:false});
-  window.addEventListener("touchmove",stopEv,{passive:false});
-  window.addEventListener("keydown",function(e){
-    if(locked() && [" ","PageDown","PageUp","ArrowDown","ArrowUp","End","Home"].indexOf(e.key)>-1 && started) e.preventDefault();
-  });
-  window.addEventListener("scroll",function(){ if(locked()&&window.scrollY!==0) window.scrollTo(0,0); },{passive:true});
-  window.scrollTo(0,0);
-
-  var rt=null;
-  window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ layout(); if(finished||!running&&started) draw(END); },120); });
-  layout();
-
-  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches){
-    started=true; finished=true; draw(END); reveal(); if(gate.parentNode) gate.parentNode.removeChild(gate); return;
-  }
-  gate.addEventListener("click",start);
-  gate.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); start(); } });
-  try{ gate.focus({preventScroll:true}); }catch(e){}
+  function onGesture(){ if(armed) tryPlay(true); }
+  ["pointerup","touchend","click","keydown"].forEach(function(t){ document.addEventListener(t,onGesture,true); });
+  tryPlay(false);
+  a.addEventListener("ended",function(){ playing=false; });
+  document.addEventListener("visibilitychange",function(){ if(document.hidden){ if(playing&&!a.ended) a.pause(); } else if(playing&&!a.ended){ try{ a.play(); }catch(e){} } });
+  /* if a video/audio of the site starts, the music steps aside */
+  document.addEventListener("play",function(e){ if(e.target!==a&&playing){ a.pause(); playing=false; } },true);
 })();
 </script>
 
