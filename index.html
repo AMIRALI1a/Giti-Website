@@ -2151,7 +2151,7 @@ html body .hero-spacer{ display:block; flex:1 1 auto; min-height:260px; position
   <div class="cta-row">
     <div class="play-wrap" id="playWrap">
       <div class="play-options" id="playOptions">
-        <a class="play-option" href="#" onclick="return false;">
+        <a class="play-option" id="playOptionWindows" href="#" onclick="return false;">
           <span class="po-logo"><img loading="lazy" decoding="async" src="icon-windows.png" alt=""></span>
           <span class="po-sep">|</span>
           <span>Play Now</span>
@@ -4583,31 +4583,30 @@ window.addEventListener('scroll',f,{passive:true});f();})();
 })();
 </script>
 <script>
-/* ============ MUSIC — once per browser visit ============
-   Tries to play by itself; if the browser blocks that, it starts on the first touch of the page.
-   Never plays when the page is opened from a direct article link (#article-...). */
+/* ============ MUSIC — plays only on a deliberate tap ============
+   Switches (change true/false here when a platform is ready):
+   - android: the "Android | Play Now" option
+   - windows: the "Windows | Play Now" option  -> keep false until the Windows page exists
+   Plays only once per browser visit. Never plays by itself when the site opens. */
 (function(){
-  var KEY="giti_music_done";
-  try{ if(sessionStorage.getItem(KEY)==="1") return; }catch(e){}
-  if(/^#article-/.test(location.hash)) return;
-  var a; try{ a=new Audio("giti-intro-music.mp3?v=2"); a.preload="auto"; a.volume=0.9; }catch(e){ return; }
-  var armed=true, playing=false, busy=false;
-  function mark(){ try{ sessionStorage.setItem(KEY,"1"); }catch(e){} }
-  function off(){ armed=false; ["pointerup","touchend","click","keydown"].forEach(function(t){ document.removeEventListener(t,onGesture,true); }); }
-  function tryPlay(fromGesture){
-    if(/^#article-/.test(location.hash)) { off(); return; }
-    if(busy) return; busy=true;
+  var MUSIC_ON={ android:true, windows:false };
+  var KEY="giti_music_done", a=null, busy=false;
+  function done(){ try{ return sessionStorage.getItem(KEY)==="1"; }catch(e){ return false; } }
+  function prepare(){ if(a) return; try{ a=new Audio("giti-intro-music.mp3?v=2"); a.preload="auto"; a.volume=0.9; a.load(); }catch(e){ a=null; } }
+  /* warm the file up quietly after the page has finished loading, so there is no delay at the tap */
+  window.addEventListener("load",function(){ setTimeout(prepare,1500); });
+  function play(){
+    if(done()||busy) return; prepare(); if(!a) return; busy=true;
     var p; try{ p=a.play(); }catch(e){ busy=false; return; }
-    if(p&&p.then) p.then(function(){ playing=true; mark(); off(); }).catch(function(){ busy=false; /* blocked: wait for the first touch */ });
-    else{ playing=true; mark(); off(); }
+    if(p&&p.then) p.then(function(){ try{ sessionStorage.setItem(KEY,"1"); }catch(e){} }).catch(function(){ busy=false; });
+    else{ try{ sessionStorage.setItem(KEY,"1"); }catch(e){} }
   }
-  function onGesture(){ if(armed) tryPlay(true); }
-  ["pointerup","touchend","click","keydown"].forEach(function(t){ document.addEventListener(t,onGesture,true); });
-  tryPlay(false);
-  a.addEventListener("ended",function(){ playing=false; });
-  document.addEventListener("visibilitychange",function(){ if(document.hidden){ if(playing&&!a.ended) a.pause(); } else if(playing&&!a.ended){ try{ a.play(); }catch(e){} } });
-  /* if a video/audio of the site starts, the music steps aside */
-  document.addEventListener("play",function(e){ if(e.target!==a&&playing){ a.pause(); playing=false; } },true);
+  var an=document.getElementById("playOptionAndroid"), wn=document.getElementById("playOptionWindows");
+  if(an) an.addEventListener("click",function(){ if(MUSIC_ON.android) play(); });
+  if(wn) wn.addEventListener("click",function(){ if(MUSIC_ON.windows) play(); });
+  document.addEventListener("visibilitychange",function(){ if(a&&document.hidden&&!a.paused) a.pause(); });
+  /* if a video of the site starts, the music steps aside */
+  document.addEventListener("play",function(e){ if(a&&e.target!==a&&!a.paused) a.pause(); },true);
 })();
 </script>
 
